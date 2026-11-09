@@ -1,0 +1,65 @@
+title: Tools and agents
+summary: Let the model decide which function to call, then loop until it's done.
+steps:
+  - type: explain
+    md: |
+      Models are bad at exact arithmetic and know nothing about today's data. **Tools**
+      fix that: you describe some functions, the model replies with which one to call
+      and with what arguments, **your code runs it**, and you send back the result.
+
+      An **agent** repeats this in a loop:
+
+      1. Send the conversation (and the tool list) to the model.
+      2. If it asks for a tool, run it and add the result to the conversation.
+      3. If it gives a final answer, stop.
+
+      Always cap the number of steps, since a confused model could loop forever.
+
+      Real APIs have built-in tool calling; here we use simple JSON so you can see
+      every moving part:
+      `{"tool": "add", "args": {"a": 2, "b": 3}}` or `{"answer": "5"}`.
+  - type: example
+    code: |
+      # %%
+      import json
+
+      import dojo_ai
+
+      SYSTEM = """You can use these tools:
+      - add(a, b): add two numbers
+      - multiply(a, b): multiply two numbers
+      Reply with JSON only: {"tool": name, "args": {...}} to use a tool,
+      or {"answer": text} when you know the final answer."""
+
+      reply = dojo_ai.chat("What is 12.5 times 8?", system=SYSTEM, json=True)
+      json.loads(reply)
+  - type: try-it
+    prompt: Call the function named in `call["tool"]` from `TOOLS` with `call["args"]` as keyword arguments, storing the result in `result`.
+    starter: |
+      # %%
+      TOOLS = {"add": lambda a, b: a + b}
+      call = {"tool": "add", "args": {"a": 2, "b": 3}}
+      result = None  # TODO
+      result
+    solution: |
+      # %%
+      TOOLS = {"add": lambda a, b: a + b}
+      call = {"tool": "add", "args": {"a": 2, "b": 3}}
+      result = TOOLS[call["tool"]](**call["args"])
+      result
+    check: |
+      assert result == 5, f"result is {result}"
+    hints:
+      - TOOLS[call["tool"]] looks up the function.
+      - '** unpacks a dict into keyword arguments: f(**call["args"])'
+  - type: exercise
+    ref: ex01-run-tool
+  - type: exercise
+    ref: ex02-agent-loop
+  - type: quiz
+    question: Who actually runs a tool in tool calling?
+    options:
+      - The model runs it on its own servers
+      - Your code runs it and sends the result back
+      - Nobody; the model imagines the result
+    answer: 1

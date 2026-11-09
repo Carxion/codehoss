@@ -32,6 +32,20 @@ class ProgramResult:
         return self.lines[-1] if self.lines else ""
 
 
+@pytest.fixture(autouse=True)
+def practice_ai():
+    """Every test starts with dojo_ai in plain practice mode: no transport, no script."""
+    try:
+        import dojo_ai
+    except ImportError:
+        yield
+        return
+    dojo_ai._transport = None
+    dojo_ai.fake()
+    yield
+    dojo_ai.fake()
+
+
 @pytest.fixture
 def run_program(monkeypatch, capsys):
     def _run(inputs=()):

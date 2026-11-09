@@ -13,6 +13,16 @@ export type CellOutput =
       line: number | null;
     };
 
+/** One dojo_ai call made by a cell: shown as a "via <model>" badge under it. */
+export interface AICall {
+  kind: string;
+  ok: boolean;
+  provider?: string;
+  model?: string;
+  ms: number;
+  error?: string;
+}
+
 export type KernelState = "disconnected" | "starting" | "idle" | "busy" | "dead";
 
 /** A notebook kernel over /sessions/<id>/kernel. Outputs are kept per cell id. */
@@ -22,6 +32,7 @@ export function useKernel(sessionId: string | null) {
   const [running, setRunning] = useState<Set<string>>(new Set());
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [deadReason, setDeadReason] = useState("");
+  const [aiCalls, setAiCalls] = useState<Record<string, AICall[]>>({});
   const socket = useRef<WebSocket | null>(null);
   const waiting = useRef(new Map<string, (ok: boolean) => void>());
 
@@ -76,6 +87,12 @@ export function useKernel(sessionId: string | null) {
             line: m.line,
           });
           break;
+        case "ai":
+          setAiCalls((all) => ({
+            ...all,
+            [m.cell]: [...(all[m.cell] ?? []), { kind: m.kind, ok: m.ok, provider: m.provider, model: m.model, ms: m.ms, error: m.error }],
+          }));
+          break;
         case "done":
           setCounts((c) => ({ ...c, [m.cell]: m.execution_count }));
           finish(m.cell, m.status === "ok");
@@ -102,6 +119,7 @@ export function useKernel(sessionId: string | null) {
       const ws = connect();
       if (!ws) return Promise.resolve(false);
       setOutputs((all) => ({ ...all, [cell]: [] }));
+      setAiCalls((all) => ({ ...all, [cell]: [] }));
       setRunning((set) => new Set(set).add(cell));
       setDeadReason("");
       const message = JSON.stringify({ type: "execute", cell, code });
@@ -122,9 +140,10 @@ export function useKernel(sessionId: string | null) {
     }
     for (const cell of [...waiting.current.keys()]) finish(cell, false);
     setOutputs({});
+    setAiCalls({});
     setCounts({});
     setDeadReason("");
   }, [finish]);
 
-  return { state, outputs, running, counts, deadReason, execute, interrupt, restart };
+  return { state, outputs, aiCalls, running, counts, deadReason, execute, interrupt, restart };
 }

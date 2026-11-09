@@ -1,0 +1,9 @@
+id: ai.build-messages
+title: Build the message list
+difficulty: 2
+prompt: |
+  Write `build_messages(history, user_input)` that returns a **new** list: everything
+  in `history`, then a new user message with `user_input`. Don't change `history`.
+hints:
+  - history + [ ... ] creates a new list.
+  - 'The new message is {"role": "user", "content": user_input}'

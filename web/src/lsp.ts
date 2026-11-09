@@ -282,6 +282,8 @@ export class PythonLanguageClient {
             textDocument: { uri: this.mapping.uri },
             position: at,
           });
+          // The editor may have gone (a notebook cell removed) while we waited.
+          if (model.isDisposed()) return { suggestions: [] };
           const items: Json[] = Array.isArray(result) ? result : (result?.items ?? []);
           const word = model.getWordUntilPosition(position);
           // Private names (_like_this) are noise for beginners unless they typed "_".
@@ -311,6 +313,7 @@ export class PythonLanguageClient {
             textDocument: { uri: this.mapping.uri },
             position: at,
           });
+          if (model.isDisposed()) return null;
           const contents: Monaco.IMarkdownString[] = [];
           const word = model.getWordAtPosition(position)?.word;
           if (word && this.glossary[word]) contents.push({ value: `💡 ${this.glossary[word]}` });

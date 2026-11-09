@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import os
 import re
 import secrets
 import sqlite3
@@ -15,6 +16,8 @@ import time
 from contextlib import closing, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+
+from cryptography.fernet import Fernet, InvalidToken
 
 USERNAME = re.compile(r"^[a-z0-9_-]{3,32}$")
 MIN_PASSWORD = 8
@@ -31,6 +34,12 @@ CREATE TABLE IF NOT EXISTS tokens (
     token TEXT PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS ai_settings (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    provider TEXT,
+    model TEXT,
+    api_key_encrypted BLOB
 );
 CREATE TABLE IF NOT EXISTS progress (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -57,6 +66,13 @@ class User:
 
 
 @dataclass
+class AISettingsRow:
+    provider: str | None = None
+    model: str | None = None
+    api_key: str | None = None
+
+
+@dataclass
 class StepProgress:
     done: bool
     attempts: int
@@ -65,10 +81,11 @@ class StepProgress:
 
 
 class Store:
-    def __init__(self, path: Path | str):
+    def __init__(self, path: Path | str, secret_key: bytes | None = None):
         self.path = str(path)
         if self.path != ":memory:":
             Path(self.path).parent.mkdir(parents=True, exist_ok=True)
+        self._fernet = Fernet(secret_key or _load_secret(Path(self.path)))
         with self._db() as db:
             db.executescript(SCHEMA)
 
@@ -183,6 +200,61 @@ class Store:
             ref: StepProgress(bool(done), attempts, hints, bool(showed))
             for ref, done, attempts, hints, showed in rows
         }
+
+    # --- AI settings -----------------------------------------------------------
+
+    def ai_settings(self, user: User) -> AISettingsRow:
+        with self._db() as db:
+            row = db.execute(
+                "SELECT provider, model, api_key_encrypted FROM ai_settings WHERE user_id = ?",
+                (user.id,),
+            ).fetchone()
+        if row is None:
+            return AISettingsRow()
+        key = None
+        if row[2]:
+            try:
+                key = self._fernet.decrypt(row[2]).decode("utf-8")
+            except InvalidToken:
+                key = None  # the server secret changed; the learner re-enters the key
+        return AISettingsRow(provider=row[0], model=row[1], api_key=key)
+
+    def save_ai_settings(
+        self,
+        user: User,
+        *,
+        provider: str | None,
+        model: str | None,
+        api_key: str | None = None,
+        clear_key: bool = False,
+    ) -> None:
+        """Save the choice; `api_key=None` keeps the stored key unless `clear_key`."""
+        current = self.ai_settings(user)
+        key = None if clear_key else (api_key if api_key is not None else current.api_key)
+        encrypted = self._fernet.encrypt(key.encode("utf-8")) if key else None
+        with self._db() as db:
+            db.execute(
+                """
+                INSERT INTO ai_settings (user_id, provider, model, api_key_encrypted)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    provider = excluded.provider,
+                    model = excluded.model,
+                    api_key_encrypted = excluded.api_key_encrypted
+                """,
+                (user.id, provider, model, encrypted),
+            )
+
+
+def _load_secret(db_path: Path) -> bytes:
+    """Key for encrypting API keys: DOJO_SECRET_KEY, else a key file next to the database."""
+    if env := os.environ.get("DOJO_SECRET_KEY"):
+        return env.encode("ascii")
+    key_file = db_path.with_name("secret.key")
+    if not key_file.exists():
+        key_file.write_bytes(Fernet.generate_key())
+        key_file.chmod(0o600)
+    return key_file.read_bytes().strip()
 
 
 def _hash(password: str, salt: bytes) -> bytes:

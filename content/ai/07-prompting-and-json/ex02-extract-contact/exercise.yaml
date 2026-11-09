@@ -1,0 +1,16 @@
+id: ai.extract-contact
+title: Extract contact details as JSON
+difficulty: 3
+prompt: |
+  Write `extract_contact(text)` that asks the model (with `json=True`) for the
+  person's details in `text`, using the given `PROMPT`, and returns a dictionary with
+  keys `name` and `email`.
+
+  Models aren't perfect, so:
+
+  - if the reply isn't valid JSON, or lacks `name` or `email`, **ask once more**
+  - if the second reply is also bad, return `None`
+hints:
+  - 'reply = dojo_ai.chat(PROMPT.format(text=text), json=True)'
+  - json.loads raises json.JSONDecodeError for bad JSON; catch it with try/except.
+  - Loop twice (for attempt in range(2)) and return as soon as a reply is good.

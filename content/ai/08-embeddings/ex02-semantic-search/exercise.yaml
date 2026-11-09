@@ -1,0 +1,14 @@
+id: ai.semantic-search
+title: Semantic search
+difficulty: 3
+prompt: |
+  Write `search(query, docs, k=2)` that returns the `k` documents most similar to
+  `query`, best first:
+
+  1. Embed the query and all the documents with **one** `dojo_ai.embed` call.
+  2. Score each document with `dojo_ai.cosine_similarity` against the query.
+  3. Return the top `k` documents (the strings).
+hints:
+  - 'vectors = dojo_ai.embed([query] + docs); the first vector is the query.'
+  - Pair each doc with its score, then sort by score, highest first.
+  - 'sorted(pairs, key=lambda p: p[1], reverse=True)[:k]'

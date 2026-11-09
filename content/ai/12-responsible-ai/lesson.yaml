@@ -1,0 +1,48 @@
+title: Responsible AI
+summary: Privacy, bias and safety, in practice.
+steps:
+  - type: explain
+    md: |
+      Building with AI brings real responsibilities:
+
+      - **Privacy**: hosted models see what you send. Don't send personal data
+        (emails, phone numbers, health details) unless you must. **Redact** it first,
+        or use a local model.
+      - **Bias**: models learn from human text, including its stereotypes. Test with
+        varied names and situations, and don't let a model make high-stakes decisions
+        about people on its own.
+      - **Safety**: models can be talked into misbehaving ("prompt injection").
+        Treat model output as untrusted, validate it, and keep a human in the loop for
+        anything important.
+  - type: try-it
+    prompt: Use `re.sub` to replace every number in `text` with `#`.
+    starter: |
+      # %%
+      import re
+
+      text = "Order 1234 shipped on day 5"
+      masked = text  # TODO
+      masked
+    solution: |
+      # %%
+      import re
+
+      text = "Order 1234 shipped on day 5"
+      masked = re.sub(r"\d+", "#", text)
+      masked
+    check: |
+      assert masked == "Order # shipped on day #", f"masked is {masked!r}"
+    hints:
+      - '\d+ matches one or more digits.'
+      - 'masked = re.sub(r"\d+", "#", text)'
+  - type: exercise
+    ref: ex01-redact
+  - type: exercise
+    ref: ex02-safe-chat
+  - type: quiz
+    question: You're building a support bot on a hosted model. What should happen to customers' phone numbers?
+    options:
+      - Send them as-is; the model needs everything
+      - Redact them before sending, unless the task truly needs them
+      - Ask the model to forget them afterwards
+    answer: 1

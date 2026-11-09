@@ -1,0 +1,13 @@
+id: ai.explain-simply
+title: Explain it simply
+difficulty: 1
+prompt: |
+  Write `explain_simply(topic)` that asks the model to explain `topic`, using
+  `SYSTEM` (given) as the system prompt, and returns the reply with spaces trimmed
+  from both ends.
+
+  The prompt should be `Explain <topic>.`, for example `Explain gravity.`
+hints:
+  - 'Pass the instructions with system=SYSTEM: dojo_ai.chat(prompt, system=SYSTEM)'
+  - 'Build the prompt with an f-string: f"Explain {topic}."'
+  - Call .strip() on the reply before returning it.

@@ -9,6 +9,7 @@ The language server (dojo.lsp) gets its own container with the same lockdown.
 
 from __future__ import annotations
 
+import base64
 import dataclasses
 import json
 import subprocess
@@ -95,11 +96,23 @@ def image_specs(content: Content) -> dict[str, list[str]]:
     return specs
 
 
+DOJO_AI_SOURCE = Path(__file__).parent / "_dojo_ai.py"
+
+
 def dockerfile(packages: list[str]) -> str:
     quoted = " ".join(f"'{p}'" for p in packages)
+    # dojo_ai is installed into site-packages so imports, IntelliSense and hover docs
+    # all work. Inlined as base64 because images build without a context directory.
+    dojo_ai = base64.b64encode(DOJO_AI_SOURCE.read_bytes()).decode("ascii")
+    install_dojo_ai = (
+        "import base64, sysconfig, pathlib; "
+        "pathlib.Path(sysconfig.get_paths()['purelib'], 'dojo_ai.py')"
+        f".write_bytes(base64.b64decode('{dojo_ai}'))"
+    )
     return (
         f"FROM {BASE_IMAGE}\n"
         f"RUN pip install --no-cache-dir {quoted}\n"
+        f'RUN python -c "{install_dojo_ai}"\n'
         "RUN useradd --uid 1000 --create-home learner\n"
         # Agg: charts render to images; there is no display in a sandbox.
         "ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1 HOME=/tmp MPLBACKEND=Agg\n"

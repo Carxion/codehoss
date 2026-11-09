@@ -1,0 +1,18 @@
+id: ai.gradient-descent
+title: Gradient descent
+difficulty: 3
+prompt: |
+  Write `train(x, y, lr=0.05, steps=1000)` that starts with `w = 0` and `b = 0` and
+  repeats `steps` times:
+
+  ```
+  error = (w * x + b) - y
+  w = w - lr * 2 * mean(error * x)
+  b = b - lr * 2 * mean(error)
+  ```
+
+  Return `(w, b)`. On points from `y = 3x - 2` it should find w ≈ 3 and b ≈ -2.
+hints:
+  - Use a for loop over range(steps).
+  - Compute error once per step, then update both w and b.
+  - '(error * x).mean() is the mean of error * x.'

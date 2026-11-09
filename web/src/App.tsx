@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { AIProviderRoot, useAI } from "./aiContext";
 import { api } from "./api";
 import Catalog from "./components/Catalog";
 import LessonView from "./components/LessonView";
@@ -47,12 +48,14 @@ export default function App() {
   if (user === null) return <Login onLogin={setUser} />;
 
   return (
+    <AIProviderRoot>
     <div className="app">
       <header className="topbar">
         <a className="brand" href="#/">
           <span className="brand-mark">D</span> DataDojo
         </a>
         <div className="topbar-right">
+          <AIChip />
           <span className="muted">{user}</span>
           <button className="link" onClick={logout}>
             Log out
@@ -70,5 +73,20 @@ export default function App() {
         />
       )}
     </div>
+    </AIProviderRoot>
+  );
+}
+
+/** Always-visible indicator of which model answers dojo_ai calls; opens the picker. */
+function AIChip() {
+  const { status, label, openSettings } = useAI();
+  return (
+    <button
+      className={`ai-chip ${status?.current ? "" : "unset"}`}
+      onClick={openSettings}
+      title="Choose which AI model answers dojo_ai calls"
+    >
+      🤖 {label}
+    </button>
   );
 }

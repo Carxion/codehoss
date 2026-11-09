@@ -1,0 +1,15 @@
+id: ai.layer-size
+title: How big should the layer be?
+difficulty: 3
+time_limit_s: 60
+prompt: |
+  Try hidden layers of **2**, **8** and **64** neurons. For each size, train
+  `MLPClassifier(hidden_layer_sizes=(size,), max_iter=500, random_state=0)` and
+  record its test accuracy. Create:
+
+  - `scores`: a dictionary of size -> accuracy, e.g. `{2: 0.6, 8: 0.9, 64: 0.97}`
+  - `best_size`: the size with the highest accuracy
+hints:
+  - Loop over [2, 8, 64] and fill the dictionary.
+  - scores[size] = MLPClassifier(...).fit(X_train, y_train).score(X_test, y_test)
+  - best_size = max(scores, key=scores.get)

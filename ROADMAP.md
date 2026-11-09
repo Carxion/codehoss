@@ -123,7 +123,28 @@ Original plan:
 
 **Exit:** a learner completes a guided EDA + first-model project in the browser.
 
-## M4 — AI module
+## M4 — AI module ✅ (2026-11-09)
+
+Shipped: the learner picks the model that answers `dojo_ai.chat` / `dojo_ai.embed`:
+**Local (Ollama)** or **Hosted (Claude, own API key)**, shown in a top-bar chip, a
+banner in AI lessons, a settings panel with both options side by side (status, model
+pickers, Save and test), and a "via <model>" badge under every cell that called a
+model. Calls leave the network-less sandbox through the kernel channel to the server's
+AI gateway, which holds the encrypted key, rate-limits (30 calls/min) and caps tokens.
+Exercises are graded against a practice model (`dojo_ai.fake`), so checks are fast,
+free and deterministic. 12 lessons / 24 exercises validated in the sandbox; verified
+against the local Ollama install and with a 12-step browser walkthrough.
+
+Changed from the plan:
+- **No sandbox network allowlist**: AI requests are relayed by the kernel instead, so
+  keys never enter the sandbox and there is one place to enforce limits.
+- **No PyTorch**: neurons and gradient descent in NumPy, networks with scikit-learn's
+  `MLPClassifier`; same concepts, ~700 MB smaller. The module reuses the `dojo-ds` image.
+- Hosted option is Claude only for now (default `claude-opus-5-5`; Sonnet 5.5 and
+  Haiku 5.5 selectable). Other providers fit behind the same gateway.
+- Capstone (document Q&A with evals) moves to the Projects module.
+
+Original plan:
 - AI concepts with hands-on code: how LLMs work, tokens, prompting, embeddings, RAG,
   tool use / agents, evaluating outputs
 - Two backends, learner's choice: **local Ollama** (free, offline) or a hosted model API

@@ -3,6 +3,10 @@
 A Kernel is one long-lived Python process inside the learner's session container.
 Variables persist between cells until it is restarted. Each cell gets a wall-clock
 limit: past it the kernel is interrupted, and if that doesn't work, restarted.
+
+Cells that call dojo_ai send "ai_request" messages; the kernel answers them through
+`ai_handler` (the API binds it to the learner's chosen model). Time spent waiting for
+a model doesn't count against the cell's limit.
 """
 
 from __future__ import annotations
@@ -26,11 +30,17 @@ CELL_LINE = re.compile(r"line (\d+)")
 
 Message = dict
 OnMessage = Callable[[Message], None]
+# (kind, payload) -> result dict, e.g. {"text": ..., "provider": ..., "model": ...}.
+# Raises an exception with a learner-friendly message when the model can't answer.
+AIHandler = Callable[[str, dict], dict]
 
 
 class Kernel:
-    def __init__(self, container: str, on_message: OnMessage):
+    def __init__(self, container: str, on_message: OnMessage, ai_handler: AIHandler | None = None):
         self.container = container
+        self._ai_handler = ai_handler
+        self._ai_waiting: set[int] = set()
+        self._write_lock = threading.Lock()
         self.workdir = f"/work/nb-{uuid.uuid4().hex[:12]}"
         self._on_message = on_message
         self._ids = itertools.count(1)
@@ -61,14 +71,18 @@ class Kernel:
             self._codes[exec_id] = code
             self._tags[exec_id] = tag
             self._busy_since[exec_id] = time.monotonic()
-        line = json.dumps({"id": exec_id, "code": code}) + "\n"
-        assert self._proc.stdin
-        try:
-            self._proc.stdin.write(line.encode("utf-8"))
-            self._proc.stdin.flush()
-        except (BrokenPipeError, OSError):
-            self._emit({"type": "dead", "reason": "The kernel stopped. Restart it to continue."})
+        self._write({"id": exec_id, "code": code})
         return exec_id
+
+    def _write(self, message: dict) -> None:
+        assert self._proc.stdin
+        line = (json.dumps(message) + "\n").encode("utf-8")
+        try:
+            with self._write_lock:
+                self._proc.stdin.write(line)
+                self._proc.stdin.flush()
+        except (BrokenPipeError, OSError, ValueError):
+            self._emit({"type": "dead", "reason": "The kernel stopped. Restart it to continue."})
 
     def wait_ready(self, timeout: float = 30) -> bool:
         return self._ready.wait(timeout)
@@ -122,6 +136,9 @@ class Kernel:
                 self._ready.set()
                 self._emit({"type": "status", "state": "idle"})
                 continue
+            if kind == "ai_request":
+                threading.Thread(target=self._answer_ai, args=(message,), daemon=True).start()
+                continue
             if kind == "error":
                 message.update(self._explain(message))
             with self._lock:
@@ -134,6 +151,32 @@ class Kernel:
         self._emit(
             {"type": "dead", "reason": "The kernel stopped (it may have run out of memory)."}
         )
+
+    def _answer_ai(self, request: Message) -> None:
+        exec_id, started = request.get("id"), time.monotonic()
+        with self._lock:
+            self._ai_waiting.add(exec_id)
+            cell = self._tags.get(exec_id, "")
+        event = {"type": "ai", "cell": cell, "kind": request.get("kind")}
+        try:
+            if self._ai_handler is None:
+                raise RuntimeError("AI isn't available here.")
+            result = self._ai_handler(request["kind"], request.get("payload") or {})
+            reply = {"ai_reply": request["req"], "ok": True, "result": result}
+            event.update(ok=True, provider=result.get("provider"), model=result.get("model"))
+        except Exception as e:  # noqa: BLE001 - every failure goes back to the learner
+            reply = {"ai_reply": request["req"], "ok": False, "error": str(e)}
+            event.update(ok=False, error=str(e))
+        elapsed = time.monotonic() - started
+        with self._lock:
+            self._ai_waiting.discard(exec_id)
+            # Waiting for the model doesn't count against the cell's time limit.
+            if exec_id in self._busy_since:
+                self._busy_since[exec_id] += elapsed
+        event["ms"] = round(elapsed * 1000)
+        self._write(reply)
+        if request.get("kind") != "backend":  # backend() asks, it doesn't call a model
+            self._emit(event)
 
     def _explain(self, error: Message) -> Message:
         with self._lock:
@@ -148,7 +191,7 @@ class Kernel:
             time.sleep(1)
             now = time.monotonic()
             with self._lock:
-                running = dict(self._busy_since)
+                running = {k: v for k, v in self._busy_since.items() if k not in self._ai_waiting}
             for exec_id, started in running.items():
                 if now - started > CELL_TIMEOUT_S and exec_id not in interrupted:
                     interrupted.add(exec_id)

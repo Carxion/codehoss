@@ -1,0 +1,13 @@
+id: ai.safe-chat
+title: A safer chat function
+difficulty: 3
+prompt: |
+  `redact` is given. Write `safe_chat(prompt)` that:
+
+  1. Refuses prompts that try to override instructions: if the lowercased prompt
+     contains any phrase in `BLOCKED`, return `REFUSAL` **without calling the model**.
+  2. Otherwise redacts personal data from the prompt, then calls `dojo_ai.chat` with
+     the redacted prompt and returns the reply.
+hints:
+  - 'if any(phrase in prompt.lower() for phrase in BLOCKED): return REFUSAL'
+  - Redact before the prompt ever reaches the model.

@@ -1,0 +1,15 @@
+id: ai.keyword-eval
+title: Run an eval
+difficulty: 3
+prompt: |
+  Write two functions:
+
+  - `keyword_score(answer, keywords)`: the fraction of `keywords` that appear in
+    `answer` (case-insensitive)
+  - `run_eval(cases)`: for each case `{"question": ..., "keywords": [...]}`, ask the
+    model the question with `dojo_ai.chat`, score the reply with `keyword_score`, and
+    return the **average** score (0.0 for no cases)
+hints:
+  - sum(k.lower() in answer.lower() for k in keywords) / len(keywords)
+  - Collect one score per case in a list.
+  - The average is sum(scores) / len(scores).

@@ -29,6 +29,8 @@ class Sandbox(_Strict):
     memory: str = Field(default="256m", pattern=r"^\d+[mg]$")
     # Folder (relative to the module) mounted read-only at /data in every session.
     data: str | None = None
+    # The module calls AI models (dojo_ai); the UI shows the AI backend picker.
+    ai: bool = False
 
 
 class LibraryExplorer(_Strict):

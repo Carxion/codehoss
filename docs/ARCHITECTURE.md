@@ -70,6 +70,32 @@ For IntelliSense the client stitches the cells into one virtual document (plus a
 `display` import), so names from earlier cells complete in later ones; results are
 mapped back to the right cell.
 
+## AI gateway
+
+Sandboxes have no network, yet AI lessons call models. The path:
+
+```
+notebook cell: dojo_ai.chat(...)          (dojo_ai is installed in every image)
+  → kernel sends {"type": "ai_request"} on its protocol channel
+  → Kernel host (notebook.py) calls the API's ai_handler
+  → Gateway (ai.py): rate limit, size caps, then Ollama (HTTP on the host)
+                     or Claude (anthropic SDK, the learner's decrypted key)
+  → reply written back to the kernel's stdin; a {"type": "ai"} event to the browser
+    becomes the "via <model>" badge under the cell
+```
+
+So keys never enter the sandbox, there's one place for limits, and switching model in
+the UI applies to the very next call (settings are read per call). Time spent waiting
+for a model doesn't count against the cell's 60 s limit. Claude requests opt in to
+server-side refusal fallbacks. Embeddings use Ollama's `nomic-embed-text` when
+available, else the deterministic built-in `simple_embed` (Claude has no embeddings API).
+
+Outside a kernel (grading, try-its, editor runs) `dojo_ai` runs in **practice mode**:
+`chat` returns a practice reply or whatever a test scripts with `dojo_ai.fake(...)`,
+and records every call in `dojo_ai.calls`. The grader resets it before each test.
+Exercises therefore check what learners control (prompts, history, parsing, retrieval,
+loops) without paying for or depending on a real model.
+
 ## Interactive runs
 
 The Run button uses a WebSocket: output streams back as it's printed, keystrokes typed in

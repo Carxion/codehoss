@@ -15,7 +15,7 @@ import threading
 from collections.abc import AsyncIterator
 from dataclasses import asdict
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import (
     APIRouter,
@@ -34,6 +34,7 @@ from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from dojo import grader
+from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
 from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
 from dojo.lsp import LanguageServer
@@ -80,6 +81,13 @@ class TryItRequest(BaseModel):
     code: str = Field(max_length=MAX_CODE)
 
 
+class AISettingsBody(BaseModel):
+    provider: Literal["ollama", "anthropic"] | None
+    model: str | None = Field(default=None, max_length=100)
+    api_key: str | None = Field(default=None, max_length=300)
+    clear_key: bool = False
+
+
 class QuizAnswer(BaseModel):
     answer: int
 
@@ -91,6 +99,7 @@ def create_app(
     content: Content | None = None,
     *,
     manager: SessionManager | None = None,
+    gateway: Gateway | None = None,
     store: Store | None = None,
     static_dir: Path | None = None,
 ) -> FastAPI:
@@ -98,6 +107,7 @@ def create_app(
         content = load_content(Path(os.environ.get("DOJO_CONTENT", "content")).resolve())
     sessions = manager or SessionManager(content)
     db = store or Store(os.environ.get("DOJO_DB", "var/dojo.db"))
+    ai = gateway or Gateway()
 
     @contextlib.asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -189,6 +199,61 @@ def create_app(
     def me(user: UserDep) -> dict:
         return {"username": user.username}
 
+    def ai_settings_for(user: User) -> AISettings:
+        row = db.ai_settings(user)
+        return AISettings(provider=row.provider, model=row.model, api_key=row.api_key)
+
+    @api.get("/ai/status")
+    def ai_status(user: UserDep) -> dict:
+        """Everything the AI settings panel shows. Never includes the key itself."""
+        settings = ai_settings_for(user)
+        ollama = ai.ollama_status()
+        key = settings.api_key
+        return {
+            "provider": settings.provider,
+            "current": ai.describe(settings) if settings.provider else None,
+            "ollama": {
+                **ollama,
+                "url": ai.ollama_url,
+                "selected_model": settings.model if settings.provider == "ollama" else None,
+            },
+            "anthropic": {
+                "configured": bool(key),
+                "key_hint": f"…{key[-4:]}" if key else None,
+                "models": ANTHROPIC_MODELS,
+                "selected_model": settings.model if settings.provider == "anthropic" else None,
+            },
+            "embeddings": "ollama"
+            if settings.provider == "ollama" and ollama["embedding"]
+            else "builtin",
+        }
+
+    @api.put("/ai/settings")
+    def save_ai_settings(body: AISettingsBody, user: UserDep) -> dict:
+        api_key = body.api_key.strip() if body.api_key else None
+        if body.provider == "anthropic" and not (api_key or db.ai_settings(user).api_key):
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST, "Add an API key to use a hosted model."
+            )
+        if body.provider == "anthropic" and body.model and body.model not in ANTHROPIC_MODELS:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Unknown Claude model.")
+        db.save_ai_settings(
+            user,
+            provider=body.provider,
+            model=body.model,
+            api_key=api_key,
+            clear_key=body.clear_key,
+        )
+        return ai_status(user)
+
+    @api.post("/ai/test")
+    def test_ai(user: UserDep) -> dict:
+        try:
+            ai.limiter.check(user.id)
+            return ai.test(ai_settings_for(user))
+        except AIError as e:
+            return {"ok": False, "error": str(e)}
+
     @api.get("/health")
     def health() -> dict:
         return {"status": "ok", "modules": len(content.modules)}
@@ -207,6 +272,7 @@ def create_app(
                     "description": m.spec.description,
                     "level": m.spec.level,
                     "view": m.spec.default_view,
+                    "ai": m.spec.sandbox.ai,
                     "prerequisites": m.spec.prerequisites,
                     "lessons": [
                         {
@@ -239,6 +305,7 @@ def create_app(
             "title": lesson.spec.title,
             "summary": lesson.spec.summary,
             "view": module.spec.default_view,
+            "ai": module.spec.sandbox.ai,
             "previous": slugs[position - 1] if position > 0 else None,
             "next": slugs[position + 1] if position + 1 < len(slugs) else None,
             "steps": [_public_step(lesson, i, step) for i, step in enumerate(lesson.spec.steps)],
@@ -378,7 +445,9 @@ def create_app(
         )
         return {"passed": result.passed, "message": explain_message(result.message, body.code)}
 
-    async def _ws_session(websocket: WebSocket, session_id: str) -> Session | None:
+    async def _ws_session(
+        websocket: WebSocket, session_id: str
+    ) -> tuple[Session, User] | tuple[None, None]:
         await websocket.accept()
         user = db.user_for_token(websocket.cookies.get(COOKIE, ""))
         try:
@@ -387,8 +456,8 @@ def create_app(
             session = None
         if user is None or session is None or session.owner != user.id:
             await websocket.close(code=4404, reason="session not found")
-            return None
-        return session
+            return None, None
+        return session, user
 
     @api.websocket("/sessions/{session_id}/stream")
     async def stream(websocket: WebSocket, session_id: str) -> None:
@@ -398,7 +467,7 @@ def create_app(
         {"type": "stdin", "data": "..."} and optionally {"type": "stop"}.
         Server: {"type": "output", "data": ...} messages, then one {"type": "exit", ...}.
         """
-        session = await _ws_session(websocket, session_id)
+        session, user = await _ws_session(websocket, session_id)
         if session is None:
             return
         try:
@@ -476,7 +545,7 @@ def create_app(
         "cell"; errors also carry "explanation" and "line". Plus {"type": "status", ...}
         and {"type": "dead", "reason": ...}.
         """
-        session = await _ws_session(websocket, session_id)
+        session, user = await _ws_session(websocket, session_id)
         if session is None:
             return
         loop = asyncio.get_running_loop()
@@ -499,7 +568,15 @@ def create_app(
                 if kind == "execute":
                     if running is None or not running.alive:
                         emit({"type": "status", "state": "starting"})
-                        running = await run_in_threadpool(Kernel, session.executor.container, emit)
+                        running = await run_in_threadpool(
+                            Kernel,
+                            session.executor.container,
+                            emit,
+                            # Settings are read per call, so switching model applies at once.
+                            lambda kind, payload: ai.handle(
+                                user.id, ai_settings_for(user), kind, payload
+                            ),
+                        )
                     code = str(message.get("code", ""))[:MAX_CODE]
                     await run_in_threadpool(running.execute, code, str(message.get("cell", "")))
                 elif kind == "interrupt" and running is not None:
@@ -519,7 +596,7 @@ def create_app(
     @api.websocket("/sessions/{session_id}/lsp")
     async def lsp(websocket: WebSocket, session_id: str) -> None:
         """Language Server Protocol bridge: one JSON-RPC message per WebSocket text frame."""
-        session = await _ws_session(websocket, session_id)
+        session, user = await _ws_session(websocket, session_id)
         if session is None:
             return
         loop = asyncio.get_running_loop()

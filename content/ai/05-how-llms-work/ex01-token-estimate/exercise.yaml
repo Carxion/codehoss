@@ -1,0 +1,14 @@
+id: ai.token-estimate
+title: Estimate tokens and cost
+difficulty: 2
+prompt: |
+  Write two functions:
+
+  - `rough_tokens(text)`: the number of words times 4/3, rounded **up**
+    (`math.ceil`). Empty text is 0 tokens.
+  - `cost(text, dollars_per_million)`: the rough token count times the price per
+    million tokens, divided by 1,000,000.
+hints:
+  - len(text.split()) counts words; "".split() is [] so empty text gives 0.
+  - 'return math.ceil(len(text.split()) * 4 / 3)'
+  - 'return rough_tokens(text) * dollars_per_million / 1_000_000'

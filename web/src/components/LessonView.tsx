@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { navigate } from "../App";
 import { api, type Lesson, type Step, type StepProgress, type TestResult } from "../api";
+import { useAI } from "../aiContext";
 import { loadMonaco } from "../monacoSetup";
 import type { WorkspaceHandle } from "../workspace";
 import EditorWorkspace from "./EditorWorkspace";
@@ -37,6 +38,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const [monacoLoaded, setMonacoLoaded] = useState(false);
 
   const workspace = useRef<WorkspaceHandle | null>(null);
+  const ai = useAI();
   const savedCode = useRef("");
 
   const index = lesson ? Math.min(Math.max(stepIndex, 0), lesson.steps.length - 1) : 0;
@@ -263,6 +265,20 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             📚 Library
           </button>
         </div>
+        {lesson.ai && (
+          <div className={`banner ai-banner ${ai.status?.current ? "" : "warn"}`}>
+            {ai.status?.current ? (
+              <span>
+                🤖 <code>dojo_ai</code> calls go to <strong>{ai.label.replace("AI: ", "")}</strong>
+              </span>
+            ) : (
+              <span>🤖 Choose an AI model to run this lesson's AI cells: local (Ollama) or hosted (your key).</span>
+            )}
+            <button className="small" onClick={ai.openSettings}>
+              {ai.status?.current ? "Change" : "Set up AI"}
+            </button>
+          </div>
+        )}
         {sessionError && (
           <div className="banner error">
             Can't reach your sandbox: {sessionError}. Lessons still work, but Run and Check are off.

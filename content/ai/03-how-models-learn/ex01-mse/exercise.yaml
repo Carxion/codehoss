@@ -1,0 +1,9 @@
+id: ai.mse
+title: Measure the error
+difficulty: 2
+prompt: |
+  Write `mse(w, b, x, y)`: the mean squared error of the line `w * x + b` on the
+  points `x`, `y` (NumPy arrays).
+hints:
+  - predictions = w * x + b
+  - 'return ((predictions - y) ** 2).mean()'

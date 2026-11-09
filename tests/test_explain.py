@@ -54,6 +54,8 @@ def test_unknown_errors_pass_through():
 
 
 def test_source_locations_are_hidden():
-    message = explain_message("SyntaxError: invalid syntax (<ipython-input-4-f5b1313dc8c5>, line 1)")
+    message = explain_message(
+        "SyntaxError: invalid syntax (<ipython-input-4-f5b1313dc8c5>, line 1)"
+    )
     assert "ipython-input" not in message and "line 1" not in message
     assert "main.py" not in explain_message("SyntaxError: bad thing (main.py, line 3)")

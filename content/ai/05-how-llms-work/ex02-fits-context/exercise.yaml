@@ -1,0 +1,14 @@
+id: ai.fits-context
+title: Will it fit?
+difficulty: 3
+prompt: |
+  `rough_tokens` is given. Write two functions for a list of chat messages (dicts
+  with `"role"` and `"content"`):
+
+  - `total_tokens(messages)`: the sum of `rough_tokens` of every message's content
+  - `trim_to_fit(messages, limit)`: drop the **oldest** messages until the total is
+    at most `limit`, and return the remaining list (don't change the original)
+hints:
+  - sum(rough_tokens(m["content"]) for m in messages)
+  - Work on a copy, like kept = list(messages)
+  - 'while kept and total_tokens(kept) > limit: kept.pop(0)'

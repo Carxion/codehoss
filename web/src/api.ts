@@ -45,6 +45,7 @@ export interface ModuleSummary {
   description: string;
   level: string;
   view: "editor" | "notebook";
+  ai: boolean;
   prerequisites: string[];
   lessons: LessonSummary[];
 }
@@ -80,6 +81,7 @@ export interface Lesson {
   title: string;
   summary: string;
   view: "editor" | "notebook";
+  ai: boolean;
   previous: string | null;
   next: string | null;
   steps: Step[];
@@ -174,3 +176,35 @@ export function wsUrl(path: string): string {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   return `${protocol}//${location.host}/api${path}`;
 }
+
+// --- AI backends ---------------------------------------------------------------
+
+export type AIProvider = "ollama" | "anthropic";
+
+export interface AIStatus {
+  provider: AIProvider | null;
+  current: { provider: AIProvider; model: string | null } | null;
+  ollama: {
+    available: boolean;
+    models: string[];
+    embedding: boolean;
+    error: string | null;
+    url: string;
+    selected_model: string | null;
+  };
+  anthropic: { configured: boolean; key_hint: string | null; models: string[]; selected_model: string | null };
+  embeddings: "ollama" | "builtin";
+}
+
+export type AITestResult =
+  | { ok: true; reply: string; provider: AIProvider; model: string; ms: number }
+  | { ok: false; error: string };
+
+export const aiApi = {
+  status: () => request<AIStatus>("GET", "/ai/status"),
+  save: (body: { provider: AIProvider | null; model?: string | null; api_key?: string; clear_key?: boolean }) =>
+    request<AIStatus>("PUT", "/ai/settings", body),
+  test: () => request<AITestResult>("POST", "/ai/test"),
+};
+
+export const PROVIDER_LABEL: Record<AIProvider, string> = { ollama: "Local", anthropic: "Claude" };

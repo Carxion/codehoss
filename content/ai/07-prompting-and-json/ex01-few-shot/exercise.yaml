@@ -1,0 +1,26 @@
+id: ai.few-shot
+title: Build a few-shot prompt
+difficulty: 2
+prompt: |
+  Write `few_shot_prompt(instruction, examples, text)` that builds a prompt like this
+  (`examples` is a list of `(input, output)` pairs):
+
+  ```
+  <instruction>
+
+  Input: <example 1 input>
+  Output: <example 1 output>
+
+  Input: <example 2 input>
+  Output: <example 2 output>
+
+  Input: <text>
+  Output:
+  ```
+
+  Then write `classify(text)` that sends `few_shot_prompt(INSTRUCTION, EXAMPLES, text)`
+  to the model and returns the reply, stripped and lowercased.
+hints:
+  - Build a list of blocks and join them with "\n\n".
+  - 'Each example block is f"Input: {inp}\nOutput: {out}"'
+  - 'The last block is f"Input: {text}\nOutput:" (nothing after the colon).'

@@ -1,0 +1,70 @@
+title: A neuron from scratch
+summary: The building block of every neural network, in a few lines of NumPy.
+steps:
+  - type: explain
+    md: |
+      An artificial **neuron** takes some inputs, multiplies each by a **weight**, adds
+      them up with a **bias**, and squashes the result:
+
+      ```
+      output = activation(w1*x1 + w2*x2 + ... + bias)
+      ```
+
+      Weights say how much each input matters. The **sigmoid** activation squashes any
+      number into the range 0 to 1:
+
+      ```python
+      def sigmoid(z):
+          return 1 / (1 + np.exp(-z))
+      ```
+  - type: example
+    code: |
+      # %%
+      import numpy as np
+
+
+      def sigmoid(z):
+          return 1 / (1 + np.exp(-z))
+
+
+      inputs = np.array([1.0, 0.5])
+      weights = np.array([0.8, -0.4])
+      bias = 0.1
+      z = np.dot(inputs, weights) + bias
+      z, sigmoid(z)
+  - type: try-it
+    prompt: Make `z` the weighted sum of `inputs` and `weights` plus `bias`, using `np.dot`.
+    starter: |
+      # %%
+      import numpy as np
+
+      inputs = np.array([2.0, 3.0])
+      weights = np.array([0.5, -1.0])
+      bias = 1.0
+      z = 0  # TODO
+      z
+    solution: |
+      # %%
+      import numpy as np
+
+      inputs = np.array([2.0, 3.0])
+      weights = np.array([0.5, -1.0])
+      bias = 1.0
+      z = np.dot(inputs, weights) + bias
+      z
+    check: |
+      assert abs(z - (-1.0)) < 1e-9, f"z is {z}, expected -1.0 (2*0.5 + 3*-1 + 1)"
+    hints:
+      - np.dot(inputs, weights) multiplies matching numbers and adds them.
+      - z = np.dot(inputs, weights) + bias
+  - type: exercise
+    ref: ex01-neuron
+  - type: exercise
+    ref: ex02-and-gate
+  - type: quiz
+    question: What does a neuron's weight control?
+    options:
+      - How much one input affects the output
+      - How many inputs the neuron has
+      - How fast the neuron runs
+    answer: 0

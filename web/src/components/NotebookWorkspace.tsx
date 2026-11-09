@@ -13,7 +13,7 @@ import {
 import { NotebookMapping, PythonLanguageClient } from "../lsp";
 import { type Cell, joinCells, newCellId, splitCells } from "../notebook";
 import { registerSnippets } from "../snippets";
-import { useKernel } from "../useKernel";
+import { type AICall, useKernel } from "../useKernel";
 import type { WorkspaceHandle, WorkspaceProps } from "../workspace";
 import CellOutputView from "./CellOutputView";
 import { insertAtCursor, prefersDark } from "./editorUtils";
@@ -243,6 +243,7 @@ const NotebookWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function N
                 onFocus={onCellFocus}
                 onRun={runCell}
               />
+              <AICallBadges calls={kernel.aiCalls[cell.id]} />
               {(kernel.outputs[cell.id] ?? []).map((output, i) => (
                 <div key={i} className="cell-output">
                   <CellOutputView
@@ -278,6 +279,29 @@ const NotebookWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function N
 });
 
 export default NotebookWorkspace;
+
+const PROVIDER_NAME: Record<string, string> = { ollama: "Ollama", anthropic: "Claude", builtin: "built-in" };
+
+/** Which model answered each dojo_ai call in a cell (summarised when there are many). */
+function AICallBadges({ calls }: { calls: AICall[] | undefined }) {
+  if (!calls?.length) return null;
+  const failed = calls.filter((c) => !c.ok);
+  const ok = calls.filter((c) => c.ok);
+  const last = ok[ok.length - 1];
+  const totalMs = calls.reduce((sum, c) => sum + c.ms, 0);
+  return (
+    <div className="ai-badges">
+      {last && (
+        <span className="ai-badge" title={`${ok.length} AI call(s)`}>
+          🤖 via {PROVIDER_NAME[last.provider ?? ""] ?? last.provider}
+          {last.model ? ` · ${last.model}` : ""} · {(totalMs / 1000).toFixed(1)}s
+          {ok.length > 1 ? ` · ${ok.length} calls` : ""}
+        </span>
+      )}
+      {failed.length > 0 && <span className="ai-badge failed">⚠ {failed.length} AI call(s) failed</span>}
+    </div>
+  );
+}
 
 const KERNEL_LABEL: Record<string, string> = {
   disconnected: "not started",

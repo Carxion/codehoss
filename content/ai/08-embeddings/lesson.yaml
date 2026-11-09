@@ -1,0 +1,61 @@
+title: Embeddings and semantic search
+summary: Turn meaning into numbers, then search by meaning.
+steps:
+  - type: explain
+    md: |
+      An **embedding** is a list of numbers that captures what a text is about. Texts
+      with similar meanings get similar lists, even when they share no words (with a
+      good embedding model).
+
+      ```python
+      vectors = dojo_ai.embed(["cats purr", "kittens meow", "oil change"])
+      ```
+
+      **Cosine similarity** compares two embeddings: 1 means the same direction, 0
+      means unrelated:
+
+      ```
+      cosine(a, b) = (a · b) / (|a| × |b|)
+      ```
+
+      If you use Ollama with `nomic-embed-text`, `embed` uses that real embedding
+      model. Otherwise it uses `simple_embed`, which only notices shared words.
+  - type: example
+    code: |
+      # %%
+      import dojo_ai
+
+      cats, kittens, car = dojo_ai.embed(["cats purr loudly", "kittens meow softly", "my car needs an oil change"])
+      dojo_ai.cosine_similarity(cats, kittens), dojo_ai.cosine_similarity(cats, car)
+  - type: try-it
+    prompt: Make `length` the length (magnitude) of vector `v`, `np.sqrt(np.dot(v, v))`.
+    starter: |
+      # %%
+      import numpy as np
+
+      v = np.array([3.0, 4.0])
+      length = 0  # TODO
+      length
+    solution: |
+      # %%
+      import numpy as np
+
+      v = np.array([3.0, 4.0])
+      length = np.sqrt(np.dot(v, v))
+      length
+    check: |
+      assert abs(length - 5) < 1e-9, f"length is {length}"
+    hints:
+      - The dot product of v with itself is the sum of squares.
+      - length = np.sqrt(np.dot(v, v))
+  - type: exercise
+    ref: ex01-cosine
+  - type: exercise
+    ref: ex02-semantic-search
+  - type: quiz
+    question: Two texts have a cosine similarity of 0.95. What does that suggest?
+    options:
+      - They are about very similar things
+      - They have the same length
+      - One is a translation error
+    answer: 0

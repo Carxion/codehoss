@@ -127,3 +127,53 @@ def test_notebook_exercise_grades_as_script(session, content):
     bad = grade(exercise, exercise.starter_path.read_text(), executor=session.executor)
     assert good.passed, good.results or good.output
     assert not bad.passed
+
+
+def test_ai_calls_leave_the_sandbox_through_the_kernel(session):
+    seen = []
+
+    def handler(kind, payload):
+        seen.append((kind, payload))
+        if kind == "chat":
+            return {"text": "hi from the model", "provider": "ollama", "model": "stub"}
+        return {"vectors": [[1.0, 0.0]], "provider": "builtin", "model": "simple_embed"}
+
+    inbox: queue.Queue[dict] = queue.Queue()
+    kernel = Kernel(session.container, inbox.put, ai_handler=handler)
+    try:
+        kernel.execute("import dojo_ai, time\nreply = dojo_ai.chat('hello')\nreply", "a")
+        kernel.execute("1 + 1", "b")  # queued while "a" waits for the model
+        messages = {"a": [], "b": []}
+        done = set()
+        while done != {"a", "b"}:
+            message = inbox.get(timeout=60)
+            if message.get("cell") in messages:
+                messages[message["cell"]].append(message)
+                if message["type"] == "done":
+                    done.add(message["cell"])
+        result = next(m for m in messages["a"] if m["type"] == "result")
+        assert result["data"]["text/plain"] == "'hi from the model'"
+        badge = next(m for m in messages["a"] if m["type"] == "ai")
+        assert badge["ok"] is True and badge["provider"] == "ollama" and badge["model"] == "stub"
+        assert seen[0][0] == "chat"
+        assert seen[0][1]["messages"] == [{"role": "user", "content": "hello"}]
+        assert next(m for m in messages["b"] if m["type"] == "result")["data"]["text/plain"] == "2"
+    finally:
+        kernel.close()
+
+
+def test_ai_errors_reach_the_learner(session):
+    def handler(kind, payload):
+        raise RuntimeError("Ollama isn't running")
+
+    inbox: queue.Queue[dict] = queue.Queue()
+    kernel = Kernel(session.container, inbox.put, ai_handler=handler)
+    try:
+        kernel.execute("import dojo_ai\ndojo_ai.chat('hello')", "a")
+        messages = []
+        while (message := inbox.get(timeout=60))["type"] != "done":
+            messages.append(message)
+        error = next(m for m in messages if m["type"] == "error")
+        assert error["ename"] == "AIError" and "Ollama" in error["evalue"]
+    finally:
+        kernel.close()

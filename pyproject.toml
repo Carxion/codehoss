@@ -12,6 +12,8 @@ dependencies = [
     "pytest>=8.0",  # runtime dep: the grader runs exercise tests with pytest
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
+    "anthropic>=2.7.0",
+    "cryptography>=50.0.2",
 ]
 
 [project.scripts]
@@ -42,7 +44,9 @@ extend-exclude = ["workspace", "content/**/starter.py"]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.per-file-ignores]
-# Notebook-style content: a bare last expression is how a cell shows its value.
-"content/**/*.py" = ["B018"]
+# Learner-facing content: a bare last expression is how a notebook cell shows its value;
+# zip(strict=...) is noise for beginners; expected-output strings in tests run long.
+"content/**/*.py" = ["B018", "B905", "E501"]
 # A catalogue of learner-facing messages; splitting them hurts readability.
 "src/dojo/explain.py" = ["E501"]
+"src/dojo/ai.py" = ["E501"]

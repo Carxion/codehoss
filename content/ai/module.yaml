@@ -1,0 +1,30 @@
+id: ai
+title: AI
+description: >
+  From a single neuron to chatbots, semantic search, RAG and agents. Run it on a local
+  model with Ollama or on Claude with your own API key; your code is the same either way.
+level: beginner-intermediate
+prerequisites: [python-basics]
+sandbox:
+  image: dojo-ds
+  packages: [ipython, numpy, pandas, matplotlib, scikit-learn]
+  memory: 1g
+  data: datasets
+  ai: true
+default_view: notebook
+library_explorer:
+  featured: [dojo_ai, numpy]
+  modules: [sklearn.neural_network, sklearn.datasets, sklearn.model_selection, json, re]
+lessons:
+  - 01-meet-the-model
+  - 02-a-neuron
+  - 03-how-models-learn
+  - 04-neural-networks
+  - 05-how-llms-work
+  - 06-conversations
+  - 07-prompting-and-json
+  - 08-embeddings
+  - 09-rag
+  - 10-tools-and-agents
+  - 11-evaluating-ai
+  - 12-responsible-ai

@@ -1,0 +1,10 @@
+id: ai.exact-match
+title: Exact-match accuracy
+difficulty: 2
+prompt: |
+  Write `exact_match(predictions, answers)`: the fraction of predictions that equal
+  their answer, ignoring capital letters and spaces at the ends. Return a number
+  from 0 to 1 (and 0.0 for empty lists).
+hints:
+  - Compare p.strip().lower() == a.strip().lower() for each pair (zip them).
+  - Count the matches, then divide by the number of answers.

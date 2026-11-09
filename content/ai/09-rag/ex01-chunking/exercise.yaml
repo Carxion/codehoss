@@ -1,0 +1,14 @@
+id: ai.chunking
+title: Chunk a document
+difficulty: 3
+prompt: |
+  Write `chunk_text(text, size=40, overlap=10)` that splits `text` into chunks of
+  `size` words, where each chunk starts `size - overlap` words after the previous
+  one (so neighbouring chunks share `overlap` words, and no sentence is cut off from
+  its context). Join each chunk's words with single spaces.
+
+  Stop once a chunk reaches the end of the text. Text with no words gives `[]`.
+hints:
+  - words = text.split(); step = size - overlap
+  - 'for start in range(0, len(words), step): chunks.append(" ".join(words[start:start + size]))'
+  - Break after appending a chunk whose end (start + size) reaches len(words).

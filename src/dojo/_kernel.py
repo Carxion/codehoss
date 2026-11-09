@@ -12,6 +12,8 @@ Out: {"type": "ready", "pid": <pid>}
      {"id", "type": "done", "status": "ok" | "error", "execution_count"}
 """
 
+import collections
+import itertools
 import json
 import os
 import signal
@@ -137,14 +139,50 @@ sys.stdin = NoInput()
 send({"type": "ready", "pid": os.getpid()})
 
 _requests = os.fdopen(0, "r", encoding="utf-8")
-while True:
-    try:
+_pending = collections.deque()  # cells queued while a cell waited for an AI reply
+_ai_requests = itertools.count(1)
+
+
+def _ai_transport(kind, payload):
+    """dojo_ai -> the DataDojo server, which calls the learner's chosen model.
+
+    The sandbox has no network: the request goes out on the protocol channel and the
+    reply comes back on stdin, interleaved with any cells queued in the meantime.
+    """
+    req = next(_ai_requests)
+    send({"id": current_id, "type": "ai_request", "req": req, "kind": kind, "payload": payload})
+    while True:
         line = _requests.readline()
-    except KeyboardInterrupt:
-        continue  # an interrupt arrived between cells
-    if not line:
-        break
-    request = json.loads(line)
+        if not line:
+            raise RuntimeError("The connection to DataDojo closed.")
+        message = json.loads(line)
+        if message.get("ai_reply") == req:
+            return message
+        if "code" in message:
+            _pending.append(message)
+        # Anything else is a late reply to an interrupted request; drop it.
+
+
+try:
+    import dojo_ai
+
+    dojo_ai._transport = _ai_transport
+except ImportError:
+    pass
+
+while True:
+    if _pending:
+        request = _pending.popleft()
+    else:
+        try:
+            line = _requests.readline()
+        except KeyboardInterrupt:
+            continue  # an interrupt arrived between cells
+        if not line:
+            break
+        request = json.loads(line)
+        if "code" not in request:
+            continue  # a late AI reply after an interrupt
     current_id = request["id"]
     try:
         result = shell.run_cell(request["code"], store_history=True)

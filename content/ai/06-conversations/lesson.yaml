@@ -1,0 +1,63 @@
+title: Conversations and memory
+summary: Models don't remember. You send the whole conversation each time.
+steps:
+  - type: explain
+    md: |
+      A model has **no memory between calls**. To hold a conversation, you send the
+      history every time as a list of **messages**:
+
+      ```python
+      messages = [
+          {"role": "user", "content": "My name is Ada."},
+          {"role": "assistant", "content": "Nice to meet you, Ada!"},
+          {"role": "user", "content": "What's my name?"},
+      ]
+      dojo_ai.chat(messages)
+      ```
+
+      `user` is you, `assistant` is the model. The **system** prompt (instructions) is
+      passed separately with `system=`.
+  - type: example
+    code: |
+      # %%
+      import dojo_ai
+
+      dojo_ai.chat("What's my name?")  # it can't know
+
+      # %%
+      history = [
+          {"role": "user", "content": "My name is Ada."},
+          {"role": "assistant", "content": "Nice to meet you, Ada!"},
+          {"role": "user", "content": "What's my name?"},
+      ]
+      dojo_ai.chat(history)
+  - type: try-it
+    prompt: Add the model's reply to `history` as an **assistant** message.
+    starter: |
+      # %%
+      history = [{"role": "user", "content": "Hi!"}]
+      reply = "Hello! How can I help?"
+      # TODO: append the reply to history
+      history
+    solution: |
+      # %%
+      history = [{"role": "user", "content": "Hi!"}]
+      reply = "Hello! How can I help?"
+      history.append({"role": "assistant", "content": reply})
+      history
+    check: |
+      assert history[-1] == {"role": "assistant", "content": "Hello! How can I help?"}, f"history ends with {history[-1]}"
+    hints:
+      - Messages are dicts with "role" and "content".
+      - 'history.append({"role": "assistant", "content": reply})'
+  - type: exercise
+    ref: ex01-build-messages
+  - type: exercise
+    ref: ex02-chatbot
+  - type: quiz
+    question: Why does a chatbot send the whole history with every message?
+    options:
+      - Because the model has no memory between calls
+      - To make the request faster
+      - Because the API requires at least ten messages
+    answer: 0

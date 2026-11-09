@@ -1,0 +1,11 @@
+id: ai.digit-classifier
+title: Recognise handwritten digits
+difficulty: 3
+time_limit_s: 60
+prompt: |
+  The data is split for you (pixels scaled to 0..1). Train an
+  `MLPClassifier(hidden_layer_sizes=(64,), max_iter=500, random_state=0)` called
+  `model`, and make `accuracy`: its score on the test data (aim for 0.95+).
+hints:
+  - model = MLPClassifier(...).fit(X_train, y_train)
+  - model.score(X_test, y_test) gives the accuracy.

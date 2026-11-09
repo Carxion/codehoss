@@ -1,0 +1,61 @@
+title: How models learn
+summary: Measure the error, then nudge the weights downhill. Repeat.
+steps:
+  - type: explain
+    md: |
+      Nobody picks a real network's millions of weights by hand. They're **learned**:
+
+      1. Make predictions with the current weights.
+      2. Measure how wrong they are with a **loss**, like the mean squared error (MSE).
+      3. Nudge each weight in the direction that lowers the loss (the **gradient**).
+      4. Repeat thousands of times.
+
+      This is **gradient descent**. The size of each nudge is the **learning rate**.
+  - type: example
+    md: Fitting a straight line y = w·x + b to points, one small step at a time.
+    code: |
+      # %%
+      import numpy as np
+
+      x = np.array([1, 2, 3, 4], dtype=float)
+      y = np.array([3, 5, 7, 9], dtype=float)  # really y = 2x + 1
+      w, b, lr = 0.0, 0.0, 0.05
+      for step in range(500):
+          error = (w * x + b) - y
+          w -= lr * 2 * (error * x).mean()
+          b -= lr * 2 * error.mean()
+      round(w, 3), round(b, 3)
+  - type: try-it
+    prompt: Make `loss` the mean squared error between `predictions` and `targets`.
+    starter: |
+      # %%
+      import numpy as np
+
+      predictions = np.array([2.0, 4.0, 6.0])
+      targets = np.array([3.0, 4.0, 4.0])
+      loss = 0  # TODO
+      loss
+    solution: |
+      # %%
+      import numpy as np
+
+      predictions = np.array([2.0, 4.0, 6.0])
+      targets = np.array([3.0, 4.0, 4.0])
+      loss = ((predictions - targets) ** 2).mean()
+      loss
+    check: |
+      assert abs(loss - 5 / 3) < 1e-9, f"loss is {loss}, expected 1.667 ((1 + 0 + 4) / 3)"
+    hints:
+      - Subtract, square each difference with ** 2, then take .mean().
+      - loss = ((predictions - targets) ** 2).mean()
+  - type: exercise
+    ref: ex01-mse
+  - type: exercise
+    ref: ex02-gradient-descent
+  - type: quiz
+    question: What happens if the learning rate is far too large?
+    options:
+      - Training is slow but steady
+      - The steps overshoot and the loss can blow up instead of shrinking
+      - Nothing; the learning rate doesn't matter
+    answer: 1

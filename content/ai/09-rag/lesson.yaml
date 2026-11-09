@@ -1,0 +1,56 @@
+title: "RAG: answer from your documents"
+summary: Retrieve the right passages, then let the model answer from them.
+steps:
+  - type: explain
+    md: |
+      Models don't know *your* information: a company's policies, your notes. Pasting
+      everything into the prompt doesn't scale. **RAG (retrieval-augmented generation)**
+      does it in steps:
+
+      1. **Chunk** your documents into small passages.
+      2. **Embed** the passages (once) and the question (each time).
+      3. **Retrieve** the passages most similar to the question.
+      4. **Generate**: give the model those passages as context and ask it to answer
+         only from them.
+
+      `/data/handbook/` holds a small handbook for a (made-up) bike company.
+  - type: example
+    code: |
+      # %%
+      from pathlib import Path
+
+      docs = {p.name: p.read_text() for p in sorted(Path("/data/handbook").glob("*.md"))}
+      list(docs)
+
+      # %%
+      print(docs["returns.md"])
+  - type: try-it
+    prompt: Make `words` the list of words in `text`, and `first_chunk` the first 5 words joined back with spaces.
+    starter: |
+      # %%
+      text = "You can return any bike within 30 days of delivery for a full refund"
+      words = []  # TODO
+      first_chunk = ""  # TODO
+      first_chunk
+    solution: |
+      # %%
+      text = "You can return any bike within 30 days of delivery for a full refund"
+      words = text.split()
+      first_chunk = " ".join(words[:5])
+      first_chunk
+    check: |
+      assert first_chunk == "You can return any bike", f"first_chunk is {first_chunk!r}"
+    hints:
+      - text.split() gives the words; words[:5] the first five.
+      - first_chunk = " ".join(words[:5])
+  - type: exercise
+    ref: ex01-chunking
+  - type: exercise
+    ref: ex02-answer-from-handbook
+  - type: quiz
+    question: In RAG, what is retrieved?
+    options:
+      - The model's weights
+      - The passages most relevant to the question
+      - The user's previous questions
+    answer: 1

@@ -1,0 +1,42 @@
+title: Evaluating AI output
+summary: Measure whether a prompt or model is actually good, instead of guessing.
+steps:
+  - type: explain
+    md: |
+      "It looked fine when I tried it" isn't evidence. An **eval** is a set of test
+      cases (inputs with expected answers) plus a score:
+
+      - **Exact match**: right or wrong. Good for short answers like labels.
+      - **Keyword scoring**: does the answer mention the facts it must include?
+      - **LLM-as-judge**: another model grades open-ended answers against a rubric.
+
+      With an eval you can change a prompt or switch models and **see** whether things
+      got better. Run your eval on both Local and Claude and compare!
+  - type: try-it
+    prompt: Make `normalized` the text lowercased with spaces trimmed from both ends.
+    starter: |
+      # %%
+      text = "  Positive "
+      normalized = text  # TODO
+      normalized
+    solution: |
+      # %%
+      text = "  Positive "
+      normalized = text.strip().lower()
+      normalized
+    check: |
+      assert normalized == "positive", f"normalized is {normalized!r}"
+    hints:
+      - Chain .strip() and .lower().
+      - normalized = text.strip().lower()
+  - type: exercise
+    ref: ex01-exact-match
+  - type: exercise
+    ref: ex02-keyword-eval
+  - type: quiz
+    question: Why build an eval before tweaking a prompt?
+    options:
+      - So you can measure whether the change helped
+      - Because models require one
+      - To make the model faster
+    answer: 0

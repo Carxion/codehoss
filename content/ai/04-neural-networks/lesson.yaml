@@ -1,0 +1,58 @@
+title: Neural networks in practice
+summary: Stack neurons into layers and recognise handwritten digits.
+steps:
+  - type: explain
+    md: |
+      A **neural network** stacks neurons in **layers**: the outputs of one layer are
+      the inputs of the next. With enough neurons and gradient descent doing the
+      tuning, networks learn surprisingly complex patterns.
+
+      scikit-learn's `MLPClassifier` ("multi-layer perceptron") is a ready-made network:
+
+      ```python
+      from sklearn.neural_network import MLPClassifier
+      model = MLPClassifier(hidden_layer_sizes=(64,), max_iter=500, random_state=0)
+      model.fit(X_train, y_train)
+      ```
+  - type: example
+    md: "Each digit image is 8×8 pixels: 64 numbers from 0 (white) to 16 (black)."
+    code: |
+      # %%
+      import matplotlib.pyplot as plt
+      from sklearn.datasets import load_digits
+
+      digits = load_digits()
+      digits.data.shape, digits.target[:10]
+
+      # %%
+      plt.imshow(digits.images[0], cmap="gray_r")
+      plt.title(f"Label: {digits.target[0]}")
+  - type: try-it
+    prompt: Make `n_pixels` hold how many numbers describe each digit image (the second number in `digits.data.shape`).
+    starter: |
+      # %%
+      from sklearn.datasets import load_digits
+
+      digits = load_digits()
+      n_pixels = 0  # TODO
+      n_pixels
+    solution: |
+      # %%
+      from sklearn.datasets import load_digits
+
+      digits = load_digits()
+      n_pixels = digits.data.shape[1]
+      n_pixels
+    check: |
+      assert n_pixels == 64, f"n_pixels is {n_pixels}"
+    hints:
+      - shape is (rows, columns); pick the second with [1].
+      - n_pixels = digits.data.shape[1]
+  - type: exercise
+    ref: ex01-digit-classifier
+  - type: exercise
+    ref: ex02-layer-size
+  - type: quiz
+    question: In a neural network, what feeds into the second layer?
+    options: [The raw inputs only, The outputs of the first layer, Random numbers]
+    answer: 1

@@ -1,0 +1,16 @@
+id: ai.run-tool
+title: Run a tool safely
+difficulty: 2
+prompt: |
+  Write `run_tool(call)` for a call like `{"tool": "add", "args": {"a": 2, "b": 3}}`:
+
+  - run the matching function from `TOOLS` with the args and return its result
+  - if the tool doesn't exist, return the text `Error: unknown tool 'name'`
+  - if the tool raises an error (e.g. wrong arguments), return `Error: ` plus the
+    error message
+
+  Models make mistakes, so tool code must never crash the agent.
+hints:
+  - 'Check if call.get("tool") not in TOOLS first.'
+  - 'TOOLS[name](**call.get("args", {})) runs it.'
+  - 'Wrap the call in try / except Exception as e: return f"Error: {e}"'

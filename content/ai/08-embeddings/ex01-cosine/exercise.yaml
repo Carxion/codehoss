@@ -1,0 +1,10 @@
+id: ai.cosine
+title: Cosine similarity
+difficulty: 2
+prompt: |
+  Write `cosine(a, b)` for two NumPy vectors: their dot product divided by the
+  product of their lengths. If either vector is all zeros, return `0.0`.
+hints:
+  - np.dot(a, b) is the dot product; np.linalg.norm(a) is the length.
+  - Check for a zero length before dividing.
+  - 'return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))'

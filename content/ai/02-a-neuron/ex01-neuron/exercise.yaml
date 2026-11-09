@@ -1,0 +1,14 @@
+id: ai.neuron
+title: Build a neuron
+difficulty: 2
+prompt: |
+  Write two functions:
+
+  - `sigmoid(z)`: `1 / (1 + e^(-z))` (use `np.exp`)
+  - `neuron(inputs, weights, bias)`: the sigmoid of the weighted sum plus bias
+
+  `neuron(np.array([1, 0]), np.array([2, 2]), -1)` gives about `0.731`.
+hints:
+  - 'return 1 / (1 + np.exp(-z))'
+  - The weighted sum is np.dot(inputs, weights) + bias.
+  - neuron returns sigmoid(np.dot(inputs, weights) + bias)

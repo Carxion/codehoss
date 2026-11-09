@@ -1,0 +1,20 @@
+id: ai.agent-loop
+title: The agent loop
+difficulty: 4
+prompt: |
+  `run_tool` and `SYSTEM` are given. Write `agent(question, max_steps=5)`:
+
+  1. Start the conversation with the question as a user message.
+  2. Each step, call `dojo_ai.chat(messages, system=SYSTEM, json=True)` and parse the
+     reply with `json.loads`. Add the reply to the messages as an assistant message.
+  3. If it has `"answer"`, return that answer.
+  4. If it has `"tool"`, run it with `run_tool` and add a user message
+     `Tool result: <result>`.
+  5. If the reply isn't valid JSON, add a user message
+     `Please reply with valid JSON.` and keep going.
+
+  After `max_steps` steps without an answer, return `"I couldn't finish."`
+hints:
+  - 'messages = [{"role": "user", "content": question}], then for step in range(max_steps)'
+  - 'Wrap json.loads(reply) in try / except json.JSONDecodeError'
+  - 'Append {"role": "assistant", "content": reply} every step before acting on it.'

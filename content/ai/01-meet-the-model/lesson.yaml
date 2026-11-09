@@ -1,0 +1,82 @@
+title: Meet the model
+summary: What "AI" means, and your first conversation with a model.
+steps:
+  - type: explain
+    md: |
+      **AI** is a big umbrella. Inside it:
+
+      - **Machine learning (ML)**: programs that learn patterns from examples instead of
+        following hand-written rules.
+      - **Deep learning**: ML with large neural networks (layers of simple "neurons").
+      - **Large language models (LLMs)**: deep learning models trained on huge amounts of
+        text, which predict the next word. Chatbots like Claude are LLMs.
+
+      In this course you'll build each idea from scratch, then use real models.
+  - type: explain
+    md: |
+      DataDojo gives you one function to talk to a model:
+
+      ```python
+      import dojo_ai
+      dojo_ai.chat("Explain recursion in one sentence.")
+      ```
+
+      **Which model answers is up to you**: pick it with **🤖 AI** in the top bar.
+
+      - **Local (Ollama)**: runs on your computer, free and private.
+      - **Hosted (Claude)**: Anthropic's models with your own API key.
+
+      Your code doesn't change when you switch. The badge under each cell shows which
+      model answered.
+  - type: example
+    md: Run these cells. The badge under each one shows which model answered.
+    code: |
+      # %%
+      import dojo_ai
+
+      dojo_ai.backend()
+
+      # %%
+      dojo_ai.chat("In one sentence, what is machine learning?")
+
+      # %%
+      dojo_ai.chat(
+          "What is a neural network?",
+          system="You are a friendly teacher. Answer in two short sentences for a 12-year-old.",
+      )
+  - type: try-it
+    prompt: |
+      Ask the model any question about **Python** using `dojo_ai.chat`, and store the
+      reply in `reply`.
+    starter: |
+      # %%
+      import dojo_ai
+
+      reply = ""  # TODO: ask a question about Python
+      reply
+    solution: |
+      # %%
+      import dojo_ai
+
+      reply = dojo_ai.chat("What is Python mostly used for?")
+      reply
+    check: |
+      import dojo_ai
+      asked = [c["messages"][-1]["content"].lower() for c in dojo_ai.calls]
+      assert any("python" in q for q in asked), "Call dojo_ai.chat with a question that mentions Python"
+      assert isinstance(reply, str) and reply, "Store the reply in reply"
+    hints:
+      - "dojo_ai.chat(\"your question\") returns the model's answer as text."
+      - reply = dojo_ai.chat("What is Python mostly used for?")
+  - type: exercise
+    ref: ex01-explain-simply
+  - type: exercise
+    ref: ex02-summarize-reviews
+  - type: quiz
+    question: What does an LLM fundamentally do?
+    options:
+      - Looks answers up in a database
+      - Predicts the next piece of text, one piece at a time
+      - Runs the rules a programmer wrote for each question
+    answer: 1
+    explanation: Everything an LLM does, from answering questions to writing code, comes from repeatedly predicting what text comes next.

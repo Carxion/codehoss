@@ -1,0 +1,19 @@
+id: ai.summarize-reviews
+title: Summarise reviews in one call
+difficulty: 2
+prompt: |
+  Write `summarize_reviews(reviews)` that asks the model to summarise a list of
+  review strings in **one** call (calls cost time and money). The prompt must be:
+
+  ```
+  Summarize these reviews in one sentence:
+  1. <first review>
+  2. <second review>
+  ...
+  ```
+
+  Return the model's reply.
+hints:
+  - 'Number the reviews: [f"{i}. {r}" for i, r in enumerate(reviews, start=1)]'
+  - Join the lines with "\n" and put the instruction line first.
+  - One dojo_ai.chat(prompt) call, then return its result.

@@ -1,0 +1,66 @@
+title: Prompting and structured output
+summary: Get reliable answers your code can use.
+steps:
+  - type: explain
+    md: |
+      A few prompting habits make a big difference:
+
+      - **Be specific**: say exactly what you want, in what format, and how long.
+      - **Show examples** ("few-shot"): a couple of input → output pairs teach the
+        pattern faster than a description.
+      - **Ask for JSON** when code will read the answer: `dojo_ai.chat(prompt, json=True)`,
+        then `json.loads(reply)`.
+
+      Models sometimes break the rules, so code that reads model output should
+      **check it** and handle bad replies.
+  - type: example
+    code: |
+      # %%
+      import json
+
+      import dojo_ai
+
+      prompt = """Classify the sentiment as positive, negative or neutral.
+
+      Review: I love it! -> positive
+      Review: It broke after a day. -> negative
+      Review: The box was blue. ->"""
+      dojo_ai.chat(prompt)
+
+      # %%
+      reply = dojo_ai.chat(
+          'Give JSON with keys "name" and "city" for: Grace lives in Arlington.', json=True
+      )
+      json.loads(reply)
+  - type: try-it
+    prompt: Turn the JSON text `reply` into a Python dictionary called `data`, using `json.loads`.
+    starter: |
+      # %%
+      import json
+
+      reply = '{"name": "Ada", "city": "London"}'
+      data = {}  # TODO
+      data["city"]
+    solution: |
+      # %%
+      import json
+
+      reply = '{"name": "Ada", "city": "London"}'
+      data = json.loads(reply)
+      data["city"]
+    check: |
+      assert data == {"name": "Ada", "city": "London"}, f"data is {data}"
+    hints:
+      - json.loads takes a JSON string and returns Python objects.
+      - data = json.loads(reply)
+  - type: exercise
+    ref: ex01-few-shot
+  - type: exercise
+    ref: ex02-extract-contact
+  - type: quiz
+    question: Why check a model's JSON before using it?
+    options:
+      - JSON is always invalid
+      - Models usually follow the format but sometimes don't, and bad data would crash your program
+      - Checking makes the model smarter
+    answer: 1

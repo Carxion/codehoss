@@ -4,9 +4,10 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M3 done**: guided browser IDE with live IntelliSense and a notebook view;
-> complete **Python Basics** and **Data Science** modules (12 lessons and 24 exercises
-> each). Next: M4 (AI module). See [ROADMAP.md](ROADMAP.md).
+> Status: **M4 done**: guided browser IDE with live IntelliSense and notebooks;
+> complete **Python Basics**, **Data Science** and **AI** modules (12 lessons and 24
+> exercises each). AI lessons run on a local model (Ollama) or Claude with your own key,
+> your choice, always visible. Next: M5 (Projects). See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 
@@ -16,6 +17,13 @@ uv run dojo build-images            # sandbox images + Library Explorer indexes 
 cd web && npm install && npm run build && cd ..
 uv run dojo serve                   # open http://127.0.0.1:8000 and create an account
 ```
+
+**AI lessons:** pick a model with **🤖 AI** in the top bar. For the local option,
+install [Ollama](https://ollama.com) and run `ollama pull llama3.2` (and
+`ollama pull nomic-embed-text` for better embeddings). For the hosted option, paste an
+Anthropic API key; it's stored encrypted (key in `DOJO_SECRET_KEY`, or `var/secret.key`
+is generated) and never enters the sandbox. `DOJO_OLLAMA_URL` points at a non-default
+Ollama.
 
 For frontend work, run `uv run dojo serve` and `cd web && npm run dev` side by side;
 Vite (http://localhost:5173) forwards `/api` to the server.
