@@ -1,0 +1,7 @@
+deque: 'A double-ended queue from collections: fast append and popleft at both ends. Use it for queues.'
+popleft: Removes and returns the item at the front of a deque, in O(1).
+heapq: 'Python''s heap module: heappush and heappop keep a list as a min-heap.'
+cache: functools.cache remembers a function's answers so repeated calls are instant (memoisation).
+setdefault: d.setdefault(key, default) returns d[key], first setting it to default if missing.
+isalnum: True if every character is a letter or a digit.
+enumerate: 'Loop with positions: for i, x in enumerate(items) gives 0, first item; 1, second item...'

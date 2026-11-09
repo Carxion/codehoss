@@ -1,0 +1,58 @@
+title: 'Big-O: how code scales'
+summary: Why some correct code is too slow, and how to tell before you run it.
+steps:
+- type: explain
+  md: 'Two solutions can both be **correct** while one takes a second and the
+
+    other a week. **Big-O** describes how the work grows as the input grows:
+
+
+    | Big-O | Name | 1,000 items | 1,000,000 items |
+
+    |---|---|---|---|
+
+    | O(1) | constant | 1 step | 1 step |
+
+    | O(log n) | logarithmic | ~10 steps | ~20 steps |
+
+    | O(n) | linear | 1,000 steps | 1,000,000 steps |
+
+    | O(n log n) | linearithmic | ~10,000 | ~20,000,000 |
+
+    | O(n²) | quadratic | 1,000,000 | 1,000,000,000,000 |
+
+
+    A loop over the input is usually O(n); a loop **inside** a loop over the same input is
+
+    usually O(n²).'
+- type: showcase
+  algorithm: linear-search
+  md: '**Linear search** checks items one by one: in the worst case, all n of them. That''s O(n).'
+- type: showcase
+  algorithm: binary-search
+  md: 'If the list is **sorted**, binary search halves what''s left each step: O(log n). Compare the step
+    counts! (Lesson 7 covers it properly.)'
+- type: try-it
+  prompt: 'Make `steps` count how many times the inner line runs for `n = 4`: put `steps += 1` inside
+    both loops.'
+  starter: "n = 4\nsteps = 0\nfor i in range(n):\n    for j in range(n):\n        pass  # count here\n"
+  solution: "n = 4\nsteps = 0\nfor i in range(n):\n    for j in range(n):\n        steps += 1\n"
+  check: 'assert steps == 16, f"steps is {steps}; a loop inside a loop runs n x n = 16 times"
+
+    '
+  hints:
+  - Replace pass with steps += 1.
+  - 'Two nested loops of n each: n * n runs.'
+- type: exercise
+  ref: ex01-contains-duplicate
+- type: exercise
+  ref: ex02-most-frequent
+- type: quiz
+  question: A function has a loop over a list, and inside it another loop over the same list. Roughly
+    how does its work grow?
+  options:
+  - O(n)
+  - O(n²)
+  - O(log n)
+  answer: 1
+  explanation: 'n iterations of the outer loop, each doing n inner iterations: n × n.'

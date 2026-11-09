@@ -1,0 +1,41 @@
+title: Arrays and two pointers
+summary: Walk a list from both ends to solve problems in one pass.
+steps:
+- type: explain
+  md: 'Lists in Python are **arrays**: items sit side by side, so `items[i]` is
+
+    instant (O(1)) whatever `i` is.
+
+
+    The **two pointers** technique keeps two positions, often one at each end, and moves
+
+    them towards each other. Many problems that look like they need a loop inside a loop
+
+    can be solved in a single pass this way.'
+- type: showcase
+  algorithm: two-pointers
+  md: In a **sorted** list, if the pair is too small move the left pointer up; too big, move the right
+    pointer down.
+- type: try-it
+  prompt: 'Reverse `letters` **in place** with two pointers: swap the ends, then move both pointers inwards.'
+  starter: "letters = ['a', 'b', 'c', 'd', 'e']\nleft, right = 0, len(letters) - 1\nwhile left < right:\n\
+    \    pass  # swap, then move the pointers\n"
+  solution: "letters = ['a', 'b', 'c', 'd', 'e']\nleft, right = 0, len(letters) - 1\nwhile left < right:\n\
+    \    letters[left], letters[right] = letters[right], letters[left]\n    left += 1\n    right -= 1\n"
+  check: 'assert letters == [''e'', ''d'', ''c'', ''b'', ''a''], f"letters is {letters}"
+
+    '
+  hints:
+  - 'Python swaps in one line: a, b = b, a'
+  - 'After swapping: left += 1 and right -= 1'
+- type: exercise
+  ref: ex01-palindrome
+- type: exercise
+  ref: ex02-pair-with-sum
+- type: quiz
+  question: Why does the pair-sum trick need a sorted list?
+  options:
+  - So moving a pointer reliably makes the sum bigger or smaller
+  - Because unsorted lists can't have pointers
+  - It doesn't need one
+  answer: 0

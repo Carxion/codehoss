@@ -1,0 +1,15 @@
+id: dsa.pair-with-sum
+title: Pair with a target sum
+difficulty: 3
+prompt: '`nums` is sorted from smallest to largest. Write `pair_with_sum(nums, target)` that
+
+  returns the **positions** `(i, j)` with `i < j` of two numbers adding to `target`, or
+
+  `None` if there''s no such pair.
+
+
+  It must be fast on **200,000 numbers**: one pass with two pointers, O(n).'
+hints:
+- Start with left = 0 and right = len(nums) - 1.
+- If the sum is too small, left += 1; too big, right -= 1.
+- Return (left, right) when the sum matches; None if the pointers meet.

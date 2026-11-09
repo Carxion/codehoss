@@ -1,0 +1,13 @@
+id: dsa.memo-fib
+title: Fast Fibonacci
+difficulty: 3
+prompt: 'Write `fib(n)` (with `fib(0) = 0`, `fib(1) = 1`) that is fast enough for `fib(90)`.
+
+
+  The starter is the plain recursive version: correct, but `fib(90)` would need about
+
+  10¹⁸ calls. Add **memoisation** so each value is computed once.'
+hints:
+- Keep a dictionary of answers you've already computed.
+- 'Or put @functools.cache on the line above def fib(n): (import functools first).'
+- 'With a dict: if n not in memo: memo[n] = fib(n - 1) + fib(n - 2); return memo[n]'

@@ -1,0 +1,45 @@
+title: Stacks and queues
+summary: Last in first out, and first in first out.
+steps:
+- type: explain
+  md: "Two simple structures power a lot of algorithms:\n\n- A **stack** is last-in, first-out, like a\
+    \ pile of plates. In Python, use a list:\n  `stack.append(x)` pushes, `stack.pop()` pops the top.\
+    \ Both O(1).\n- A **queue** is first-in, first-out, like a line at a shop. Use\n  `collections.deque`:\
+    \ `queue.append(x)` joins the back, `queue.popleft()` leaves the\n  front. Both O(1). (`list.pop(0)`\
+    \ works but is O(n).)"
+- type: showcase
+  algorithm: bracket-stack
+  md: 'Checking brackets is a classic stack job: the most recent opening bracket must close first.'
+- type: try-it
+  prompt: 'Use the `queue` (a deque) to serve customers in order: make `served` the list of names in the
+    order `popleft()` returns them.'
+  starter: 'from collections import deque
+
+
+    queue = deque(["Ada", "Alan", "Grace"])
+
+    served = []
+
+    # TODO: while the queue isn''t empty, popleft into served
+
+    '
+  solution: "from collections import deque\n\nqueue = deque([\"Ada\", \"Alan\", \"Grace\"])\nserved =\
+    \ []\nwhile queue:\n    served.append(queue.popleft())\n"
+  check: 'assert served == ["Ada", "Alan", "Grace"] and not queue, f"served is {served}"
+
+    '
+  hints:
+  - 'while queue: keeps going until it''s empty.'
+  - served.append(queue.popleft())
+- type: exercise
+  ref: ex01-balanced
+- type: exercise
+  ref: ex02-rpn
+- type: quiz
+  question: Which structure would you use for an 'undo' button?
+  options:
+  - A queue
+  - A stack
+  - A set
+  answer: 1
+  explanation: 'Undo reverses the most recent action first: last in, first out.'

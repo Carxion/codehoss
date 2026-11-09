@@ -73,7 +73,8 @@ export type Step =
   | { index: number; type: "example"; md: string; code: string; runnable: boolean }
   | { index: number; type: "try-it"; prompt: string; starter: string; hint_count: number }
   | { index: number; type: "exercise"; exercise: Exercise }
-  | { index: number; type: "quiz"; question: string; options: string[] };
+  | { index: number; type: "quiz"; question: string; options: string[] }
+  | { index: number; type: "showcase"; algorithm: string; md: string; input: Record<string, unknown> };
 
 export interface StepProgress {
   done: boolean;

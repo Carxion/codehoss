@@ -1,0 +1,15 @@
+id: dsa.flatten
+title: Flatten nested lists
+difficulty: 3
+prompt: 'Write `flatten(items)` that turns a list containing numbers **and lists (nested to any
+
+  depth)** into one flat list, in order.
+
+
+  `flatten([1, [2, [3, 4]], 5])` gives `[1, 2, 3, 4, 5]`. Recursion makes this short: a
+
+  nested list is just a smaller version of the same problem.'
+hints:
+- isinstance(x, list) tells you whether x is a list.
+- For a list, extend the result with flatten(x); for anything else, append x.
+- result.extend(flatten(x)) / result.append(x)

@@ -1,0 +1,15 @@
+id: dsa.palindrome
+title: Palindrome check
+difficulty: 2
+prompt: 'Write `is_palindrome(text)`: `True` if `text` reads the same forwards and backwards,
+
+  **ignoring** case and anything that isn''t a letter or digit.
+
+
+  `is_palindrome("A man, a plan, a canal: Panama")` is `True`. Use two pointers that skip
+
+  over punctuation and spaces.'
+hints:
+- ch.isalnum() is True for letters and digits.
+- 'while left < right: move left forward past non-alphanumerics, and right backward.'
+- Compare text[left].lower() with text[right].lower(); return False on a mismatch.

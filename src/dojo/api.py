@@ -44,6 +44,7 @@ from dojo.models import (
     ExerciseStep,
     ExplainStep,
     QuizStep,
+    ShowcaseStep,
     Step,
     TryItStep,
 )
@@ -430,7 +431,7 @@ def create_app(
     )
     def mark_viewed(module_id: str, slug: str, index: int, user: UserDep) -> None:
         step = step_or_404(lesson_or_404(module_or_404(module_id), slug), index)
-        if not isinstance(step, ExplainStep | ExampleStep):
+        if not isinstance(step, ExplainStep | ExampleStep | ShowcaseStep):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "this step is completed by doing it")
         db.record(user, module_id, f"{slug}/{index}", done=True)
 
@@ -769,6 +770,8 @@ def _public_step(lesson: LoadedLesson, index: int, step: Step) -> dict:
             return {**base, "exercise": _public_exercise(lesson.exercises[step.ref])}
         case QuizStep():
             return {**base, "question": step.question, "options": step.options}
+        case ShowcaseStep():
+            return {**base, "algorithm": step.algorithm, "md": step.md, "input": step.input}
     raise AssertionError(f"unhandled step type {step.type}")
 
 

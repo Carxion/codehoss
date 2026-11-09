@@ -1,0 +1,13 @@
+id: dsa.balanced
+title: Balanced brackets
+difficulty: 3
+prompt: 'Write `is_balanced(text)`: `True` if every `(`, `[` and `{` in `text` is closed by the
+
+  matching bracket in the right order. Other characters are ignored.
+
+
+  `is_balanced("{[()()]}")` is `True`; `is_balanced("([)]")` is `False`.'
+hints:
+- Push opening brackets on a stack.
+- For a closing bracket, the stack must be non-empty and its top must be the matching opener.
+- 'At the end the stack must be empty: return not stack.'

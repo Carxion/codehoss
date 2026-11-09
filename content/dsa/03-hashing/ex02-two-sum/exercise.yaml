@@ -1,0 +1,15 @@
+id: dsa.two-sum
+title: Two sum (unsorted)
+difficulty: 3
+prompt: '`nums` is **not** sorted. Write `two_sum(nums, target)` returning positions `(i, j)`,
+
+  `i < j`, of two numbers adding to `target`, or `None`.
+
+
+  Make it O(n) with a dictionary that remembers where you''ve seen each number: for each
+
+  number, check whether its **complement** (`target - x`) has already appeared.'
+hints:
+- seen = {} maps a number to its position.
+- 'For position j with value x: if target - x is in seen, return (seen[target - x], j).'
+- Otherwise store seen[x] = j and keep going.

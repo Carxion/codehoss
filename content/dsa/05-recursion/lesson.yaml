@@ -1,0 +1,39 @@
+title: Recursion
+summary: Functions that call themselves, and how to keep them fast.
+steps:
+- type: explain
+  md: "A **recursive** function solves a problem by calling itself on a smaller\nversion of it. Every\
+    \ recursive function needs:\n\n1. a **base case**: an input small enough to answer directly\n2. a\
+    \ **recursive case**: break the problem down and call yourself on the smaller part\n\n```python\n\
+    def factorial(n):\n    if n <= 1:          # base case\n        return 1\n    return n * factorial(n\
+    \ - 1)   # recursive case\n```"
+- type: showcase
+  algorithm: fib-tree
+  md: '`fib(n) = fib(n - 1) + fib(n - 2)`. Watch how often the same calls repeat: the tree doubles at
+    every level.'
+- type: try-it
+  prompt: 'Finish `factorial` recursively: return 1 for n ≤ 1, otherwise `n * factorial(n - 1)`.'
+  starter: "def factorial(n):\n    pass\n"
+  solution: "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)\n"
+  check: 'assert factorial(5) == 120 and factorial(0) == 1, f"factorial(5) gave {factorial(5)}"
+
+    '
+  hints:
+  - 'Start with the base case: if n <= 1: return 1'
+  - Then return n * factorial(n - 1)
+- type: explain
+  md: "Plain recursive `fib` repeats work so much that `fib(40)` takes ages: about\n2ⁿ calls. **Memoisation**\
+    \ stores each answer the first time, so each value is\ncomputed once: O(n).\n\n```python\ndef fib(n,\
+    \ memo={}):\n    if n < 2:\n        return n\n    if n not in memo:\n        memo[n] = fib(n - 1,\
+    \ memo) + fib(n - 2, memo)\n    return memo[n]\n```\n\nPython can also do it for you with `@functools.cache`."
+- type: exercise
+  ref: ex01-flatten
+- type: exercise
+  ref: ex02-memo-fib
+- type: quiz
+  question: What happens to a recursive function with no base case?
+  options:
+  - It returns None
+  - It calls itself until Python stops it with a RecursionError
+  - It runs once
+  answer: 1

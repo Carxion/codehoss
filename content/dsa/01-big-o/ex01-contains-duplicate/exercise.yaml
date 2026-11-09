@@ -1,0 +1,13 @@
+id: dsa.contains-duplicate
+title: Contains a duplicate?
+difficulty: 2
+prompt: 'Write `contains_duplicate(nums)` that returns `True` if any value appears more than once.
+
+
+  It must be fast on **100,000 numbers**. Comparing every pair is O(n²), far too slow.
+
+  Remember what you''ve already seen in a **set** instead: O(n).'
+hints:
+- Checking `x in some_set` takes about the same time no matter how big the set is.
+- 'Loop once: if the number is already in seen, return True; otherwise add it.'
+- 'seen = set(), then for x in nums: if x in seen: return True / seen.add(x)'

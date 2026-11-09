@@ -1,0 +1,38 @@
+title: Sorting algorithms
+summary: From simple O(n²) sorts to O(n log n) merge sort.
+steps:
+- type: explain
+  md: 'Python''s `sorted()` is excellent, so why learn sorting? Because the ideas
+
+    (comparing, swapping, **divide and conquer**) show up everywhere, and it''s the
+
+    clearest place to *see* the difference between O(n²) and O(n log n).
+
+
+    Watch the three showcases, then write two sorts yourself (no `sorted()` or `.sort()`
+
+    allowed in the exercises!).'
+- type: showcase
+  algorithm: bubble-sort
+  md: '**Bubble sort**: swap neighbours that are out of order; the biggest values bubble to the end.'
+- type: showcase
+  algorithm: insertion-sort
+  md: '**Insertion sort**: build a sorted part on the left and slide each new item into place, like sorting
+    cards in your hand.'
+- type: showcase
+  algorithm: merge-sort
+  md: '**Merge sort**: split in half until pieces have one item, then merge sorted pieces. O(n log n)
+    every time.'
+- type: exercise
+  ref: ex01-insertion-sort
+- type: exercise
+  ref: ex02-merge-sort
+- type: quiz
+  question: 'Sorting 1,000,000 items: roughly how many more steps does an O(n²) sort take than an O(n
+    log n) one?'
+  options:
+  - About twice as many
+  - About 50,000 times as many
+  - The same
+  answer: 1
+  explanation: 'n² = 10¹² versus n log n ≈ 2 × 10⁷: a factor of about 50,000.'

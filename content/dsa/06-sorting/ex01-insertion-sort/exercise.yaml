@@ -1,0 +1,15 @@
+id: dsa.insertion-sort
+title: Insertion sort
+difficulty: 3
+prompt: 'Write `insertion_sort(nums)` that returns a **new** sorted list (smallest first) using
+
+  insertion sort, without changing `nums`. No `sorted()` or `.sort()`.
+
+
+  For each item, starting from the second, shift bigger items in the sorted part one
+
+  place right, then drop the item into the gap.'
+hints:
+- 'Work on a copy: result = list(nums).'
+- 'for i in range(1, len(result)): key = result[i]; j = i - 1'
+- 'while j >= 0 and result[j] > key: result[j + 1] = result[j]; j -= 1. Then result[j + 1] = key.'

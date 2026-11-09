@@ -1,0 +1,44 @@
+title: 'Hashing: sets and dictionaries'
+summary: Instant lookups, and the problems they make easy.
+steps:
+- type: explain
+  md: '`set` and `dict` use **hashing**: Python turns each key into a number
+
+    that says where to store it, so checking `x in s` or reading `d[key]` takes about the
+
+    same time whether there are 10 items or 10 million: **O(1) on average**.
+
+
+    That makes them the go-to tool for "have I seen this?", counting, and grouping. The
+
+    trade-off: keys must be **hashable** (immutable: numbers, strings, tuples; not lists).'
+- type: try-it
+  prompt: Make `key` the letters of `word` sorted into a string, so anagrams like "listen" and "silent"
+    get the same key.
+  starter: 'word = "listen"
+
+    key = word  # TODO
+
+    '
+  solution: 'word = "listen"
+
+    key = "".join(sorted(word))
+
+    '
+  check: 'assert key == "eilnst", f"key is {key!r}"
+
+    '
+  hints:
+  - sorted(word) gives a list of letters in order.
+  - '"".join(...) glues them back into a string.'
+- type: exercise
+  ref: ex01-group-anagrams
+- type: exercise
+  ref: ex02-two-sum
+- type: quiz
+  question: Why can't a list be a dictionary key?
+  options:
+  - Lists are too slow
+  - Lists can change, so their hash could change
+  - Dictionaries only accept strings
+  answer: 1

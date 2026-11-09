@@ -80,6 +80,34 @@ class TryItStep(_Strict):
     hints: list[str] = Field(min_length=1)
 
 
+# Algorithms the browser can animate (web/src/showcase/algorithms.ts).
+SHOWCASES = Literal[
+    "linear-search",
+    "binary-search",
+    "two-pointers",
+    "bracket-stack",
+    "fib-tree",
+    "bubble-sort",
+    "insertion-sort",
+    "merge-sort",
+    "bst-insert",
+    "heap",
+    "bfs",
+    "dfs",
+    "dijkstra",
+    "coin-change",
+]
+
+
+class ShowcaseStep(_Strict):
+    """An animated, step-through visualisation of an algorithm, played in the browser."""
+
+    type: Literal["showcase"]
+    algorithm: SHOWCASES
+    md: str = ""
+    input: dict = {}
+
+
 class ExerciseStep(_Strict):
     type: Literal["exercise"]
     ref: str
@@ -100,7 +128,7 @@ class QuizStep(_Strict):
 
 
 Step = Annotated[
-    ExplainStep | ExampleStep | TryItStep | ExerciseStep | QuizStep,
+    ExplainStep | ExampleStep | TryItStep | ExerciseStep | QuizStep | ShowcaseStep,
     Field(discriminator="type"),
 ]
 

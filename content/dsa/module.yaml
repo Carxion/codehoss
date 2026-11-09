@@ -1,0 +1,27 @@
+id: dsa
+title: Data Structures & Algorithms
+description: Watch algorithms run step by step, then write them yourself, fast enough to pass tests on
+  big inputs.
+level: intermediate
+prerequisites:
+- python-basics
+sandbox:
+  image: dojo-python
+  packages: []
+default_view: editor
+library_explorer:
+  featured:
+  - builtins
+  - collections
+  - heapq
+  modules:
+  - functools
+  - bisect
+  - itertools
+lessons:
+- 01-big-o
+- 02-two-pointers
+- 03-hashing
+- 04-stacks-and-queues
+- 05-recursion
+- 06-sorting

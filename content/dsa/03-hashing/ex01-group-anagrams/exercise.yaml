@@ -1,0 +1,17 @@
+id: dsa.group-anagrams
+title: Group anagrams
+difficulty: 3
+prompt: 'Write `group_anagrams(words)` that groups words made of the same letters. Return a list
+
+  of groups, with groups in the order their first word appears, and words in each group in
+
+  their original order.
+
+
+  `group_anagrams(["eat", "tea", "tan", "ate", "nat", "bat"])` gives
+
+  `[["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]`.'
+hints:
+- Use a dictionary from key (sorted letters) to a list of words.
+- groups.setdefault(key, []).append(word)
+- Dictionaries keep insertion order, so list(groups.values()) is in first-appearance order.

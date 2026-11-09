@@ -1,0 +1,15 @@
+id: dsa.most-frequent
+title: Most frequent item
+difficulty: 2
+prompt: 'Write `most_frequent(items)`: the item that appears most often. On a tie, return the
+
+  one that reached that count **first** in the list. Empty list: return `None`.
+
+
+  It must handle **200,000 items** quickly, so count with a dictionary in one pass
+
+  instead of calling `items.count(x)` for every item (that''s O(n²)).'
+hints:
+- counts[x] = counts.get(x, 0) + 1 counts each item in one pass.
+- 'Track the best item as you go: update it only when a count goes strictly higher.'
+- Updating only on a strictly higher count keeps the first item to reach it on ties.

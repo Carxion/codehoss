@@ -1,0 +1,12 @@
+id: dsa.merge-sort
+title: Merge sort
+difficulty: 4
+time_limit_s: 30
+prompt: "Write `merge_sort(nums)` returning a new sorted list using merge sort. No `sorted()`\nor `.sort()`.\
+  \ It must sort **50,000 numbers** in a couple of seconds, which an O(n²)\nsort can't.\n\n1. A list of\
+  \ 0 or 1 items is already sorted.\n2. Otherwise sort each half (recursively), then **merge** them: repeatedly\
+  \ take the\n   smaller front item of the two halves."
+hints:
+- mid = len(nums) // 2; left = merge_sort(nums[:mid]); right = merge_sort(nums[mid:])
+- Merge with two indexes i and j; append the smaller of left[i] and right[j].
+- 'When one half runs out, add the rest of the other: merged += left[i:] + right[j:]'

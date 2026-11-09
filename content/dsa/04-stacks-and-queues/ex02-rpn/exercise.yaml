@@ -1,0 +1,17 @@
+id: dsa.rpn
+title: Reverse Polish calculator
+difficulty: 3
+prompt: 'In **Reverse Polish Notation** operators come after their numbers: `3 4 +` means
+
+  3 + 4, and `5 1 2 + 4 * + 3 -` means 5 + ((1 + 2) × 4) − 3 = 14.
+
+
+  Write `evaluate_rpn(tokens)` for a list of strings like `["3", "4", "+"]` with integers
+
+  and `+ - * /`. Division keeps the whole-number part, rounding **towards zero**
+
+  (`int(a / b)`).'
+hints:
+- Numbers go on a stack.
+- For an operator, pop b first, then a, compute a (op) b, and push the result.
+- The answer is the one value left on the stack.

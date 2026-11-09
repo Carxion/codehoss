@@ -5,6 +5,8 @@ advice ("column 'total' is missing") rather than a pandas stack trace.
 """
 
 import math
+import signal
+import time
 
 
 def assert_close(actual, expected, *, name="value", tol=1e-6):
@@ -97,3 +99,38 @@ def _same(a, e, tol):
         except (TypeError, ValueError):
             return False
     return a == e
+
+
+class _TooSlow(Exception):
+    pass
+
+
+def assert_fast(fn, *args, budget=1.0, size="this input", hint="", **kwargs):
+    """Run fn(*args) and fail with advice if it takes longer than `budget` seconds.
+
+    In the sandbox a timer interrupts slow code, so an O(n**2) attempt fails in about
+    `budget` seconds instead of running for minutes. Returns fn's result.
+    """
+    message = f"Too slow: over {budget:g}s on {size}."
+    if hint:
+        message += f" {hint}"
+    can_interrupt = hasattr(signal, "setitimer")
+    if can_interrupt:
+
+        def _alarm(signum, frame):
+            raise _TooSlow
+
+        previous = signal.signal(signal.SIGALRM, _alarm)
+        signal.setitimer(signal.ITIMER_REAL, budget)
+    started = time.perf_counter()
+    try:
+        result = fn(*args, **kwargs)
+    except _TooSlow:
+        raise AssertionError(message) from None
+    finally:
+        if can_interrupt:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, previous)
+    if time.perf_counter() - started > budget:
+        raise AssertionError(message)
+    return result

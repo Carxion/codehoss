@@ -8,6 +8,7 @@ import EditorWorkspace from "./EditorWorkspace";
 import LibraryExplorer from "./LibraryExplorer";
 import Markdown from "./Markdown";
 import NotebookWorkspace from "./NotebookWorkspace";
+import ShowcaseView from "../showcase/ShowcaseView";
 
 interface Props {
   moduleId: string;
@@ -104,7 +105,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
     else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
     ws.reset();
     ws.setFocusNames(focusNamesFor(step));
-    if ((step.type === "explain" || step.type === "example") && !progress(index).done) {
+    if ((step.type === "explain" || step.type === "example" || step.type === "showcase") && !progress(index).done) {
       api.viewed(moduleId, lessonSlug, index).then(() => markDone(index), () => {});
     }
     // Only when the step changes; not on every progress update.
@@ -345,6 +346,11 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             </button>
           </div>
         )}
+        {step.type === "showcase" && (
+          // Keyed by step: each showcase starts fresh (input box, position).
+          <ShowcaseView key={`${lesson.slug}/${index}`} algorithm={step.algorithm} input={step.input} />
+        )}
+        <div className={step.type === "showcase" ? "workspace-hidden" : "workspace-body"}>
         {monacoLoaded ? (
           <Workspace
             key={notebook ? "notebook" : "editor"}
@@ -358,6 +364,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
         ) : (
           <div className="editor-wrap muted loading-editor">Loading the editor…</div>
         )}
+        </div>
       </section>
 
       {showLibrary && (
@@ -404,6 +411,7 @@ function LevelPicker({ level, onChange }: { level: Level; onChange: (l: Level) =
 }
 
 const STEP_LABEL: Record<Step["type"], string> = {
+  showcase: "Watch",
   explain: "Read",
   example: "Example",
   "try-it": "Try it",
@@ -426,6 +434,13 @@ function StepContent({
   switch (step.type) {
     case "explain":
       return <Markdown>{step.md}</Markdown>;
+    case "showcase":
+      return (
+        <>
+          {step.md && <Markdown>{step.md}</Markdown>}
+          <p className="muted small">Press ▶ Play, or step through it with ◀ ▶. Try your own input underneath.</p>
+        </>
+      );
     case "example":
       return (
         <>
@@ -522,7 +537,7 @@ function defaultCode(step: Step): string | null {
 /** Identifiers mentioned in `backticks` in the step text: the things this step teaches. */
 function focusNamesFor(step: Step): Set<string> {
   const text =
-    step.type === "explain" ? step.md
+    step.type === "explain" || step.type === "showcase" ? step.md
     : step.type === "example" ? step.md
     : step.type === "try-it" ? step.prompt
     : step.type === "exercise" ? step.exercise.prompt
