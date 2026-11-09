@@ -1,0 +1,67 @@
+title: Classification
+summary: Sort things into categories, like spam or not spam.
+steps:
+  - type: explain
+    md: |
+      **Classification** predicts a category instead of a number. To classify
+      **text**, we first turn words into numbers. `CountVectorizer` counts how often
+      each word appears in each message:
+
+      ```python
+      from sklearn.feature_extraction.text import CountVectorizer
+      vectorizer = CountVectorizer()
+      X = vectorizer.fit_transform(["free cash now", "see you at lunch"])
+      ```
+
+      Then a model like `MultinomialNB` (great for word counts) learns which words
+      point to which category.
+  - type: example
+    code: |
+      # %%
+      import pandas as pd
+
+      messages = pd.read_csv("/data/messages.csv")
+      messages.sample(5, random_state=1)
+
+      # %%
+      messages["label"].value_counts()
+  - type: try-it
+    prompt: Use `CountVectorizer` to turn `texts` into word counts called `X`.
+    starter: |
+      # %%
+      from sklearn.feature_extraction.text import CountVectorizer
+
+      texts = ["free cash now", "see you at lunch", "free lunch"]
+      X = None  # TODO
+    solution: |
+      # %%
+      from sklearn.feature_extraction.text import CountVectorizer
+
+      texts = ["free cash now", "see you at lunch", "free lunch"]
+      X = CountVectorizer().fit_transform(texts)
+    check: |
+      assert X is not None and X.shape[0] == 3, "X should have one row per text"
+      assert X.shape[1] == 7, f"Expected 7 different words, got {X.shape[1]}"
+    hints:
+      - Create a CountVectorizer, then call fit_transform on the texts.
+      - X = CountVectorizer().fit_transform(texts)
+  - type: explain
+    md: |
+      **Accuracy** is the share of predictions that are right. But a **confusion
+      matrix** shows *which* mistakes happen:
+
+      |  | predicted ham | predicted spam |
+      |---|---|---|
+      | **really ham** | correct | false positive (good mail blocked!) |
+      | **really spam** | false negative (spam got through) | correct |
+  - type: exercise
+    ref: ex01-spam-filter
+  - type: exercise
+    ref: ex02-confusion
+  - type: quiz
+    question: For a spam filter, what is a false positive?
+    options:
+      - A spam message that reaches the inbox
+      - A real message wrongly marked as spam
+      - A spam message correctly blocked
+    answer: 1

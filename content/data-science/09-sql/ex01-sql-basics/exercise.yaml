@@ -1,0 +1,13 @@
+id: ds.sql-basics
+title: SQL basics
+difficulty: 2
+prompt: |
+  Using SQL on `/data/store.db`, create:
+
+  - `denver`: a DataFrame with the `name` and `joined` columns of customers in
+    **Denver**, ordered by `name`
+  - `n_orders`: the total number of rows in the `orders` table
+hints:
+  - "SELECT name, joined FROM customers WHERE city = 'Denver' ORDER BY name"
+  - pd.read_sql(query, con) runs a query and returns a DataFrame.
+  - "SELECT COUNT(*) AS n FROM orders, then take the single value with ['n'][0]"

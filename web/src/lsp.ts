@@ -2,19 +2,105 @@
 //
 // We implement just what the beginner editor needs (completion, hover, signature help,
 // diagnostics) instead of pulling in a full VS Code layer. That keeps the bundle small
-// and lets us post-process results: lesson-aware ranking and friendlier diagnostics.
+// and lets us post-process results: lesson-aware ranking, beginner glossary notes on
+// hover, and friendlier diagnostics.
+//
+// The server always sees ONE document. A DocumentMapping says how editor models map
+// onto it: the plain editor is one model; a notebook stitches its cells together so
+// names from earlier cells are known in later ones.
 
 import type * as Monaco from "monaco-editor";
 import { wsUrl } from "./api";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+type Model = Monaco.editor.ITextModel;
 
-export const DOCUMENT_URI = "file:///work/main.py";
+export interface DocumentMapping {
+  uri: string;
+  text(): string;
+  models(): Model[];
+  /** Editor position -> 0-based document line/character, or null if not ours. */
+  toDocument(model: Model, position: Monaco.IPosition): { line: number; character: number } | null;
+  /** 0-based document line -> the model and 1-based line it belongs to. */
+  fromDocument(line: number): { model: Model; lineNumber: number } | null;
+  onDidChange(listener: () => void): Monaco.IDisposable;
+}
+
+export class SingleModelMapping implements DocumentMapping {
+  uri = "file:///work/main.py";
+  constructor(private model: Model) {}
+  text = () => this.model.getValue();
+  models = () => [this.model];
+  toDocument(model: Model, p: Monaco.IPosition) {
+    return model === this.model ? { line: p.lineNumber - 1, character: p.column - 1 } : null;
+  }
+  fromDocument(line: number) {
+    return { model: this.model, lineNumber: line + 1 };
+  }
+  onDidChange(listener: () => void) {
+    return this.model.onDidChangeContent(listener);
+  }
+}
+
+/** Notebook cells as one document: a prelude, then "# %%" + each cell's lines. */
+export class NotebookMapping implements DocumentMapping {
+  uri = "file:///work/notebook.py";
+  // display() exists in notebooks; tell the type checker about it.
+  private prelude = ["from IPython.display import display"];
+  private listeners = new Set<() => void>();
+  constructor(private cells: () => Model[]) {}
+
+  models = () => this.cells();
+
+  private starts(): number[] {
+    let line = this.prelude.length;
+    return this.cells().map((model) => {
+      const start = line + 1; // after the "# %%" marker
+      line = start + model.getLineCount();
+      return start;
+    });
+  }
+
+  text() {
+    const parts = [...this.prelude];
+    for (const model of this.cells()) parts.push("# %%", model.getValue());
+    return parts.join("\n");
+  }
+
+  toDocument(model: Model, p: Monaco.IPosition) {
+    const index = this.cells().indexOf(model);
+    if (index < 0) return null;
+    return { line: this.starts()[index] + p.lineNumber - 1, character: p.column - 1 };
+  }
+
+  fromDocument(line: number) {
+    const cells = this.cells();
+    const starts = this.starts();
+    for (let i = 0; i < cells.length; i++) {
+      if (line >= starts[i] && line < starts[i] + cells[i].getLineCount()) {
+        return { model: cells[i], lineNumber: line - starts[i] + 1 };
+      }
+    }
+    return null;
+  }
+
+  /** Call when cells are added, removed, reordered or edited. */
+  changed() {
+    this.listeners.forEach((listener) => listener());
+  }
+
+  onDidChange(listener: () => void) {
+    this.listeners.add(listener);
+    return { dispose: () => this.listeners.delete(listener) };
+  }
+}
 
 const ANALYSIS_SETTINGS = {
   typeCheckingMode: "basic",
   diagnosticMode: "openFilesOnly",
   autoImportCompletions: false,
+  // A bare expression is how notebooks show a value; don't flag it.
+  diagnosticSeverityOverrides: { reportUnusedExpression: "none" },
   inlayHints: { variableTypes: false, callArgumentNames: false, functionReturnTypes: false },
 };
 
@@ -35,13 +121,17 @@ export class PythonLanguageClient {
   private opened = false;
   private ready: Promise<void>;
   private disposables: Monaco.IDisposable[] = [];
+  private changeTimer: number | null = null;
+  private markedModels = new Set<Model>();
   /** Names the current lesson step is about; their completions rank first. */
   focusNames = new Set<string>();
+  /** Beginner notes (glossary.yaml), shown on hover before the official docs. */
+  glossary: Record<string, string> = {};
 
   constructor(
     sessionId: string,
     private monaco: typeof Monaco,
-    private model: Monaco.editor.ITextModel,
+    private mapping: DocumentMapping,
   ) {
     this.socket = new WebSocket(wsUrl(`/sessions/${sessionId}/lsp`));
     this.socket.onmessage = (event) => this.receive(JSON.parse(event.data));
@@ -50,12 +140,15 @@ export class PythonLanguageClient {
       this.socket.onerror = () => reject(new Error("language server connection failed"));
     });
     this.registerProviders();
-    this.disposables.push(model.onDidChangeContent(() => this.didChange()));
+    this.disposables.push(mapping.onDidChange(() => this.scheduleChange()));
   }
 
   dispose() {
     this.disposables.forEach((d) => d.dispose());
-    this.monaco.editor.setModelMarkers(this.model, "pyright", []);
+    if (this.changeTimer !== null) window.clearTimeout(this.changeTimer);
+    for (const model of this.markedModels) {
+      if (!model.isDisposed()) this.monaco.editor.setModelMarkers(model, "pyright", []);
+    }
     this.socket.close();
   }
 
@@ -137,52 +230,69 @@ export class PythonLanguageClient {
     this.notify("workspace/didChangeConfiguration", { settings: {} });
     this.notify("textDocument/didOpen", {
       textDocument: {
-        uri: DOCUMENT_URI,
+        uri: this.mapping.uri,
         languageId: "python",
         version: this.version,
-        text: this.model.getValue(),
+        text: this.mapping.text(),
       },
     });
     this.opened = true;
   }
 
-  private didChange() {
+  private scheduleChange() {
+    // Coalesce bursts (typing, or a notebook replacing all its cells).
+    if (this.changeTimer !== null) window.clearTimeout(this.changeTimer);
+    this.changeTimer = window.setTimeout(() => {
+      this.changeTimer = null;
+      this.flushChange();
+    }, 50);
+  }
+
+  private flushChange() {
     if (!this.opened) return;
     this.notify("textDocument/didChange", {
-      textDocument: { uri: DOCUMENT_URI, version: ++this.version },
-      contentChanges: [{ text: this.model.getValue() }],
+      textDocument: { uri: this.mapping.uri, version: ++this.version },
+      contentChanges: [{ text: this.mapping.text() }],
     });
   }
 
-  private position(position: Monaco.Position) {
-    return { line: position.lineNumber - 1, character: position.column - 1 };
+  /** Requests must see the latest text, even if a change is still being coalesced. */
+  private async prepare(model: Model, position: Monaco.IPosition) {
+    await this.ready;
+    if (this.changeTimer !== null) {
+      window.clearTimeout(this.changeTimer);
+      this.changeTimer = null;
+      this.flushChange();
+    }
+    return this.mapping.toDocument(model, position);
   }
 
   // --- features ----------------------------------------------------------------
 
   private registerProviders() {
     const { languages } = this.monaco;
-    const owns = (model: Monaco.editor.ITextModel) => model === this.model;
 
     this.disposables.push(
       languages.registerCompletionItemProvider("python", {
         triggerCharacters: ["."],
         provideCompletionItems: async (model, position) => {
-          if (!owns(model)) return { suggestions: [] };
-          await this.ready;
+          const at = await this.prepare(model, position);
+          if (!at) return { suggestions: [] };
           const result = await this.request("textDocument/completion", {
-            textDocument: { uri: DOCUMENT_URI },
-            position: this.position(position),
+            textDocument: { uri: this.mapping.uri },
+            position: at,
           });
           const items: Json[] = Array.isArray(result) ? result : (result?.items ?? []);
           const word = model.getWordUntilPosition(position);
+          // Private names (_like_this) are noise for beginners unless they typed "_".
+          const visible = word.word.startsWith("_") ? items : items.filter((i) => !String(i.label).startsWith("_"));
           const range = new this.monaco.Range(
             position.lineNumber,
             word.startColumn,
             position.lineNumber,
             word.endColumn,
           );
-          return { suggestions: items.map((item) => this.toSuggestion(item, range)) };
+          return { suggestions: visible.map((item) => this.toSuggestion(item, range)) };
         },
         resolveCompletionItem: async (suggestion) => {
           const original = (suggestion as Json)._lsp;
@@ -195,25 +305,30 @@ export class PythonLanguageClient {
       }),
       languages.registerHoverProvider("python", {
         provideHover: async (model, position) => {
-          if (!owns(model)) return null;
-          await this.ready;
+          const at = await this.prepare(model, position);
+          if (!at) return null;
           const result = await this.request("textDocument/hover", {
-            textDocument: { uri: DOCUMENT_URI },
-            position: this.position(position),
+            textDocument: { uri: this.mapping.uri },
+            position: at,
           });
-          if (!result?.contents) return null;
-          const contents = Array.isArray(result.contents) ? result.contents : [result.contents];
-          return { contents: contents.map(toMarkdown) };
+          const contents: Monaco.IMarkdownString[] = [];
+          const word = model.getWordAtPosition(position)?.word;
+          if (word && this.glossary[word]) contents.push({ value: `💡 ${this.glossary[word]}` });
+          if (result?.contents) {
+            const raw = Array.isArray(result.contents) ? result.contents : [result.contents];
+            contents.push(...raw.map(toMarkdown));
+          }
+          return contents.length ? { contents } : null;
         },
       }),
       languages.registerSignatureHelpProvider("python", {
         signatureHelpTriggerCharacters: ["(", ","],
         provideSignatureHelp: async (model, position) => {
-          if (!owns(model)) return null;
-          await this.ready;
+          const at = await this.prepare(model, position);
+          if (!at) return null;
           const result = await this.request("textDocument/signatureHelp", {
-            textDocument: { uri: DOCUMENT_URI },
-            position: this.position(position),
+            textDocument: { uri: this.mapping.uri },
+            position: at,
           });
           if (!result?.signatures?.length) return null;
           return {
@@ -242,11 +357,16 @@ export class PythonLanguageClient {
     const kindName = KIND_NAMES[item.kind as number] ?? "Text";
     const insert = item.textEdit?.newText ?? item.insertText ?? item.label;
     const focused = this.focusNames.has(item.label);
+    const note = this.glossary[item.label];
     return {
       label: item.label,
       kind: languages.CompletionItemKind[kindName],
       detail: item.detail,
-      documentation: item.documentation ? toMarkdown(item.documentation) : undefined,
+      documentation: note
+        ? { value: `💡 ${note}` }
+        : item.documentation
+          ? toMarkdown(item.documentation)
+          : undefined,
       insertText: insert,
       insertTextRules:
         item.insertTextFormat === 2
@@ -261,22 +381,30 @@ export class PythonLanguageClient {
   }
 
   private showDiagnostics(params: Json) {
-    if (params.uri !== DOCUMENT_URI) return;
+    if (params.uri !== this.mapping.uri) return;
     const severity = this.monaco.MarkerSeverity;
     const toSeverity = (s: number) =>
       s === 1 ? severity.Error : s === 2 ? severity.Warning : s === 3 ? severity.Info : severity.Hint;
-    this.monaco.editor.setModelMarkers(
-      this.model,
-      "pyright",
-      (params.diagnostics as Json[]).map((d) => ({
+    const byModel = new Map<Model, Monaco.editor.IMarkerData[]>();
+    for (const model of this.mapping.models()) byModel.set(model, []);
+    for (const d of params.diagnostics as Json[]) {
+      const start = this.mapping.fromDocument(d.range.start.line);
+      if (!start) continue; // e.g. on a "# %%" marker line
+      const sameLine = d.range.end.line === d.range.start.line;
+      byModel.get(start.model)?.push({
         severity: toSeverity(d.severity ?? 1),
         message: friendlyDiagnostic(d.message),
-        startLineNumber: d.range.start.line + 1,
+        startLineNumber: start.lineNumber,
         startColumn: d.range.start.character + 1,
-        endLineNumber: d.range.end.line + 1,
+        endLineNumber: sameLine ? start.lineNumber : start.lineNumber + (d.range.end.line - d.range.start.line),
         endColumn: d.range.end.character + 1,
-      })),
-    );
+      });
+    }
+    for (const [model, markers] of byModel) {
+      if (model.isDisposed()) continue;
+      this.monaco.editor.setModelMarkers(model, "pyright", markers);
+      this.markedModels.add(model);
+    }
   }
 }
 

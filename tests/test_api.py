@@ -69,7 +69,8 @@ def test_login_and_logout(app, client):
 
 
 def test_modules_include_progress_counts(client):
-    lesson = client.get("/api/modules").json()[0]["lessons"][0]
+    modules = {m["id"]: m for m in client.get("/api/modules").json()}
+    lesson = modules["python-basics"]["lessons"][0]
     assert lesson["slug"] == "01-first-program"
     assert lesson["steps"] == 9 and lesson["done"] >= 0
 
@@ -186,3 +187,44 @@ class TestSandboxed:
             while "id" not in (reply := ws.receive_json()) or reply.get("method"):
                 pass
         assert reply["id"] == 1 and "capabilities" in reply["result"]
+
+
+def test_glossary(client):
+    glossary = client.get("/api/modules/data-science/glossary").json()
+    assert "groupby" in glossary
+    assert client.get("/api/modules/python-basics/glossary").json() == {}
+
+
+def test_lesson_reports_view(client):
+    assert client.get(LESSON).json()["view"] == "editor"
+    notebook = client.get("/api/modules/data-science/lessons/01-notebooks").json()
+    assert notebook["view"] == "notebook"
+
+
+class TestNotebookKernel:
+    pytestmark = [
+        pytest.mark.docker,
+        pytest.mark.skipif(
+            not (docker_available() and image_exists("dojo-ds")),
+            reason="needs Docker and the dojo-ds image (run `dojo build-images`)",
+        ),
+    ]
+
+    def test_kernel_socket(self, client):
+        session = client.post("/api/sessions", json={"module_id": "data-science"}).json()
+        with client.websocket_connect(f"/api/sessions/{session['session_id']}/kernel") as ws:
+            ws.send_json({"type": "execute", "cell": "a", "code": "x = 20\nx + 1"})
+            ws.send_json({"type": "execute", "cell": "b", "code": "undefined_name"})
+            seen: dict[str, list[dict]] = {"a": [], "b": []}
+            done = set()
+            while done != {"a", "b"}:
+                message = ws.receive_json()
+                if message.get("cell") in seen:
+                    seen[message["cell"]].append(message)
+                    if message["type"] == "done":
+                        done.add(message["cell"])
+        result = next(m for m in seen["a"] if m["type"] == "result")
+        assert result["data"]["text/plain"] == "21"
+        error = next(m for m in seen["b"] if m["type"] == "error")
+        assert error["ename"] == "NameError" and error["explanation"]
+        client.delete(f"/api/sessions/{session['session_id']}")

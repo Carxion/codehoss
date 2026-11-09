@@ -1,0 +1,70 @@
+title: pandas Series and DataFrames
+summary: Look inside a table, pick columns, and add new ones.
+steps:
+  - type: explain
+    md: |
+      A **DataFrame** is a table; each column is a **Series**. The basics:
+
+      | Code | Gives you |
+      |---|---|
+      | `df.head()` | the first 5 rows |
+      | `df.shape` | `(rows, columns)` |
+      | `df.columns` | the column names |
+      | `df["rating"]` | one column (a Series) |
+      | `df[["title", "rating"]]` | several columns (a DataFrame) |
+      | `df.describe()` | summary statistics |
+  - type: example
+    code: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+      df.head()
+
+      # %%
+      df["rating"].mean()
+
+      # %%
+      df["genre"].value_counts()
+  - type: try-it
+    prompt: Add a column `votes_k` holding `votes` divided by 1000.
+    starter: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+
+      # %%
+      # TODO: create df["votes_k"]
+      df.head()
+    solution: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+
+      # %%
+      df["votes_k"] = df["votes"] / 1000
+      df.head()
+    check: |
+      assert "votes_k" in df.columns, "Create a column called votes_k"
+      assert (df["votes_k"] == df["votes"] / 1000).all(), "votes_k should be votes / 1000"
+    hints:
+      - Assigning to a new column name creates it, like df["new"] = ...
+      - df["votes_k"] = df["votes"] / 1000
+  - type: explain
+    md: |
+      Columns have handy summary methods: `.mean()`, `.max()`, `.nunique()` (how many
+      different values), and `.value_counts()` (how often each value appears).
+      `.idxmax()` on a Series gives the **label** of its biggest value.
+  - type: exercise
+    ref: ex01-movies-overview
+  - type: exercise
+    ref: ex02-new-columns
+  - type: quiz
+    question: 'What is the difference between `df["rating"]` and `df[["rating"]]`?'
+    options:
+      - There is no difference
+      - The first is a Series, the second is a DataFrame with one column
+      - The second is an error
+    answer: 1

@@ -1,0 +1,14 @@
+id: ds.fill-missing
+title: Fill in the gaps
+difficulty: 3
+prompt: |
+  The cleaning function from the last exercise is done for you. Using `clean`:
+
+  - `median_age`: the median of `age` (ignoring missing values)
+  - fill the missing ages in `clean["age"]` with `median_age`
+  - `satisfaction_by_city`: a dictionary of city -> average satisfaction, rounded to
+    2 decimals
+hints:
+  - clean["age"].median() skips missing values automatically.
+  - 'clean["age"] = clean["age"].fillna(median_age)'
+  - clean.groupby("city")["satisfaction"].mean().round(2).to_dict()

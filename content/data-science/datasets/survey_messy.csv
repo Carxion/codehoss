@@ -1,0 +1,64 @@
+respondent,age,city,satisfaction
+1,27,Seattle,5
+2,45,Denver,1
+3,66,seattle,3
+4,70,Denver,4
+5,22,Austin,1
+6,56,seattle,1
+7,unknown,Boulder,
+8,,Denver,1
+9,18,denver,
+10,58,Seattle,3
+11,19,Boulder,1
+12,64,Austin,
+13,25,seattle,1
+14,59,seattle,5
+15,54,austin,3
+16,37,Austin,2
+17,26,Boulder,3
+18,58,Denver,3
+19,46,Seattle,3
+20,38,Boulder,2
+21,24,Boulder,3
+22,25,boulder ,2
+23,24,Denver,3
+24,35,Seattle,4
+25,38,DENVER ,1
+26,56,Seattle,4
+27,44,Denver,4
+28,unknown,Boulder,2
+29,27,seattle,4
+30,unknown,Denver,1
+31,21,Austin,4
+32,35,austin,
+33,32,Seattle,2
+34,33,Seattle,5
+35,21,boulder ,1
+36,28,austin,2
+37,,Austin,1
+38,21, Denver,
+39,unknown,boulder ,
+40,67,Boulder,4
+41,27,Denver,
+42,64,Boulder,5
+43,45,Denver,3
+44,68,Austin ,1
+45,,Boulder,2
+46,59,Seattle,2
+47,23,seattle,2
+48,55,Seattle,1
+49,23,boulder ,5
+50,18,Austin,1
+51,47,Austin,2
+52,40,Boulder,2
+53,35, Denver,3
+54,52,Boulder,
+55,30,Boulder,2
+56,26, Denver,1
+57,63,Seattle,1
+58,28,boulder ,1
+59,60,DENVER ,4
+60,43,austin,
+5,22,Austin,1
+18,58,Denver,3
+31,21,Austin,4

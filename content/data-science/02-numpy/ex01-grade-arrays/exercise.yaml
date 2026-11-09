@@ -1,0 +1,15 @@
+id: ds.grade-arrays
+title: Grades as arrays
+difficulty: 2
+prompt: |
+  `scores` is a 2-D array: one row per student, columns maths, science, english.
+  Create:
+
+  - `subject_means`: the mean of each **column**, rounded to 1 decimal
+    (`np.round(..., 1)`)
+  - `best_total`: the highest total score of any single student (sum of a row)
+  - `above_90`: how many individual scores are **above 90**
+hints:
+  - scores.mean(axis=0) averages each column.
+  - scores.sum(axis=1) gives each student's total; .max() picks the biggest.
+  - (scores > 90).sum() counts the scores above 90.

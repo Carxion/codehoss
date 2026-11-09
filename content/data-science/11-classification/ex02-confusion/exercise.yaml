@@ -1,0 +1,13 @@
+id: ds.confusion
+title: Which mistakes?
+difficulty: 3
+prompt: |
+  The spam filter is built for you. Create:
+
+  - `cm`: the confusion matrix, with `labels=["ham", "spam"]`
+  - `false_positives`: how many real (ham) messages were marked as spam
+  - `false_negatives`: how many spam messages got through as ham
+hints:
+  - cm = confusion_matrix(y_test, predictions, labels=["ham", "spam"])
+  - Rows are the real labels, columns the predictions, in the order of labels.
+  - false_positives = cm[0][1] and false_negatives = cm[1][0]

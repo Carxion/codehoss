@@ -1,0 +1,13 @@
+id: ds.revenue-by-region
+title: Revenue by region
+difficulty: 3
+prompt: |
+  Using `/data/sales.csv` (revenue is `units * unit_price`), create:
+
+  - `revenue_by_region`: total revenue per region as a Series, rounded to 2 decimals,
+    sorted from **highest to lowest**
+  - `best_region`: the name of the region with the most revenue
+hints:
+  - 'First add a column: sales["revenue"] = sales["units"] * sales["unit_price"]'
+  - sales.groupby("region")["revenue"].sum().round(2).sort_values(ascending=False)
+  - The first label of the sorted Series is the best region, e.g. revenue_by_region.index[0]

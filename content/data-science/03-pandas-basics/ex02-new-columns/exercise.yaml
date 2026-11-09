@@ -1,0 +1,14 @@
+id: ds.new-columns
+title: New columns
+difficulty: 2
+prompt: |
+  Add two columns to the movies DataFrame `df`:
+
+  - `runtime_hours`: `runtime` divided by 60, rounded to 2 decimals
+  - `is_long`: `True` when `runtime` is **more than 120** minutes
+
+  Then make `long_count` hold how many movies are long.
+hints:
+  - 'df["runtime_hours"] = (df["runtime"] / 60).round(2)'
+  - A comparison makes a True/False column, like df["runtime"] > 120
+  - df["is_long"].sum() counts the True values.

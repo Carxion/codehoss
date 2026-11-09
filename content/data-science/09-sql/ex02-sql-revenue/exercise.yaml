@@ -1,0 +1,12 @@
+id: ds.sql-revenue
+title: Revenue per customer
+difficulty: 4
+prompt: |
+  Write one SQL query that joins `orders`, `products` and `customers` to find each
+  customer's revenue (`quantity * price`). Make `top_customers`: a DataFrame with
+  columns `name` and `revenue` for the **5** customers with the most revenue, highest
+  first. Round revenue to 2 decimals.
+hints:
+  - Join orders to products on products.id = orders.product_id, and to customers on customers.id = orders.customer_id.
+  - SUM(o.quantity * p.price) AS revenue, grouped by c.name.
+  - 'Finish with ORDER BY revenue DESC LIMIT 5, then .round(2) on the result.'

@@ -1,0 +1,14 @@
+id: ds.category-pivot
+title: Category pivot
+difficulty: 4
+prompt: |
+  Join `/data/sales.csv` with `/data/products.csv` (which gives each product's
+  `category`), then create:
+
+  - `pivot`: a pivot table with regions down the side, categories across the top, and
+    total revenue in each cell, rounded to 2 decimals
+  - `top_category`: the category with the most revenue overall
+hints:
+  - full = sales.merge(products, on="product") adds the category column.
+  - 'full.pivot_table(index="region", columns="category", values="revenue", aggfunc="sum").round(2)'
+  - pivot.sum() totals each category column; .idxmax() names the biggest.

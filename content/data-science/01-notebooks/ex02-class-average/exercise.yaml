@@ -1,0 +1,14 @@
+id: ds.class-average
+title: Class average
+difficulty: 2
+prompt: |
+  Using the grades data, create:
+
+  - `maths_avg`: the average maths score, rounded to 1 decimal place
+  - `passed`: how many students scored **60 or more** in maths
+
+  A column is picked with square brackets: `df["maths"]`.
+hints:
+  - 'df["maths"].mean() gives the average; wrap it in round(..., 1).'
+  - 'df["maths"] >= 60 gives True/False for every student.'
+  - 'True counts as 1 when added up: passed = (df["maths"] >= 60).sum()'

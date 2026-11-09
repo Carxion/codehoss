@@ -1,0 +1,16 @@
+id: ds.ab-test
+title: Did version B win?
+difficulty: 4
+prompt: |
+  `/data/ab_test.csv` records whether each user `converted` (1) or not (0), and which
+  `group` (A or B) they saw. Create:
+
+  - `rate_a`, `rate_b`: the conversion rate of each group, rounded to 4 decimals
+  - `lift`: `rate_b - rate_a`, rounded to 4 decimals
+  - `p_value`: from `stats.ttest_ind(converted_b, converted_a)` on the two groups'
+    `converted` columns
+  - `significant`: `True` if `p_value` is below 0.05
+hints:
+  - The mean of a 0/1 column is its rate, e.g. df[df["group"] == "A"]["converted"].mean()
+  - 'Pull out each group''s column first: converted_a = df[df["group"] == "A"]["converted"]'
+  - p_value = stats.ttest_ind(converted_b, converted_a).pvalue

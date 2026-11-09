@@ -66,6 +66,12 @@ class LoadedModule:
     dir: Path
     spec: Module
     lessons: list[LoadedLesson] = field(default_factory=list)
+    # Beginner-written notes shown on hover and in the Library Explorer (glossary.yaml).
+    glossary: dict[str, str] = field(default_factory=dict)
+
+    @property
+    def data_dir(self) -> Path | None:
+        return (self.dir / self.spec.sandbox.data).resolve() if self.spec.sandbox.data else None
 
     def exercises(self) -> Iterator[LoadedExercise]:
         for lesson in self.lessons:
@@ -108,6 +114,11 @@ def _load_module(module_dir: Path, content: Content) -> LoadedModule | None:
         )
 
     module = LoadedModule(dir=module_dir, spec=spec)
+    if module.data_dir is not None and not module.data_dir.is_dir():
+        content.problems.append(
+            Problem("error", where, f"sandbox.data folder '{spec.sandbox.data}' does not exist")
+        )
+    module.glossary = _load_glossary(module_dir / "glossary.yaml", content)
     for slug in spec.lessons:
         lesson_dir = module_dir / slug
         if not (lesson_dir / "lesson.yaml").exists():
@@ -144,6 +155,24 @@ def _load_lesson(module_id: str, lesson_dir: Path, content: Content) -> LoadedLe
                 )
         lesson.exercises[ex_dir.name] = exercise
     return lesson
+
+
+def _load_glossary(path: Path, content: Content) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    where = _rel(path, content.root)
+    try:
+        with path.open(encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except yaml.YAMLError as e:
+        content.problems.append(Problem("error", where, f"invalid YAML: {e}"))
+        return {}
+    if not isinstance(data, dict) or not all(
+        isinstance(k, str) and isinstance(v, str) for k, v in data.items()
+    ):
+        content.problems.append(Problem("error", where, "glossary must map names to text"))
+        return {}
+    return data
 
 
 def _parse[M: BaseModel](model: type[M], path: Path, content: Content) -> M | None:

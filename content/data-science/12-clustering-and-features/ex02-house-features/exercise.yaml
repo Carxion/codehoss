@@ -1,0 +1,15 @@
+id: ds.house-features
+title: Engineer house features
+difficulty: 3
+prompt: |
+  Add two columns to `houses`:
+
+  - `price_per_sqft`: `price` divided by `size_sqft`, rounded to 2 decimals
+  - `is_new`: `True` when `age_years` is **under 10**
+
+  Then make `ppsf_new` and `ppsf_old`: the average price per square foot of new and
+  of older houses, each rounded to 2 decimals.
+hints:
+  - 'houses["price_per_sqft"] = (houses["price"] / houses["size_sqft"]).round(2)'
+  - 'houses["is_new"] = houses["age_years"] < 10'
+  - 'Filter, then average: houses[houses["is_new"]]["price_per_sqft"].mean()'

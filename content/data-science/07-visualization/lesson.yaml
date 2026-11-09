@@ -1,0 +1,66 @@
+title: Charts with matplotlib
+summary: Turn numbers into pictures people can read at a glance.
+steps:
+  - type: explain
+    md: |
+      **matplotlib** draws charts. The pattern is always the same:
+
+      ```python
+      import matplotlib.pyplot as plt
+      plt.plot(x, y)           # or plt.bar(...), plt.scatter(...)
+      plt.title("What this shows")
+      plt.xlabel("x axis")
+      plt.ylabel("y axis")
+      ```
+
+      Pick the chart for the question: **line** for change over time, **bar** to
+      compare categories, **scatter** to see if two numbers are related. Always add a
+      title and axis labels so the chart stands on its own.
+  - type: example
+    code: |
+      # %%
+      import matplotlib.pyplot as plt
+
+      months = ["Jan", "Feb", "Mar", "Apr"]
+      visitors = [120, 180, 150, 210]
+      plt.plot(months, visitors, marker="o")
+      plt.title("Website visitors")
+      plt.ylabel("Visitors")
+  - type: try-it
+    prompt: Draw a **bar** chart of `counts` (one bar per fruit) and give it a title.
+    starter: |
+      # %%
+      import matplotlib.pyplot as plt
+
+      fruits = ["apple", "banana", "cherry"]
+      counts = [5, 3, 8]
+      # TODO: plt.bar(...) and plt.title(...)
+    solution: |
+      # %%
+      import matplotlib.pyplot as plt
+
+      fruits = ["apple", "banana", "cherry"]
+      counts = [5, 3, 8]
+      plt.bar(fruits, counts)
+      plt.title("Fruit counts")
+    check: |
+      from dojo_checks import first_axes
+      ax = first_axes()
+      assert ax["bars"] == 3, f"Expected 3 bars, found {ax['bars']}"
+      assert ax["title"], "Add a title with plt.title(...)"
+    hints:
+      - plt.bar takes the labels first, then the heights.
+      - 'plt.bar(fruits, counts), then plt.title("Fruit counts")'
+  - type: explain
+    md: |
+      pandas can plot directly too: `series.plot(kind="bar")` or `df.plot(x="a", y="b",
+      kind="scatter")`. It's matplotlib underneath, so `plt.title` still works.
+  - type: exercise
+    ref: ex01-monthly-revenue
+  - type: exercise
+    ref: ex02-genre-ratings
+  - type: quiz
+    question: Which chart best shows whether bigger houses cost more?
+    options: [Line chart, Bar chart, Scatter plot]
+    answer: 2
+    explanation: A scatter plot puts one dot per house, so you can see if size and price rise together.

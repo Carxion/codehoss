@@ -1,0 +1,13 @@
+id: ds.house-model
+title: House price model
+difficulty: 3
+prompt: |
+  Predict `price` from `size_sqft`, `bedrooms`, `age_years` and `distance_km`:
+
+  1. Split with `test_size=0.2` and `random_state=42`.
+  2. Train a `LinearRegression` called `model` on the training data.
+  3. Make `mae`: the mean absolute error on the **test** data.
+hints:
+  - X = houses[FEATURES] and y = houses["price"] (FEATURES is defined for you).
+  - model = LinearRegression().fit(X_train, y_train)
+  - mae = mean_absolute_error(y_test, model.predict(X_test))

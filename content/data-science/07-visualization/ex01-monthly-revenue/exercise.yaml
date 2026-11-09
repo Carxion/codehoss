@@ -1,0 +1,14 @@
+id: ds.monthly-revenue
+title: Monthly revenue line chart
+difficulty: 3
+prompt: |
+  Using the sales data:
+
+  1. Make `monthly`: total revenue (`units * unit_price`) for each month, as a Series
+     indexed by month number 1 to 12.
+  2. Draw it as a **line** chart titled `Monthly revenue`, with the x axis labelled
+     `Month` and the y axis labelled `Revenue`.
+hints:
+  - pd.to_datetime(sales["date"]).dt.month gives the month number of each sale.
+  - sales.groupby("month")["revenue"].sum() makes monthly.
+  - 'plt.plot(monthly.index, monthly.values), then plt.title, plt.xlabel and plt.ylabel.'

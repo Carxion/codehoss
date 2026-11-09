@@ -51,6 +51,25 @@ the current step mentions rank first, and common diagnostics are reworded. Begin
 snippets (`web/src/snippets.ts`) are a separate completion provider. Curated hover docs
 are planned for M3.
 
+## Notebooks
+
+Notebook modules (`default_view: notebook`) run cells on a kernel: one long-lived
+IPython process inside the learner's session container, started with
+`docker exec -i ... python -c <dojo/_kernel.py>`, so images need no extra files. It
+speaks JSON lines over stdio and uses IPython's `InteractiveShell` for real notebook
+behaviour (last expression shown, rich reprs, inline matplotlib). The API bridges it to
+the browser over `/api/sessions/<id>/kernel`; each cell gets a 60 s limit (interrupt,
+then restart). Errors come back with the same plain-English explanation as runs.
+
+Notebook content is stored as Python with `# %%` cell markers, so grading is
+unchanged: the whole notebook runs as one script against hidden tests. Test helpers in
+`dojo_checks` (copied into each grading run) give friendly failures for DataFrames,
+Series, numbers and charts.
+
+For IntelliSense the client stitches the cells into one virtual document (plus a
+`display` import), so names from earlier cells complete in later ones; results are
+mapped back to the right cell.
+
 ## Interactive runs
 
 The Run button uses a WebSocket: output streams back as it's printed, keystrokes typed in

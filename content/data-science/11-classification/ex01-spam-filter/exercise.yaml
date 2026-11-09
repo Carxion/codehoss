@@ -1,0 +1,14 @@
+id: ds.spam-filter
+title: Build a spam filter
+difficulty: 3
+prompt: |
+  The data is already split into training and test messages. Build the filter:
+
+  1. Fit a `CountVectorizer` called `vectorizer` on `train_text`, and transform both
+     `train_text` and `test_text`.
+  2. Train a `MultinomialNB` called `model`.
+  3. Make `predictions` for the test messages and `accuracy` (aim for 0.9 or more).
+hints:
+  - X_train = vectorizer.fit_transform(train_text); for the test text use vectorizer.transform (no fit!).
+  - model = MultinomialNB().fit(X_train, y_train)
+  - accuracy = accuracy_score(y_test, predictions)

@@ -1,0 +1,56 @@
+title: Cleaning messy data
+summary: Fix missing values, wrong types, typos and duplicates.
+steps:
+  - type: explain
+    md: |
+      Real data is messy. `/data/survey_messy.csv` has all the classics: duplicate
+      rows, cities typed as `denver`, ` Denver` or `DENVER `, ages like `unknown`, and
+      blanks. The toolkit:
+
+      | Problem | Fix |
+      |---|---|
+      | duplicate rows | `df.drop_duplicates()` |
+      | stray spaces / capitals | `df["city"].str.strip().str.title()` |
+      | numbers stored as text | `pd.to_numeric(df["age"], errors="coerce")` |
+      | missing values | `df.isna().sum()`, `dropna()`, `fillna(value)` |
+
+      `errors="coerce"` turns anything that isn't a number into a missing value (`NaN`).
+  - type: example
+    code: |
+      # %%
+      import pandas as pd
+
+      raw = pd.read_csv("/data/survey_messy.csv")
+      raw["city"].value_counts()
+
+      # %%
+      raw.isna().sum()
+  - type: try-it
+    prompt: Make `n_dupes` hold how many rows are exact duplicates of an earlier row.
+    starter: |
+      # %%
+      import pandas as pd
+
+      raw = pd.read_csv("/data/survey_messy.csv")
+      n_dupes = 0  # TODO
+      n_dupes
+    solution: |
+      # %%
+      import pandas as pd
+
+      raw = pd.read_csv("/data/survey_messy.csv")
+      n_dupes = raw.duplicated().sum()
+      n_dupes
+    check: |
+      assert n_dupes == raw.duplicated().sum() == 3, f"n_dupes is {n_dupes}"
+    hints:
+      - raw.duplicated() is True for every repeated row.
+      - n_dupes = raw.duplicated().sum()
+  - type: exercise
+    ref: ex01-clean-survey
+  - type: exercise
+    ref: ex02-fill-missing
+  - type: quiz
+    question: 'What does `pd.to_numeric(column, errors="coerce")` do with the text "unknown"?'
+    options: ['Raises an error', 'Turns it into NaN (missing)', 'Turns it into 0']
+    answer: 1

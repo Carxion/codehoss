@@ -16,16 +16,17 @@ The editor knows what's available *in this module's environment* — not a gener
 | hovering any name | full docs + a "see example" link |
 | a typo / wrong type | squiggle with a plain-English message |
 
-**How:** a Python language server (basedpyright) runs inside the learner's session
-container and talks to Monaco over WebSocket (`monaco-languageclient`). Since it runs where
-the packages are installed, completions always match what will actually run. Notebook cells
-use the same server.
+**How:** a Python language server (basedpyright) runs from the module's own sandbox image
+and talks to Monaco over a WebSocket (a small purpose-built client, `web/src/lsp.ts`).
+Since it sees exactly the installed packages, completions always match what will actually
+run. In notebooks, all cells form one document, so names from earlier cells complete in
+later ones.
 
 **Beginner extras on top of the language server:**
 - *Snippet completions* for common patterns ("for loop over list", "read CSV", "train/test
   split") — tab-stops guide what to fill in
-- *Curated docs:* for core libraries, hover shows a short beginner-written explanation
-  before the official docstring
+- *Curated docs:* a module's `glossary.yaml` gives short beginner-written notes, shown
+  on hover (💡) before the official docstring and in the Library Explorer
 - *Lesson-aware ranking:* items taught in the current lesson rank first (e.g. in the lists
   lesson, `.append` tops the `fruits.` completion list)
 

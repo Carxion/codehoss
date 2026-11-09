@@ -1,0 +1,14 @@
+id: ds.hits
+title: What makes a hit?
+difficulty: 3
+prompt: |
+  Call a movie a **hit** when its `rating` is at least **7** and `gross_millions` is
+  at least **50**. Create:
+
+  - `hits`: a DataFrame of just the hits
+  - `hit_rate`: the share of all movies that are hits, rounded to 3 decimals
+  - `hits_by_genre`: a dictionary of genre -> number of hits
+hints:
+  - 'hits = df[(df["rating"] >= 7) & (df["gross_millions"] >= 50)]'
+  - hit_rate is len(hits) / len(df), rounded.
+  - hits["genre"].value_counts().to_dict() makes the dictionary.

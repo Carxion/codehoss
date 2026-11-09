@@ -1,0 +1,36 @@
+# Beginner notes shown on hover (before the official docs) and in the Library Explorer.
+# Keys are names as they appear in code; keep each note to one or two plain sentences.
+read_csv: Loads a CSV file (a table saved as text) into a DataFrame. Pass the file path, like `pd.read_csv("/data/movies.csv")`.
+DataFrame: A table with named columns and numbered rows, like a spreadsheet you control with code.
+Series: One column of a DataFrame. It has values plus an index (row labels).
+head: Shows the first rows (5 unless you say otherwise). Great for a quick look at new data.
+describe: 'Summary statistics for every number column: count, mean, min, max and more.'
+shape: 'How big the table is, as (rows, columns). It''s a property, so no brackets.'
+loc: Pick rows and columns by label or by a True/False filter, like `df.loc[df["year"] > 2000, "title"]`.
+iloc: Pick rows and columns by position (0, 1, 2...), like `df.iloc[0]` for the first row.
+sort_values: Sorts rows by a column. Add `ascending=False` for biggest first.
+groupby: Splits rows into groups that share a value, so you can summarise each group, like `df.groupby("region")["units"].sum()`.
+merge: Joins two tables on a shared column, like VLOOKUP in a spreadsheet.
+pivot_table: Turns rows into a grid summary, e.g. regions down the side and products across the top.
+dropna: Removes rows (or columns) that have missing values.
+fillna: Replaces missing values with something you choose.
+drop_duplicates: Removes rows that are exact copies of an earlier row.
+astype: Converts a column to another type, like text to numbers.
+value_counts: Counts how many times each value appears in a column.
+mean: 'The average: add everything up and divide by how many there are.'
+median: The middle value when sorted. Less affected by extreme values than the mean.
+std: 'Standard deviation: how spread out the values are around the mean.'
+corr: 'Correlation: how strongly two columns move together, from -1 to 1.'
+array: NumPy's fast list of numbers. Maths on an array applies to every element at once.
+plot: Draws a line chart. Call `plt.title`, `plt.xlabel` and `plt.ylabel` to label it.
+bar: 'Draws a bar chart: one bar per category.'
+scatter: Draws one dot per row, to see how two numbers relate.
+train_test_split: Splits data into a part to learn from and a part to test on, so you can check the model on data it hasn't seen.
+LinearRegression: A model that fits a straight line (or flat surface) through the data to predict a number.
+LogisticRegression: Despite the name, a model for choosing between categories, like spam or not spam.
+fit: 'Teaches a model from data: `model.fit(X, y)`.'
+predict: Uses a trained model to make predictions for new rows.
+KMeans: Groups rows into k clusters of similar values, without being told the answers.
+StandardScaler: Rescales columns so each has mean 0 and similar spread; many models work better after this.
+connect: Opens a database. With `sqlite3.connect("/data/store.db")` you can run SQL on it.
+read_sql: Runs a SQL query and returns the result as a DataFrame.

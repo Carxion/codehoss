@@ -1,0 +1,60 @@
+title: Clustering and feature engineering
+summary: Find groups without labels, and craft better inputs for models.
+steps:
+  - type: explain
+    md: |
+      So far every model had answers to learn from. **Clustering** finds groups in
+      data **without** answers, like customers who shop in similar ways.
+
+      **KMeans** puts rows into `k` clusters of similar values. It measures distance,
+      so columns on big scales (spend in dollars) would drown out small ones (visits
+      per month). **Scale first** with `StandardScaler`:
+
+      ```python
+      from sklearn.preprocessing import StandardScaler
+      from sklearn.cluster import KMeans
+      scaled = StandardScaler().fit_transform(X)
+      labels = KMeans(n_clusters=3, random_state=42, n_init=10).fit_predict(scaled)
+      ```
+  - type: try-it
+    prompt: Scale the two columns of `X` with `StandardScaler` into `scaled`.
+    starter: |
+      # %%
+      import numpy as np
+      from sklearn.preprocessing import StandardScaler
+
+      X = np.array([[100, 1], [200, 2], [300, 3]])
+      scaled = X  # TODO
+      scaled
+    solution: |
+      # %%
+      import numpy as np
+      from sklearn.preprocessing import StandardScaler
+
+      X = np.array([[100, 1], [200, 2], [300, 3]])
+      scaled = StandardScaler().fit_transform(X)
+      scaled
+    check: |
+      import numpy as np
+      assert np.allclose(scaled.mean(axis=0), 0), "Each scaled column should have mean 0"
+      assert np.allclose(scaled[:, 0], scaled[:, 1]), "After scaling, both columns look the same"
+    hints:
+      - Create a StandardScaler and call fit_transform on X.
+      - scaled = StandardScaler().fit_transform(X)
+  - type: explain
+    md: |
+      **Feature engineering** means creating better inputs from the columns you have.
+      Price alone mixes big and small houses; **price per square foot** compares them
+      fairly. A True/False column like `is_new` can capture a rule a straight-line
+      model would miss.
+  - type: exercise
+    ref: ex01-customer-segments
+  - type: exercise
+    ref: ex02-house-features
+  - type: quiz
+    question: Why scale features before KMeans?
+    options:
+      - KMeans only accepts numbers between 0 and 1
+      - So columns with big numbers don't dominate the distance
+      - It makes the clusters more colourful
+    answer: 1

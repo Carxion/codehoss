@@ -1,0 +1,14 @@
+id: ds.movies-overview
+title: Movies overview
+difficulty: 2
+prompt: |
+  Using `/data/movies.csv`, create:
+
+  - `n_movies`: how many movies there are
+  - `n_genres`: how many **different** genres there are
+  - `avg_rating`: the average rating, rounded to 2 decimals
+  - `top_genre`: the genre with the most movies
+hints:
+  - len(df) counts rows; df["genre"].nunique() counts different genres.
+  - round(df["rating"].mean(), 2)
+  - df["genre"].value_counts().idxmax() is the most common genre.

@@ -1,0 +1,16 @@
+id: ds.normalise
+title: Normalise an array
+difficulty: 2
+prompt: |
+  Write `normalise(values)` that rescales a NumPy array so the smallest value becomes
+  0 and the largest becomes 1:
+
+  ```
+  (value - smallest) / (largest - smallest)
+  ```
+
+  `normalise(np.array([10, 15, 20]))` gives `array([0. , 0.5, 1. ])`.
+hints:
+  - values.min() and values.max() give the smallest and largest.
+  - The formula works on the whole array at once; no loop needed.
+  - 'return (values - values.min()) / (values.max() - values.min())'

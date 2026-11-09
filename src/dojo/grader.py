@@ -101,6 +101,7 @@ def run_tests(
         "main.py": code.encode("utf-8"),
         "pytest.ini": b"[pytest]\n",
         "conftest.py": (PACKAGE_DIR / "_grader_conftest.py").read_bytes(),
+        "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
         **{test_file.name: test_file.read_bytes() for test_file in test_files},
     }
     argv = [
@@ -133,6 +134,7 @@ def run_snippet(
         "main.py": code.encode("utf-8"),
         "check.py": check.encode("utf-8"),
         "_tryit_runner.py": (PACKAGE_DIR / "_tryit_runner.py").read_bytes(),
+        "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
     }
     argv = [executor.python, "_tryit_runner.py", "main.py", "check.py"]
     result = executor.execute(files, argv, timeout=timeout)

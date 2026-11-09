@@ -1,0 +1,12 @@
+id: ds.first-look
+title: First look at the grades
+difficulty: 1
+prompt: |
+  Load `/data/grades.csv` into a DataFrame called `df`, then create:
+
+  - `students`: how many rows (students) there are
+  - `columns`: the list of column names, like `["student", "maths", ...]`
+hints:
+  - 'df = pd.read_csv("/data/grades.csv") loads the file.'
+  - len(df) counts the rows.
+  - list(df.columns) gives the column names as a list.

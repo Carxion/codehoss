@@ -1,0 +1,40 @@
+id: data-science
+title: Data Science
+description: >
+  Explore, clean, chart and model data with pandas, matplotlib and scikit-learn, in
+  notebooks, one small step at a time.
+level: beginner-intermediate
+prerequisites: [python-basics]
+sandbox:
+  image: dojo-ds
+  packages: [ipython, numpy, pandas, matplotlib, seaborn, scipy, scikit-learn]
+  memory: 1g
+  data: datasets
+default_view: notebook
+library_explorer:
+  featured: [pandas, numpy, matplotlib.pyplot]
+  modules:
+    - seaborn
+    - scipy.stats
+    - sklearn.model_selection
+    - sklearn.linear_model
+    - sklearn.metrics
+    - sklearn.cluster
+    - sklearn.preprocessing
+    - sklearn.feature_extraction.text
+    - sklearn.naive_bayes
+    - sqlite3
+    - statistics
+lessons:
+  - 01-notebooks
+  - 02-numpy
+  - 03-pandas-basics
+  - 04-filtering-and-sorting
+  - 05-cleaning-data
+  - 06-grouping-and-joining
+  - 07-visualization
+  - 08-statistics
+  - 09-sql
+  - 10-intro-machine-learning
+  - 11-classification
+  - 12-clustering-and-features

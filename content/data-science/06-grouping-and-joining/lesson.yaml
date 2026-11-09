@@ -1,0 +1,69 @@
+title: Grouping, joining and pivoting
+summary: Summarise data by group and combine tables.
+steps:
+  - type: explain
+    md: |
+      **groupby** answers "per something" questions in three steps: *split* the rows
+      into groups, *apply* a summary, *combine* the results.
+
+      ```python
+      df.groupby("region")["units"].sum()
+      ```
+
+      gives total units **per region**. Other summaries: `.mean()`, `.count()`,
+      `.max()`, or several at once with `.agg(["sum", "mean"])`.
+  - type: example
+    code: |
+      # %%
+      import pandas as pd
+
+      sales = pd.read_csv("/data/sales.csv")
+      sales["revenue"] = sales["units"] * sales["unit_price"]
+      sales.head()
+
+      # %%
+      sales.groupby("region")["revenue"].sum().sort_values(ascending=False)
+  - type: try-it
+    prompt: Make `units_by_product` hold the total `units` sold for each `product`.
+    starter: |
+      # %%
+      import pandas as pd
+
+      sales = pd.read_csv("/data/sales.csv")
+      units_by_product = None  # TODO
+      units_by_product
+    solution: |
+      # %%
+      import pandas as pd
+
+      sales = pd.read_csv("/data/sales.csv")
+      units_by_product = sales.groupby("product")["units"].sum()
+      units_by_product
+    check: |
+      expected = sales.groupby("product")["units"].sum()
+      assert units_by_product is not None and units_by_product.equals(expected), "Group by product, then sum units"
+    hints:
+      - groupby("product"), then pick the units column, then .sum()
+      - units_by_product = sales.groupby("product")["units"].sum()
+  - type: explain
+    md: |
+      **merge** joins two tables on a shared column, like VLOOKUP:
+
+      ```python
+      products = pd.read_csv("/data/products.csv")   # product, category
+      full = sales.merge(products, on="product")
+      ```
+
+      **pivot_table** builds a grid summary:
+
+      ```python
+      full.pivot_table(index="region", columns="category", values="revenue", aggfunc="sum")
+      ```
+  - type: exercise
+    ref: ex01-revenue-by-region
+  - type: exercise
+    ref: ex02-category-pivot
+  - type: quiz
+    question: Which operation is most like a spreadsheet VLOOKUP?
+    options: [groupby, merge, sort_values]
+    answer: 1

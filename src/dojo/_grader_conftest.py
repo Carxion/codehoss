@@ -6,12 +6,16 @@ with simulated keyboard input and captures what it prints.
 
 import builtins
 import runpy
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 
 MAIN = Path(__file__).parent / "main.py"
+
+# Notebook code may call display(); graded as a plain script, it does nothing.
+builtins.display = lambda *args, **kwargs: None
 
 
 @dataclass
@@ -43,6 +47,10 @@ def run_program(monkeypatch, capsys):
             return value
 
         monkeypatch.setattr(builtins, "input", fake_input)
+        # Every test reruns the program in this one process; start each run with no
+        # charts left over from the last.
+        if "matplotlib.pyplot" in sys.modules:
+            sys.modules["matplotlib.pyplot"].close("all")
         capsys.readouterr()
         namespace = runpy.run_path(str(MAIN), run_name="__main__")
         return ProgramResult(out=capsys.readouterr().out, vars=namespace)

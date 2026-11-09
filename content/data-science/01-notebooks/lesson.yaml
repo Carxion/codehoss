@@ -1,0 +1,86 @@
+title: Notebooks and your first dataset
+summary: Run code in cells, then load a real table of data.
+steps:
+  - type: explain
+    md: |
+      Data scientists usually work in **notebooks**. A notebook is a list of **cells**,
+      and you run them one at a time:
+
+      - **Shift + Enter** runs a cell and moves to the next one.
+      - Variables you create in one cell are still there in the next.
+      - The value of a cell's **last line** is shown underneath it, so there's no need
+        for `print`.
+
+      If things get confusing, **Restart** clears every variable and you can run the
+      cells again from the top.
+  - type: example
+    md: Run each cell with ▶ or Shift + Enter and watch what appears underneath.
+    code: |
+      # %%
+      greeting = "Hello, data!"
+      greeting
+
+      # %%
+      numbers = [3, 1, 4, 1, 5]
+      sum(numbers) / len(numbers)
+  - type: try-it
+    prompt: |
+      The first cell creates `price` and `quantity`. In the second cell, make `total`
+      hold `price` times `quantity`, then run both cells.
+    starter: |
+      # %%
+      price = 4.5
+      quantity = 3
+
+      # %%
+      total = 0  # change this line
+      total
+    solution: |
+      # %%
+      price = 4.5
+      quantity = 3
+
+      # %%
+      total = price * quantity
+      total
+    check: |
+      assert total == 13.5, f"total is {total}, expected 13.5"
+    hints:
+      - Variables from the first cell can be used in the second.
+      - total = price * quantity
+  - type: explain
+    md: |
+      **pandas** is the most popular Python library for tables of data. By tradition
+      it's imported as `pd`:
+
+      ```python
+      import pandas as pd
+      df = pd.read_csv("/data/grades.csv")
+      df
+      ```
+
+      `pd.read_csv` loads a CSV file (a table saved as text) into a **DataFrame**: rows
+      and named columns, like a spreadsheet. The course's datasets live in the `/data`
+      folder. Open the **📚 Library** to explore what pandas can do.
+  - type: example
+    code: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/grades.csv")
+      df.head()
+
+      # %%
+      df.shape
+  - type: exercise
+    ref: ex01-first-look
+  - type: exercise
+    ref: ex02-class-average
+  - type: quiz
+    question: What appears under a notebook cell when you run it?
+    options:
+      - Every variable the cell created
+      - The value of the cell's last line
+      - Nothing, unless you use print
+    answer: 1
+    explanation: Notebooks show the last line's value automatically, though print still works too.

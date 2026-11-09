@@ -44,6 +44,7 @@ export interface ModuleSummary {
   title: string;
   description: string;
   level: string;
+  view: "editor" | "notebook";
   prerequisites: string[];
   lessons: LessonSummary[];
 }
@@ -78,6 +79,7 @@ export interface Lesson {
   slug: string;
   title: string;
   summary: string;
+  view: "editor" | "notebook";
   previous: string | null;
   next: string | null;
   steps: Step[];
@@ -144,6 +146,7 @@ export const api = {
   modules: () => request<ModuleSummary[]>("GET", "/modules"),
   lesson: (moduleId: string, slug: string) => request<Lesson>("GET", lessonPath(moduleId, slug)),
   library: (moduleId: string) => request<LibraryIndex>("GET", `/modules/${moduleId}/library`),
+  glossary: (moduleId: string) => request<Record<string, string>>("GET", `/modules/${moduleId}/glossary`),
   hint: (moduleId: string, slug: string, step: number, level: number) =>
     request<HintResult>("GET", `${lessonPath(moduleId, slug)}/steps/${step}/hints/${level}`),
   answer: (moduleId: string, slug: string, step: number, answer: number) =>

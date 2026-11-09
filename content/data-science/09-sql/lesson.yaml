@@ -1,0 +1,78 @@
+title: SQL for analysts
+summary: Ask a database questions, and bring the answers into pandas.
+steps:
+  - type: explain
+    md: |
+      Most company data lives in **databases**, and you ask them questions in **SQL**.
+      `/data/store.db` has three tables: `customers`, `products` and `orders`.
+
+      ```python
+      import sqlite3
+      import pandas as pd
+
+      con = sqlite3.connect("/data/store.db")
+      pd.read_sql("SELECT name, city FROM customers WHERE city = 'Denver'", con)
+      ```
+
+      The core of SQL: `SELECT` columns, `FROM` a table, `WHERE` rows match,
+      `ORDER BY` a column, `LIMIT` how many.
+  - type: example
+    code: |
+      # %%
+      import sqlite3
+
+      import pandas as pd
+
+      con = sqlite3.connect("/data/store.db")
+      pd.read_sql("SELECT * FROM customers LIMIT 5", con)
+
+      # %%
+      pd.read_sql("SELECT city, COUNT(*) AS customers FROM customers GROUP BY city", con)
+  - type: try-it
+    prompt: Make `n_denver` hold how many customers live in **Denver**, using SQL with `COUNT(*)`.
+    starter: |
+      # %%
+      import sqlite3
+
+      import pandas as pd
+
+      con = sqlite3.connect("/data/store.db")
+      result = pd.read_sql("SELECT COUNT(*) AS n FROM customers", con)  # TODO: add WHERE
+      n_denver = int(result["n"][0])
+      n_denver
+    solution: |
+      # %%
+      import sqlite3
+
+      import pandas as pd
+
+      con = sqlite3.connect("/data/store.db")
+      result = pd.read_sql("SELECT COUNT(*) AS n FROM customers WHERE city = 'Denver'", con)
+      n_denver = int(result["n"][0])
+      n_denver
+    check: |
+      expected = con.execute("SELECT COUNT(*) FROM customers WHERE city = 'Denver'").fetchone()[0]
+      assert n_denver == expected, f"n_denver is {n_denver}, expected {expected}"
+    hints:
+      - Add a WHERE clause before the end of the query. Text in SQL uses single quotes.
+      - "SELECT COUNT(*) AS n FROM customers WHERE city = 'Denver'"
+  - type: explain
+    md: |
+      **GROUP BY** summarises per group, like pandas `groupby`. **JOIN** combines
+      tables on matching columns:
+
+      ```sql
+      SELECT c.name, SUM(o.quantity) AS items
+      FROM orders o
+      JOIN customers c ON c.id = o.customer_id
+      GROUP BY c.name
+      ORDER BY items DESC
+      ```
+  - type: exercise
+    ref: ex01-sql-basics
+  - type: exercise
+    ref: ex02-sql-revenue
+  - type: quiz
+    question: Which clause sorts the results?
+    options: [WHERE, GROUP BY, ORDER BY]
+    answer: 2

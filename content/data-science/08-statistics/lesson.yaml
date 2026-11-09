@@ -1,0 +1,66 @@
+title: Statistics and A/B tests
+summary: Describe data with numbers, and tell real effects from luck.
+steps:
+  - type: explain
+    md: |
+      - **mean**: the average. **median**: the middle value. When a few huge values
+        drag the mean up (like box-office money), the median tells the "typical" story.
+      - **standard deviation** (`std`): how spread out values are.
+      - **correlation** (`df["a"].corr(df["b"])`): from -1 to 1, how strongly two
+        columns move together. Correlation isn't causation!
+  - type: example
+    code: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+      df["gross_millions"].mean(), df["gross_millions"].median()
+
+      # %%
+      df[["rating", "votes", "gross_millions"]].corr().round(2)
+  - type: try-it
+    prompt: Make `gap` hold the mean of `gross_millions` minus its median, rounded to 1 decimal.
+    starter: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+      gap = 0  # TODO
+      gap
+    solution: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+      gap = round(df["gross_millions"].mean() - df["gross_millions"].median(), 1)
+      gap
+    check: |
+      expected = round(df["gross_millions"].mean() - df["gross_millions"].median(), 1)
+      assert gap == expected, f"gap is {gap}, expected {expected}"
+    hints:
+      - Use .mean() and .median() on the column.
+      - gap = round(df["gross_millions"].mean() - df["gross_millions"].median(), 1)
+  - type: explain
+    md: |
+      An **A/B test** shows two versions (A and B) to different users and compares
+      results. Version B might win by luck alone, so we use a **hypothesis test**:
+
+      ```python
+      from scipy import stats
+      result = stats.ttest_ind(group_b, group_a)
+      result.pvalue
+      ```
+
+      The **p-value** is the chance of seeing a difference this big if there were no
+      real difference. Below **0.05** is the usual bar for "probably real".
+  - type: exercise
+    ref: ex01-describe-ratings
+  - type: exercise
+    ref: ex02-ab-test
+  - type: quiz
+    question: A test gives p = 0.01. What does that suggest?
+    options:
+      - B is exactly 1% better than A
+      - A difference this large would be unlikely if there were no real effect
+      - The test was set up wrong
+    answer: 1

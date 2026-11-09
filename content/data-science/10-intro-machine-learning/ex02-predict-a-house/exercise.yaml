@@ -1,0 +1,11 @@
+id: ds.predict-a-house
+title: Price a new house
+difficulty: 3
+prompt: |
+  Train a `LinearRegression` on **all** the houses (no split this time), using the
+  same four features. Then make `predicted`: its predicted price for a house with
+  1,800 sq ft, 3 bedrooms, 10 years old, 5 km from the centre.
+hints:
+  - Fit on houses[FEATURES] and houses["price"].
+  - The new house must be a one-row DataFrame with the same column names, like `new_house` in the starter.
+  - predicted = model.predict(new_house)[0]

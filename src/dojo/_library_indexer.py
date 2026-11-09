@@ -41,11 +41,19 @@ def describe(name, obj, depth=0):
     entry["signature"] = signature(obj) if kind != "exception" else ""
     entry["doc"] = summary(obj)
     if kind == "class" and depth == 0:
-        entry["members"] = [
-            describe(member, value, depth + 1)
-            for member, value in sorted(vars(obj).items())
-            if not member.startswith("_") and callable(value)
-        ]
+        # dir(), not vars(): most everyday methods are inherited (DataFrame.head lives on
+        # a base class).
+        members = []
+        for member in dir(obj):
+            if member.startswith("_"):
+                continue
+            try:
+                value = getattr(obj, member)
+            except Exception:  # noqa: BLE001
+                continue
+            if callable(value):
+                members.append(describe(member, value, depth + 1))
+        entry["members"] = members
     return entry
 
 
@@ -57,10 +65,14 @@ def index(module_name):
     names = getattr(module, "__all__", None) or [n for n in dir(module) if not n.startswith("_")]
     members = []
     for name in sorted(names):
-        obj = getattr(module, name, None)
-        if obj is None or inspect.ismodule(obj):
+        try:
+            # Some libraries raise on access, e.g. scikit-learn's experimental features.
+            obj = getattr(module, name)
+            if inspect.ismodule(obj):
+                continue
+            members.append(describe(name, obj))
+        except Exception:  # noqa: BLE001 - skip anything that can't be introspected
             continue
-        members.append(describe(name, obj))
     return {"name": module_name, "doc": summary(module), "members": members}
 
 

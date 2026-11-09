@@ -31,7 +31,14 @@ def validate(
     problems += _check_prerequisites(content)
     problems += _check_duplicate_ids(content)
     for module in content.modules.values():
-        problems += _check_packages(module)
+        if run and not executors and not _runs_locally(module):
+            problems.append(
+                Problem(
+                    "warning",
+                    _where(module),
+                    "code not run: needs its sandbox (datasets or packages); use --sandbox",
+                )
+            )
         for lesson in module.lessons:
             problems += _check_exercise_refs(module, lesson)
     if run:
@@ -87,17 +94,17 @@ def _check_duplicate_ids(content: Content) -> list[Problem]:
     return problems
 
 
-def _check_packages(module: LoadedModule) -> list[Problem]:
-    # Stand-in until M1 builds per-module images: check the local environment.
-    problems = []
+def _runs_locally(module: LoadedModule) -> bool:
+    """Can this module's code run outside its sandbox? Not if it needs /data or packages
+    that aren't installed here."""
+    if module.spec.sandbox.data:
+        return False
     for package in module.spec.sandbox.packages:
         try:
             metadata.distribution(package)
         except metadata.PackageNotFoundError:
-            problems.append(
-                Problem("warning", _where(module), f"package '{package}' is not installed locally")
-            )
-    return problems
+            return False
+    return True
 
 
 def _check_exercise_refs(module: LoadedModule, lesson: LoadedLesson) -> list[Problem]:
@@ -117,6 +124,8 @@ def _check_exercise_refs(module: LoadedModule, lesson: LoadedLesson) -> list[Pro
 def _check_execution(content: Content, executors: dict[str, Executor] | None) -> list[Problem]:
     jobs: list[Callable[[], list[Problem]]] = []
     for module in content.modules.values():
+        if not executors and not _runs_locally(module):
+            continue
         executor = (executors or {}).get(module.spec.id, LOCAL)
         for lesson in module.lessons:
             for i, step in enumerate(lesson.spec.steps):

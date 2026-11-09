@@ -1,0 +1,14 @@
+id: ds.clean-survey
+title: Clean the survey
+difficulty: 3
+prompt: |
+  Write `clean_survey(raw)` that takes the raw survey DataFrame and returns a cleaned
+  copy where:
+
+  - duplicate rows are removed
+  - `city` has no stray spaces and is in Title Case (`Denver`)
+  - `age` and `satisfaction` are numbers (anything else becomes missing)
+hints:
+  - Start with df = raw.drop_duplicates().copy() so you don't change raw.
+  - 'df["city"] = df["city"].str.strip().str.title()'
+  - 'df["age"] = pd.to_numeric(df["age"], errors="coerce"), and the same for satisfaction.'

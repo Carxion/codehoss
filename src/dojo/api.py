@@ -28,6 +28,7 @@ from fastapi import (
     WebSocketDisconnect,
     status,
 )
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
@@ -37,6 +38,7 @@ from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
 from dojo.lsp import LanguageServer
 from dojo.models import ExampleStep, ExerciseStep, ExplainStep, QuizStep, Step, TryItStep
+from dojo.notebook import Kernel
 from dojo.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, load_content
 from dojo.sandbox import LIBRARY_DIR, SandboxError, Session, SessionManager
 from dojo.store import AuthError, Store, User
@@ -107,7 +109,9 @@ def create_app(
             reaper.cancel()
             await run_in_threadpool(sessions.close_all)
 
-    app = FastAPI(title="DataDojo", version="0.2.0", lifespan=lifespan)
+    app = FastAPI(title="DataDojo", version="0.3.0", lifespan=lifespan)
+    # The JS bundle and library indexes are large and compress well.
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     api = APIRouter(prefix="/api")
 
     # -- helpers --
@@ -202,6 +206,7 @@ def create_app(
                     "title": m.spec.title,
                     "description": m.spec.description,
                     "level": m.spec.level,
+                    "view": m.spec.default_view,
                     "prerequisites": m.spec.prerequisites,
                     "lessons": [
                         {
@@ -233,6 +238,7 @@ def create_app(
             "slug": slug,
             "title": lesson.spec.title,
             "summary": lesson.spec.summary,
+            "view": module.spec.default_view,
             "previous": slugs[position - 1] if position > 0 else None,
             "next": slugs[position + 1] if position + 1 < len(slugs) else None,
             "steps": [_public_step(lesson, i, step) for i, step in enumerate(lesson.spec.steps)],
@@ -252,6 +258,10 @@ def create_app(
                 status.HTTP_404_NOT_FOUND, "library index not built; run `dojo build-images`"
             )
         return Response(path.read_bytes(), media_type="application/json")
+
+    @api.get("/modules/{module_id}/glossary")
+    def get_glossary(module_id: str, user: UserDep) -> dict[str, str]:
+        return module_or_404(module_id).glossary
 
     @api.get("/exercises/{exercise_id}")
     def get_exercise(exercise_id: str, user: UserDep) -> dict:
@@ -457,6 +467,55 @@ def create_app(
         finally:
             reader.cancel()
 
+    @api.websocket("/sessions/{session_id}/kernel")
+    async def kernel(websocket: WebSocket, session_id: str) -> None:
+        """Notebook kernel. Started on the first execute; stopped when the socket closes.
+
+        Client: {"type": "execute", "cell": <cell id>, "code": ...}, {"type": "interrupt"},
+        {"type": "restart"}. Server: kernel messages (see dojo._kernel), each tagged with
+        "cell"; errors also carry "explanation" and "line". Plus {"type": "status", ...}
+        and {"type": "dead", "reason": ...}.
+        """
+        session = await _ws_session(websocket, session_id)
+        if session is None:
+            return
+        loop = asyncio.get_running_loop()
+        outgoing: asyncio.Queue[dict] = asyncio.Queue()
+
+        def emit(message: dict) -> None:
+            loop.call_soon_threadsafe(outgoing.put_nowait, message)
+
+        running: Kernel | None = None
+
+        async def forward() -> None:
+            while True:
+                await websocket.send_json(await outgoing.get())
+
+        sender = asyncio.create_task(forward())
+        try:
+            while True:
+                message = await websocket.receive_json()
+                kind = message.get("type")
+                if kind == "execute":
+                    if running is None or not running.alive:
+                        emit({"type": "status", "state": "starting"})
+                        running = await run_in_threadpool(Kernel, session.executor.container, emit)
+                    code = str(message.get("code", ""))[:MAX_CODE]
+                    await run_in_threadpool(running.execute, code, str(message.get("cell", "")))
+                elif kind == "interrupt" and running is not None:
+                    await run_in_threadpool(running.interrupt)
+                elif kind == "restart":
+                    if running is not None:
+                        await run_in_threadpool(running.close)
+                        running = None
+                    emit({"type": "status", "state": "restarted"})
+        except (WebSocketDisconnect, ValueError, RuntimeError):
+            pass
+        finally:
+            sender.cancel()
+            if running is not None:
+                await run_in_threadpool(running.close)
+
     @api.websocket("/sessions/{session_id}/lsp")
     async def lsp(websocket: WebSocket, session_id: str) -> None:
         """Language Server Protocol bridge: one JSON-RPC message per WebSocket text frame."""
@@ -465,9 +524,12 @@ def create_app(
             return
         loop = asyncio.get_running_loop()
         replies: asyncio.Queue[dict] = asyncio.Queue()
-        image = content.modules[session.module_id].spec.sandbox.image
+        sandbox = content.modules[session.module_id].spec.sandbox
         server = await run_in_threadpool(
-            LanguageServer, image, lambda msg: loop.call_soon_threadsafe(replies.put_nowait, msg)
+            LanguageServer,
+            sandbox.image,
+            lambda msg: loop.call_soon_threadsafe(replies.put_nowait, msg),
+            sandbox.memory,
         )
 
         async def forward_replies() -> None:

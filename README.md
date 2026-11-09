@@ -4,15 +4,15 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M2 done**: guided browser IDE with live IntelliSense, Library Explorer,
-> accounts and progress, and the complete Python Basics module (12 lessons, 24 exercises).
-> Next: M3 (Data Science module). See [ROADMAP.md](ROADMAP.md).
+> Status: **M3 done**: guided browser IDE with live IntelliSense and a notebook view;
+> complete **Python Basics** and **Data Science** modules (12 lessons and 24 exercises
+> each). Next: M4 (AI module). See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 
 ```bash
 uv sync
-uv run dojo build-images            # sandbox image + Library Explorer index (~580 MB)
+uv run dojo build-images            # sandbox images + Library Explorer indexes (~1.8 GB)
 cd web && npm install && npm run build && cd ..
 uv run dojo serve                   # open http://127.0.0.1:8000 and create an account
 ```

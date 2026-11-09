@@ -42,5 +42,7 @@ extend-exclude = ["workspace", "content/**/starter.py"]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.per-file-ignores]
+# Notebook-style content: a bare last expression is how a cell shows its value.
+"content/**/*.py" = ["B018"]
 # A catalogue of learner-facing messages; splitting them hurts readability.
 "src/dojo/explain.py" = ["E501"]

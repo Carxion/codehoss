@@ -26,6 +26,9 @@ class Sandbox(_Strict):
     packages: list[str] = []
     services: list[str] = []
     network: Literal["none"] | list[str] = "none"
+    memory: str = Field(default="256m", pattern=r"^\d+[mg]$")
+    # Folder (relative to the module) mounted read-only at /data in every session.
+    data: str | None = None
 
 
 class LibraryExplorer(_Strict):

@@ -1,0 +1,15 @@
+id: ds.customer-segments
+title: Customer segments
+difficulty: 3
+prompt: |
+  Group the customers in `/data/customers.csv` into **3** segments using
+  `annual_spend`, `visits_per_month` and `avg_basket`:
+
+  1. Scale those columns with `StandardScaler`.
+  2. Run `KMeans(n_clusters=3, random_state=42, n_init=10)` and store each customer's
+     label in a new column `df["segment"]`.
+  3. Make `segment_sizes`: a **sorted** list of how many customers are in each segment.
+hints:
+  - scaled = StandardScaler().fit_transform(df[FEATURES])
+  - df["segment"] = KMeans(n_clusters=3, random_state=42, n_init=10).fit_predict(scaled)
+  - sorted(df["segment"].value_counts().tolist())

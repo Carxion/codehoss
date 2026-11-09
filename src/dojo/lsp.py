@@ -8,6 +8,7 @@ own container (not the session's) so learner code can't starve or kill it.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import subprocess
 import threading
@@ -16,18 +17,19 @@ from collections.abc import Callable
 
 from dojo.sandbox import LABEL, Limits, lockdown_flags
 
-# Node needs more headroom than learner scripts do.
+# Node needs more headroom than learner scripts do; analysing big libraries (pandas)
+# needs more again, so a module's own memory setting raises this floor.
 LSP_LIMITS = Limits(memory="512m", pids=64, workspace="16m")
 
 
 class LanguageServer:
-    def __init__(self, image: str, on_message: Callable[[dict], None]):
+    def __init__(self, image: str, on_message: Callable[[dict], None], memory: str | None = None):
         self.name = f"dojo-lsp-{uuid.uuid4().hex[:12]}"
         cmd = [
             "docker", "run", "--rm", "-i",
             "--name", self.name,
             "--label", f"{LABEL}=lsp",
-            *lockdown_flags(LSP_LIMITS),
+            *lockdown_flags(_limits(memory)),
             image,
             "basedpyright-langserver", "--stdio",
         ]  # fmt: skip
@@ -88,3 +90,13 @@ class LanguageServer:
                 self._on_message(json.loads(body))
             except ValueError:
                 continue
+
+
+def _limits(memory: str | None) -> Limits:
+    if memory is None or _megabytes(memory) <= _megabytes(LSP_LIMITS.memory):
+        return LSP_LIMITS
+    return dataclasses.replace(LSP_LIMITS, memory=memory)
+
+
+def _megabytes(size: str) -> int:
+    return int(size[:-1]) * (1024 if size.endswith("g") else 1)

@@ -1,14 +1,12 @@
-import Editor, { type OnMount } from "@monaco-editor/react";
-import type * as Monaco from "monaco-editor";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { navigate } from "../App";
 import { api, type Lesson, type Step, type StepProgress, type TestResult } from "../api";
-import { DOCUMENT_URI, PythonLanguageClient } from "../lsp";
-import { registerSnippets } from "../snippets";
-import { useRunner } from "../useRunner";
-import Console from "./Console";
+import { loadMonaco } from "../monacoSetup";
+import type { WorkspaceHandle } from "../workspace";
+import EditorWorkspace from "./EditorWorkspace";
 import LibraryExplorer from "./LibraryExplorer";
 import Markdown from "./Markdown";
+import NotebookWorkspace from "./NotebookWorkspace";
 
 interface Props {
   moduleId: string;
@@ -26,31 +24,36 @@ const BLANK_PROGRESS: StepProgress = { done: false, attempts: 0, hints_used: 0, 
 export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loadError, setLoadError] = useState("");
+  const [glossary, setGlossary] = useState<Record<string, string>>({});
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState("");
   const [feedback, setFeedback] = useState<Record<number, Feedback>>({});
   const [hints, setHints] = useState<Record<number, string[]>>({});
-  const [busy, setBusy] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [running, setRunning] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showingSolution, setShowingSolution] = useState(false);
-  const [editorReady, setEditorReady] = useState(false);
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [monacoLoaded, setMonacoLoaded] = useState(false);
 
-  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<typeof Monaco | null>(null);
-  const lspRef = useRef<PythonLanguageClient | null>(null);
-  const savedCode = useRef<string>("");
-  const animation = useRef<number | null>(null);
-  const runner = useRunner(sessionId);
+  const workspace = useRef<WorkspaceHandle | null>(null);
+  const savedCode = useRef("");
 
   const index = lesson ? Math.min(Math.max(stepIndex, 0), lesson.steps.length - 1) : 0;
   const step: Step | undefined = lesson?.steps[index];
   const progress = (i: number) => lesson?.progress[String(i)] ?? BLANK_PROGRESS;
+  const notebook = lesson?.view === "notebook";
 
   // --- loading -----------------------------------------------------------------
 
   useEffect(() => {
     api.lesson(moduleId, lessonSlug).then(setLesson, (e) => setLoadError(e.message));
+    api.glossary(moduleId).then(setGlossary, () => setGlossary({}));
   }, [moduleId, lessonSlug]);
+
+  useEffect(() => {
+    loadMonaco().then(() => setMonacoLoaded(true));
+  }, []);
 
   useEffect(() => {
     api.session(moduleId).then(
@@ -58,22 +61,6 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
       (e) => setSessionError(e.message),
     );
   }, [moduleId]);
-
-  useEffect(() => {
-    if (!sessionId || !editorReady || !monacoRef.current || !editorRef.current) return;
-    const client = new PythonLanguageClient(
-      sessionId,
-      monacoRef.current,
-      editorRef.current.getModel()!,
-    );
-    lspRef.current = client;
-    if (step) client.focusNames = focusNamesFor(step);
-    return () => {
-      client.dispose();
-      lspRef.current = null;
-    };
-    // The language server lives as long as the session and editor; steps don't restart it.
-  }, [sessionId, editorReady]);
 
   const markDone = useCallback((i: number) => {
     setLesson((previous) =>
@@ -87,84 +74,44 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
     );
   }, []);
 
-  // Entering a step: load its code, reset output, record that explanations were read.
+  // Entering a step: load its code, reset outputs, record that explanations were read.
   useEffect(() => {
-    if (!lesson || !step || !editorReady || !editorRef.current) return;
-    stopAnimation();
-    setShowingSolution(false);
-    editorRef.current.updateOptions({ readOnly: false });
+    const ws = workspace.current;
+    if (!lesson || !step || !workspaceReady || !ws) return;
+    if (showingSolution) setShowingSolution(false);
     const fallback = defaultCode(step);
     const code = loadDraft(draftKey(moduleId, lessonSlug, step)) ?? fallback;
-    if (code !== null && code !== editorRef.current.getValue()) editorRef.current.setValue(code);
-    if (code === null && !editorRef.current.getValue()) editorRef.current.setValue(PLAYGROUND);
-    runner.clear();
-    if (lspRef.current) lspRef.current.focusNames = focusNamesFor(step);
+    if (code !== null) ws.restore(code);
+    else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
+    ws.reset();
+    ws.setFocusNames(focusNamesFor(step));
     if ((step.type === "explain" || step.type === "example") && !progress(index).done) {
       api.viewed(moduleId, lessonSlug, index).then(() => markDone(index), () => {});
     }
-  }, [lesson?.slug, index, editorReady]);
+    // Only when the step changes; not on every progress update.
+  }, [lesson?.slug, index, workspaceReady]);
 
-  useEffect(() => () => stopAnimation(), []);
-
-  // --- editor ------------------------------------------------------------------
-
-  const runRef = useRef<() => void>(() => {});
-  runRef.current = () => {
-    if (!runner.running && editorRef.current) runner.run(editorRef.current.getValue());
-  };
-
-  const onMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor;
-    monacoRef.current = monaco;
-    const snippets = registerSnippets(monaco);
-    editor.onDidDispose(() => snippets.dispose());
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runRef.current());
-    setEditorReady(true);
-  };
-
-  function onChange(value: string | undefined) {
-    if (!step || showingSolution || value === undefined) return;
-    saveDraft(draftKey(moduleId, lessonSlug, step), value);
-  }
-
-  function goToLine(line: number) {
-    const editor = editorRef.current;
-    if (!editor) return;
-    editor.revealLineInCenter(line);
-    editor.setSelection({ startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1000 });
-    editor.focus();
-  }
-
-  function insert(text: string, importModule: string | null) {
-    const editor = editorRef.current;
-    const model = editor?.getModel();
-    if (!editor || !model) return;
-    const selection = editor.getSelection()!;
-    editor.executeEdits("library", [{ range: selection, text, forceMoveMarkers: true }]);
-    if (text.endsWith("()")) {
-      const position = editor.getPosition()!;
-      editor.setPosition({ lineNumber: position.lineNumber, column: position.column - 1 });
-    }
-    if (importModule && !new RegExp(`^\\s*import\\s+${importModule}\\b`, "m").test(model.getValue())) {
-      editor.executeEdits("library", [
-        { range: { startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 1 }, text: `import ${importModule}\n` },
-      ]);
-    }
-    editor.focus();
-  }
-
-  function resetCode() {
-    if (!step || !editorRef.current) return;
-    clearDraft(draftKey(moduleId, lessonSlug, step));
-    editorRef.current.setValue(defaultCode(step) ?? PLAYGROUND);
-  }
+  const onCodeChange = useCallback(
+    (code: string) => {
+      if (!step || showingSolution) return;
+      saveDraft(draftKey(moduleId, lessonSlug, step), code);
+    },
+    [step, showingSolution, moduleId, lessonSlug],
+  );
+  const onReady = useCallback(() => setWorkspaceReady(true), []);
 
   // --- actions -----------------------------------------------------------------
 
+  function resetCode() {
+    if (!step || !workspace.current) return;
+    clearDraft(draftKey(moduleId, lessonSlug, step));
+    workspace.current.restore(defaultCode(step) ?? (notebook ? "" : PLAYGROUND));
+  }
+
   async function check() {
-    if (!step || !sessionId || !editorRef.current) return;
-    const code = editorRef.current.getValue();
-    setBusy(true);
+    if (!step || !sessionId || !workspace.current) return;
+    const code = workspace.current.getCode();
+    setChecking(true);
     try {
       if (step.type === "try-it") {
         const result = await api.tryIt(sessionId, lessonSlug, index, code);
@@ -186,52 +133,30 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
     } catch (e) {
       setFeedback((f) => ({ ...f, [index]: { kind: "fail", message: (e as Error).message } }));
     } finally {
-      setBusy(false);
+      setChecking(false);
     }
   }
 
   async function nextHint() {
-    if (!step) return;
+    if (!step || !workspace.current) return;
     const level = (hints[index]?.length ?? 0) + 1;
     try {
       const result = await api.hint(moduleId, lessonSlug, index, level);
       if ("hint" in result) {
         setHints((h) => ({ ...h, [index]: [...(h[index] ?? []), result.hint] }));
       } else {
-        showSolution(result.solution);
+        savedCode.current = workspace.current.getCode();
+        setShowingSolution(true);
+        workspace.current.showSolution(result.solution);
       }
     } catch (e) {
       setFeedback((f) => ({ ...f, [index]: { kind: "fail", message: (e as Error).message } }));
     }
   }
 
-  // "Show me": type the solution out in a read-only editor, then hand control back.
-  function showSolution(solution: string) {
-    const editor = editorRef.current;
-    if (!editor) return;
-    savedCode.current = editor.getValue();
-    setShowingSolution(true);
-    editor.updateOptions({ readOnly: true });
-    const chunk = Math.max(1, Math.ceil(solution.length / 80));
-    let shown = 0;
-    stopAnimation();
-    animation.current = window.setInterval(() => {
-      shown = Math.min(solution.length, shown + chunk);
-      editor.setValue(solution.slice(0, shown));
-      if (shown >= solution.length) stopAnimation();
-    }, 20);
-  }
-
   function backToMyCode() {
-    stopAnimation();
-    editorRef.current?.updateOptions({ readOnly: false });
-    editorRef.current?.setValue(savedCode.current);
+    workspace.current?.restore(savedCode.current);
     setShowingSolution(false);
-  }
-
-  function stopAnimation() {
-    if (animation.current !== null) window.clearInterval(animation.current);
-    animation.current = null;
   }
 
   async function answer(option: number) {
@@ -258,6 +183,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const hintsShown = hints[index]?.length ?? 0;
   const isLast = index === lesson.steps.length - 1;
   const done = progress(index).done;
+  const Workspace = notebook ? NotebookWorkspace : EditorWorkspace;
 
   return (
     <div className={`lesson-layout ${showLibrary ? "with-library" : ""}`}>
@@ -283,7 +209,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           <p className="step-kind">
             Step {index + 1} of {lesson.steps.length} · {STEP_LABEL[step.type]}
           </p>
-          <StepContent step={step} feedback={feedback[index]} onAnswer={answer} />
+          <StepContent step={step} notebook={notebook} feedback={feedback[index]} onAnswer={answer} />
 
           {hints[index]?.map((hint, i) => (
             <div key={i} className="hint">
@@ -316,12 +242,12 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
       <section className="workspace">
         <div className="toolbar">
-          <button className="primary" onClick={() => runRef.current()} disabled={!sessionId || runner.running}>
-            ▶ Run
+          <button className="primary" onClick={() => workspace.current?.run()} disabled={!sessionId || running || showingSolution}>
+            ▶ {notebook ? "Run all" : "Run"}
           </button>
           {checkable && (
-            <button className="success" onClick={check} disabled={!sessionId || busy || showingSolution}>
-              {busy ? "Checking…" : "✓ Check"}
+            <button className="success" onClick={check} disabled={!sessionId || checking || showingSolution}>
+              {checking ? "Checking…" : "✓ Check"}
             </button>
           )}
           {checkable && (
@@ -350,40 +276,28 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             </button>
           </div>
         )}
-        <div className="editor-wrap">
-          <Editor
-            path={DOCUMENT_URI}
-            defaultLanguage="python"
-            theme={prefersDark() ? "vs-dark" : "vs"}
-            onMount={onMount}
-            onChange={onChange}
-            options={{
-              fontSize: 15,
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              tabSize: 4,
-              insertSpaces: true,
-              automaticLayout: true,
-              quickSuggestions: { other: true, comments: false, strings: false },
-              suggestOnTriggerCharacters: true,
-              parameterHints: { enabled: true },
-              wordBasedSuggestions: "off",
-              fixedOverflowWidgets: true,
-            }}
+        {monacoLoaded ? (
+          <Workspace
+            key={notebook ? "notebook" : "editor"}
+            ref={workspace}
+            sessionId={sessionId}
+            glossary={glossary}
+            onChange={onCodeChange}
+            onBusyChange={setRunning}
+            onReady={onReady}
           />
-        </div>
-        <Console
-          output={runner.output}
-          running={runner.running}
-          exit={runner.exit}
-          onInput={runner.sendInput}
-          onStop={runner.stop}
-          onGoToLine={goToLine}
-        />
+        ) : (
+          <div className="editor-wrap muted loading-editor">Loading the editor…</div>
+        )}
       </section>
 
       {showLibrary && (
-        <LibraryExplorer moduleId={moduleId} onInsert={insert} onClose={() => setShowLibrary(false)} />
+        <LibraryExplorer
+          moduleId={moduleId}
+          glossary={glossary}
+          onInsert={(text, importModule) => workspace.current?.insert(text, importModule)}
+          onClose={() => setShowLibrary(false)}
+        />
       )}
     </div>
   );
@@ -399,13 +313,16 @@ const STEP_LABEL: Record<Step["type"], string> = {
 
 function StepContent({
   step,
+  notebook,
   feedback,
   onAnswer,
 }: {
   step: Step;
+  notebook: boolean;
   feedback: Feedback | undefined;
   onAnswer: (option: number) => void;
 }) {
+  const where = notebook ? "notebook" : "editor";
   switch (step.type) {
     case "explain":
       return <Markdown>{step.md}</Markdown>;
@@ -413,14 +330,16 @@ function StepContent({
       return (
         <>
           {step.md && <Markdown>{step.md}</Markdown>}
-          <p className="muted small">The example is in the editor. Press Run to see what it does, then change it and run it again.</p>
+          <p className="muted small">
+            The example is in the {where}. {notebook ? "Run each cell" : "Press Run"} to see what it does, then change it and run it again.
+          </p>
         </>
       );
     case "try-it":
       return (
         <>
           <Markdown>{step.prompt}</Markdown>
-          <p className="muted small">Edit the code in the editor, then press ✓ Check.</p>
+          <p className="muted small">Edit the code in the {where}, then press ✓ Check.</p>
         </>
       );
     case "exercise":
@@ -544,8 +463,4 @@ function clearDraft(key: string) {
   } catch {
     /* ignore */
   }
-}
-
-function prefersDark() {
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false;
 }

@@ -9,6 +9,7 @@ The language server (dojo.lsp) gets its own container with the same lockdown.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import subprocess
 import threading
@@ -100,7 +101,10 @@ def dockerfile(packages: list[str]) -> str:
         f"FROM {BASE_IMAGE}\n"
         f"RUN pip install --no-cache-dir {quoted}\n"
         "RUN useradd --uid 1000 --create-home learner\n"
-        "ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1 HOME=/tmp\n"
+        # Agg: charts render to images; there is no display in a sandbox.
+        "ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1 HOME=/tmp MPLBACKEND=Agg\n"
+        # One thread each: BLAS thread pools would count against the pids limit.
+        "ENV OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1\n"
         "USER learner\n"
         "WORKDIR /work\n"
     )
@@ -179,12 +183,19 @@ class SessionManager:
 
         session_id = uuid.uuid4().hex
         container = f"dojo-{session_id[:12]}"
+        # The module decides how much memory its sessions need (pandas needs far more
+        # than print statements).
+        limits = dataclasses.replace(self.limits, memory=sandbox.memory)
+        mounts = []
+        if module.data_dir is not None:
+            mounts = ["--mount", f"type=bind,source={module.data_dir},target=/data,readonly"]
         cmd = [
             "docker", "run", "--detach",
             "--name", container,
             "--label", f"{LABEL}={session_id}",
             "--label", f"dojo.module={module_id}",
-            *lockdown_flags(self.limits),
+            *lockdown_flags(limits),
+            *mounts,
             sandbox.image,
             "sleep", "infinity",
         ]  # fmt: skip

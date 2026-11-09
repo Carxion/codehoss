@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, type Library, type LibraryIndex, type LibraryMember } from "../api";
+import Markdown from "./Markdown";
 
 interface Props {
   moduleId: string;
+  glossary: Record<string, string>;
   onInsert: (text: string, importModule: string | null) => void;
   onClose: () => void;
 }
@@ -20,7 +22,7 @@ const KIND_LABEL: Record<LibraryMember["kind"], string> = {
   exception: "Errors",
 };
 
-export default function LibraryExplorer({ moduleId, onInsert, onClose }: Props) {
+export default function LibraryExplorer({ moduleId, glossary, onInsert, onClose }: Props) {
   const [index, setIndex] = useState<LibraryIndex | null>(null);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
@@ -68,6 +70,7 @@ export default function LibraryExplorer({ moduleId, onInsert, onClose }: Props) 
       {selected && (
         <Details
           selected={selected}
+          note={glossary[selected.member.name]}
           onInsert={onInsert}
           onBack={() => setSelected(null)}
         />
@@ -135,10 +138,12 @@ function LibraryMembers({ library, onSelect }: { library: Library; onSelect: (s:
 
 function Details({
   selected,
+  note,
   onInsert,
   onBack,
 }: {
   selected: Selected;
+  note?: string;
   onInsert: Props["onInsert"];
   onBack: () => void;
 }) {
@@ -158,6 +163,11 @@ function Details({
       <h3>
         <code>{qualifiedName(selected)}</code>
       </h3>
+      {note && (
+        <div className="hint">
+          <Markdown>{`💡 ${note}`}</Markdown>
+        </div>
+      )}
       {member.signature && <pre className="signature">{member.name + member.signature}</pre>}
       <p>{member.doc || "No description available."}</p>
       {member.kind === "class" && member.members && member.members.length > 0 && (

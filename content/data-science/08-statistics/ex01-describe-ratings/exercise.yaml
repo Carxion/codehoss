@@ -1,0 +1,14 @@
+id: ds.describe-ratings
+title: Describe the ratings
+difficulty: 2
+prompt: |
+  Using the movies data, create:
+
+  - `rating_stats`: a dictionary with keys `"mean"`, `"median"` and `"std"` for the
+    `rating` column, each rounded to 2 decimals
+  - `votes_gross_corr`: the correlation between `votes` and `gross_millions`, rounded
+    to 3 decimals
+hints:
+  - 'round(df["rating"].mean(), 2), and the same idea for median and std.'
+  - 'Build the dictionary: {"mean": ..., "median": ..., "std": ...}'
+  - round(df["votes"].corr(df["gross_millions"]), 3)

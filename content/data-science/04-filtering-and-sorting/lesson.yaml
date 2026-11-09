@@ -1,0 +1,61 @@
+title: Filtering and sorting
+summary: Answer questions by picking the rows you need.
+steps:
+  - type: explain
+    md: |
+      A **filter** keeps the rows where a condition is True:
+
+      ```python
+      recent = df[df["year"] >= 2010]
+      ```
+
+      Combine conditions with `&` (and) and `|` (or), with **brackets round each
+      one**:
+
+      ```python
+      df[(df["genre"] == "Drama") & (df["rating"] >= 7)]
+      ```
+
+      Then sort with `sort_values("rating", ascending=False)` and take the top rows
+      with `.head(5)`.
+  - type: try-it
+    prompt: Make `recent` hold only the movies from **2010 or later**.
+    starter: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+      recent = df  # TODO: filter
+      len(recent)
+    solution: |
+      # %%
+      import pandas as pd
+
+      df = pd.read_csv("/data/movies.csv")
+      recent = df[df["year"] >= 2010]
+      len(recent)
+    check: |
+      assert len(recent) == (df["year"] >= 2010).sum(), f"recent has {len(recent)} rows"
+      assert recent["year"].min() >= 2010
+    hints:
+      - The condition goes inside df[ ... ].
+      - recent = df[df["year"] >= 2010]
+  - type: explain
+    md: |
+      More tools:
+
+      - `.loc[rows, columns]` picks by label, e.g. `df.loc[df["year"] > 2000, ["title", "year"]]`
+      - `df["genre"].isin(["Drama", "Comedy"])` matches any of several values
+      - `df["rating"].between(6, 8)` matches a range
+      - `sort_values(["rating", "title"], ascending=[False, True])` sorts by two columns
+  - type: exercise
+    ref: ex01-top-dramas
+  - type: exercise
+    ref: ex02-hits
+  - type: quiz
+    question: Why does `df[df["a"] > 1 & df["b"] < 5]` go wrong?
+    options:
+      - '& must be written as "and"'
+      - '& runs before > and <, so each condition needs its own brackets'
+      - Filters can only use one condition
+    answer: 1

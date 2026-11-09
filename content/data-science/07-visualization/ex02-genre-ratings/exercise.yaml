@@ -1,0 +1,11 @@
+id: ds.genre-ratings
+title: Ratings by genre bar chart
+difficulty: 3
+prompt: |
+  Make `avg_by_genre`: the average movie rating per genre, sorted from **highest to
+  lowest**. Then draw it as a **bar** chart with a title and the y axis labelled
+  `Average rating`.
+hints:
+  - df.groupby("genre")["rating"].mean().sort_values(ascending=False)
+  - plt.bar(avg_by_genre.index, avg_by_genre.values)
+  - Add plt.title(...) and plt.ylabel("Average rating").

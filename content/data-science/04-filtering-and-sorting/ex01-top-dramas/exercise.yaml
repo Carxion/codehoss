@@ -1,0 +1,12 @@
+id: ds.top-dramas
+title: Top dramas
+difficulty: 3
+prompt: |
+  Make `top_dramas`: the **5** best-rated **Drama** movies released in **2000 or
+  later**, with only the columns `title`, `year` and `rating`.
+
+  Sort by `rating` (highest first), and by `title` (A to Z) when ratings tie.
+hints:
+  - 'Filter first: (df["genre"] == "Drama") & (df["year"] >= 2000)'
+  - 'sort_values(["rating", "title"], ascending=[False, True]) handles the tie-break.'
+  - Finish with .head(5) and pick columns with [["title", "year", "rating"]].
