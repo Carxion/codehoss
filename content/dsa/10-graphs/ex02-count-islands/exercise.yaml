@@ -1,0 +1,20 @@
+id: dsa.count-islands
+title: Count the islands
+difficulty: 3
+prompt: 'A map is a list of strings: `#` is land, `.` is water. Land squares that touch **up, down,
+
+  left or right** form one island. Write `count_islands(grid)`.
+
+
+  For each land square you haven''t seen yet: count a new island, then flood-fill everything
+
+  connected to it (DFS with a stack, or BFS) so it isn''t counted again.
+
+  The tests use a 400×400 map that''s **one giant island**: recursion would hit Python''s
+
+  limit, so use an explicit stack or queue.'
+hints:
+- Loop over every (row, col). If it's '#' and not in seen, islands += 1 and flood from it.
+- 'Flood: stack = [(r, c)]; pop a square, and push each of its 4 neighbours that is inside the grid, ''#'',
+  and not seen.'
+- Mark squares as seen when you push them, so each is pushed only once.

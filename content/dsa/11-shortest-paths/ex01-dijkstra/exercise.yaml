@@ -1,0 +1,18 @@
+id: dsa.dijkstra
+title: Dijkstra's distances
+difficulty: 4
+prompt: 'Write `distances(graph, start)`: a dict of the **cheapest total cost** from `start` to every
+
+  node it can reach (including `start` itself at 0). `graph` maps each node to a list of
+
+  `(neighbour, weight)` pairs.
+
+
+  Use `heapq`. The tests run it on a **10,000-node** grid, so scanning every node to find the next
+
+  closest (O(V²)) is too slow.'
+hints:
+- 'dist = {start: 0}; heap = [(0, start)].'
+- 'Pop (d, node). If d > dist[node], it''s a stale entry: skip it.'
+- 'For (nxt, w) in graph.get(node, []): nd = d + w; if nxt not in dist or nd < dist[nxt]: dist[nxt] =
+  nd and push (nd, nxt).'

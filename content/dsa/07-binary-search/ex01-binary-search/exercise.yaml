@@ -1,0 +1,15 @@
+id: dsa.binary-search
+title: Binary search
+difficulty: 2
+prompt: 'Write `binary_search(nums, target)`: `nums` is sorted ascending; return the **index** of
+
+  `target`, or `-1` if it isn''t there.
+
+
+  The tests search a **1,000,000-item** list thousands of times. The starter scans left to right
+
+  (O(n) per search), which is far too slow. Halve the range each step: O(log n).'
+hints:
+- Keep two indexes, lo = 0 and hi = len(nums) - 1, and loop while lo <= hi.
+- 'mid = (lo + hi) // 2. If nums[mid] < target the answer is right of mid: lo = mid + 1.'
+- 'If nums[mid] > target: hi = mid - 1. If equal, return mid. After the loop, return -1.'

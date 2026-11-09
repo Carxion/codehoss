@@ -188,10 +188,33 @@ Original plan:
 
 **Exit:** 6 build plans playable at all three scaffolding levels.
 
-## M6 — DSA module + showcases
+## M6 — DSA module + showcases ✅ (2026-11-09)
+Goal: watch algorithms work, then write them fast enough to pass on big inputs.
+
+Shipped: a `showcase` lesson step that swaps the editor for an animation player
+(play/pause, step, scrub, speed, and "try your own input"). Fourteen algorithms are
+recorded in the browser and drawn by five renderers: array (search, two pointers,
+sorting), stack (bracket matching), tree (recursion tree, BST insert, heap with its array),
+graph (BFS, DFS, Dijkstra with queue/stack and distance labels) and grid (DP table).
+`dojo_checks.assert_fast` gives speed-graded tests: a timer in the sandbox stops slow code
+after its budget and fails with the size and a Big-O hint. The **DSA** module has 12
+lessons and 24 exercises (Big-O → dynamic programming), validated in the sandbox; some
+exercises also check the source (write the sort yourself, no `bisect`). Verified with a
+23-step browser walkthrough of every showcase.
+
+Changed from the plan:
+- Showcases are recorded in TypeScript in the browser, not traced from Python in the
+  sandbox, so they play instantly and work with no session. Learners can still change the
+  input; the graph showcases use one fixed six-node graph.
+- Speed limits are per-test budgets (`assert_fast`) rather than one time limit per
+  exercise, so a failure can say exactly which input was too slow.
+
+Original plan:
 - Showcase framework: algorithms emit trace events → frontend animates them with
   play/step/scrub (sorting, binary search, BFS/DFS, Dijkstra, heaps, DP tables)
 - Perf-graded exercises (large hidden inputs + time limits)
+
+**Exit:** DSA module with a showcase for every core algorithm and speed-graded exercises.
 
 ## M7 — Infrastructure modules (Docker, Kubernetes, MLOps)
 - Lab capability: per-learner rootless Docker-in-Docker and `kind` cluster / k8s namespace

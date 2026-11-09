@@ -1,0 +1,28 @@
+title: 'Shortest paths: Dijkstra'
+summary: When edges have costs, fewest hops isn't cheapest. A heap finds the cheapest.
+steps:
+- type: explain
+  md: "Give each edge a **weight** (distance, time, price) and BFS stops working: two\ncheap hops can\
+    \ beat one expensive hop. **Dijkstra's algorithm** fixes this with a **heap**:\n\n1. Push `(0, start)`.\
+    \ Everything else starts at \"infinitely far\".\n2. Pop the **closest** unfinished node. Its distance\
+    \ is now final.\n3. For each neighbour, if going through this node is cheaper than what we knew, record\
+    \ the new\n   distance and push it.\n\nWeighted graphs as adjacency dicts hold `(neighbour, weight)`\
+    \ pairs:\n\n```python\ngraph = {\"A\": [(\"B\", 4), (\"C\", 2)], ...}\n```\n\nIt needs **non-negative**\
+    \ weights. With a heap it runs in O((V + E) log V)."
+- type: showcase
+  algorithm: dijkstra
+  md: 'Watch the best-known distances shrink: B first looks like 4 (direct), then drops to 3 by going
+    through C. The heap always hands back the closest node next.'
+- type: exercise
+  ref: ex01-dijkstra
+- type: exercise
+  ref: ex02-cheapest-route
+- type: quiz
+  question: Why does Dijkstra pop from a heap rather than a normal queue?
+  options:
+  - Heaps use less memory
+  - It must always finalise the closest unfinished node next
+  - To visit nodes in alphabetical order
+  answer: 1
+  explanation: The closest unfinished node can't be reached more cheaply any other way (weights aren't
+    negative), so its distance is final. A heap gives you that node in O(log n).

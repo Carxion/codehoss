@@ -5,3 +5,9 @@ cache: functools.cache remembers a function's answers so repeated calls are inst
 setdefault: d.setdefault(key, default) returns d[key], first setting it to default if missing.
 isalnum: True if every character is a letter or a digit.
 enumerate: 'Loop with positions: for i, x in enumerate(items) gives 0, first item; 1, second item...'
+heappush: heapq.heappush(h, x) adds x to the heap list h in O(log n), keeping the smallest at h[0].
+heappop: heapq.heappop(h) removes and returns the smallest item in O(log n).
+heapify: heapq.heapify(h) rearranges a list into a heap in place, in O(n).
+bisect: The bisect module does binary search on sorted lists (bisect_left finds the first position >=
+  x).
+getattr: getattr(obj, 'name') reads an attribute whose name is in a string; setattr writes one.

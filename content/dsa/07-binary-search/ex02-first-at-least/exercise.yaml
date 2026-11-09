@@ -1,0 +1,17 @@
+id: dsa.first-at-least
+title: First value at least…
+difficulty: 3
+prompt: 'Write `first_at_least(nums, target)`: `nums` is sorted (and may contain repeats). Return
+
+  the index of the **first** value that is `>= target`, or `len(nums)` if there is none.
+
+
+  This "lower bound" search is how you find where to insert, or count values in a range.
+
+  Write it yourself with binary search: no `bisect` module.'
+hints:
+- Search the range lo = 0, hi = len(nums) (hi is one past the end).
+- 'While lo < hi: mid = (lo + hi) // 2. If nums[mid] < target, the answer is after mid: lo = mid + 1;
+  otherwise hi = mid.'
+- 'When the loop ends lo == hi, and that''s the answer. Don''t stop early on an equal value: there may
+  be an earlier one.'

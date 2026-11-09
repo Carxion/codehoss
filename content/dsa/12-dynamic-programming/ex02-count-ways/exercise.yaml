@@ -1,0 +1,17 @@
+id: dsa.count-ways
+title: How many ways to make change?
+difficulty: 4
+prompt: 'Write `count_ways(coins, amount)`: how many different **combinations** of coins make `amount`.
+
+  Order doesn''t matter: 1+2 and 2+1 are the same way.
+
+
+  Make `ways = [1] + [0] * amount` (one way to make 0: no coins). Then, **one coin value at a
+
+  time**, for every amount from that coin up: `ways[a] += ways[a - coin]`. Looping over coins on the
+
+  outside is what stops 1+2 and 2+1 being counted twice. Amounts go up to 1,000.'
+hints:
+- The outer loop is over coins, the inner loop over amounts from coin to amount.
+- 'for c in coins: for a in range(c, amount + 1): ways[a] += ways[a - c]'
+- Return ways[amount]. With coins outside, each combination is built in one fixed coin order.

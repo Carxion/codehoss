@@ -1,0 +1,75 @@
+title: Heaps and priority queues
+summary: Always grab the smallest item fast, even while new items keep arriving.
+steps:
+- type: explain
+  md: 'A **heap** is a tree squashed into a list that keeps the **smallest** item at the
+
+    front. Adding an item or removing the smallest takes O(log n): the item bubbles up or sinks down
+
+    one level per step.
+
+
+    Python''s `heapq` module does it on an ordinary list:
+
+
+    ```python
+
+    import heapq
+
+
+    h = []
+
+    heapq.heappush(h, 5)
+
+    heapq.heappush(h, 2)
+
+    heapq.heappush(h, 8)
+
+    heapq.heappop(h)   # 2, always the smallest
+
+    ```
+
+
+    Heaps power **priority queues**: hospital triage, job schedulers, and Dijkstra''s algorithm in
+
+    lesson 11. You can push tuples, like `(priority, item)`, and they''re compared by the first
+
+    element.'
+- type: showcase
+  algorithm: heap
+  md: Watch new values **bubble up** past bigger parents, then watch a pop move the last item to the top
+    and **sink** it down. The tree and the list are the same data.
+- type: try-it
+  prompt: Push 5, 1 and 3 onto `h` with `heapq.heappush`, then pop the smallest into `smallest`.
+  starter: 'import heapq
+
+
+    h = []
+
+    # push 5, 1, 3
+
+    smallest = None
+
+    '
+  solution: "import heapq\n\nh = []\nfor x in [5, 1, 3]:\n    heapq.heappush(h, x)\nsmallest = heapq.heappop(h)\n"
+  check: 'assert smallest == 1, f''smallest is {smallest!r}''
+
+    assert sorted(h) == [3, 5], f''h should still hold 3 and 5, got {h}''
+
+    '
+  hints:
+  - heapq.heappush(h, 5) and so on.
+  - smallest = heapq.heappop(h)
+- type: exercise
+  ref: ex01-k-smallest
+- type: exercise
+  ref: ex02-merge-sorted
+- type: quiz
+  question: What is at h[0] in a list kept by heapq?
+  options:
+  - The most recently pushed item
+  - The smallest item
+  - The largest item
+  answer: 1
+  explanation: 'heapq keeps a min-heap: h[0] is always the smallest. The rest of the list isn''t fully
+    sorted.'

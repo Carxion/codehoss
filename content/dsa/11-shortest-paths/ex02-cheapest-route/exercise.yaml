@@ -1,0 +1,18 @@
+id: dsa.cheapest-route
+title: The cheapest route itself
+difficulty: 4
+prompt: 'Distances are nice, but a sat-nav needs the **route**. Write `cheapest_route(graph, start, goal)`
+
+  returning `(cost, path)`, where `path` is the list of nodes from `start` to `goal`. If `goal` can''t
+  be
+
+  reached, return `(None, [])`.
+
+
+  Run Dijkstra, and whenever you improve a node''s distance, remember **which node you came from**
+
+  (`previous[nxt] = node`). At the end, walk `previous` backwards from the goal and reverse.'
+hints:
+- Same as distances(), plus previous = {} and previous[nxt] = node whenever dist[nxt] improves.
+- 'If goal not in dist: return (None, []).'
+- 'path = [goal]; while path[-1] != start: path.append(previous[path[-1]]); then path.reverse().'

@@ -1,0 +1,36 @@
+title: Binary search
+summary: Find things in sorted data in O(log n) by halving the search space.
+steps:
+- type: explain
+  md: "If a list is **sorted**, you never need to look at every item. Check the\nmiddle: if it's too small,\
+    \ the answer must be in the right half; too big, the left half.\nEach step **halves** what's left,\
+    \ so a million items take about 20 steps.\n\n```python\nlo, hi = 0, len(nums) - 1\nwhile lo <= hi:\n\
+    \    mid = (lo + hi) // 2\n    ...\n```\n\nThe tricky part is the boundaries: `lo <= hi`, `mid + 1`,\
+    \ `mid - 1`. Off-by-one bugs live here,\nso watch the pointers move."
+- type: showcase
+  algorithm: binary-search
+  md: Watch **lo**, **mid** and **hi**. Each step throws away half of the remaining items. Try a target
+    that isn't in the list.
+- type: try-it
+  prompt: How many halvings until 1,000,000 items is down to 1? Make the loop count them in `steps`.
+  starter: "n = 1_000_000\nsteps = 0\nwhile n > 1:\n    n = n // 2\n    # count the step\n"
+  solution: "n = 1_000_000\nsteps = 0\nwhile n > 1:\n    n = n // 2\n    steps += 1\n"
+  check: 'assert steps == 19, f"steps is {steps}; add steps += 1 inside the loop"
+
+    '
+  hints:
+  - Add steps += 1 inside the while loop.
+  - log2(1,000,000) is just under 20.
+- type: exercise
+  ref: ex01-binary-search
+- type: exercise
+  ref: ex02-first-at-least
+- type: quiz
+  question: Binary search on an unsorted list...
+  options:
+  - works but is slower
+  - can give wrong answers
+  - sorts the list first automatically
+  answer: 1
+  explanation: Throwing away half only makes sense if everything on one side is smaller. Unsorted, it
+    may discard the target.

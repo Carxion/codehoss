@@ -1,0 +1,18 @@
+id: dsa.shortest-hops
+title: Fewest hops
+difficulty: 3
+prompt: 'Write `shortest_hops(graph, start, goal)`: the fewest edges from `start` to `goal`, or `-1` if
+
+  `goal` can''t be reached. `graph` is an adjacency dict (a node may be missing from the dict if it
+
+  has no outgoing edges).
+
+
+  Use BFS with a `collections.deque`. A plain list with `pop(0)` shifts every item each time
+
+  (O(n) per pop); the tests include a node with **200,000** neighbours.'
+hints:
+- 'Queue (node, distance) pairs: start with deque([(start, 0)]) and visited = {start}.'
+- Pop from the left; if the node is the goal return its distance; otherwise queue unvisited neighbours
+  with distance + 1.
+- graph.get(node, []) handles nodes with no entry. Return -1 once the queue runs dry.

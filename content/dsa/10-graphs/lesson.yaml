@@ -1,0 +1,63 @@
+title: 'Graphs: BFS and DFS'
+summary: Model connections, then explore them level by level or branch by branch.
+steps:
+- type: explain
+  md: "A **graph** is things (**nodes**) plus connections (**edges**): cities and roads,\npeople and friendships,\
+    \ web pages and links. The usual Python shape is an **adjacency dict**:\n\n```python\ngraph = {\n\
+    \    \"A\": [\"B\", \"C\"],\n    \"B\": [\"A\", \"D\"],\n    \"C\": [\"A\"],\n    \"D\": [\"B\"],\n\
+    }\n```\n\nTwo ways to explore from a start node, both remembering a `visited` set so nothing is visited\
+    \ twice:\n\n- **Breadth-first search (BFS)** uses a **queue** (`collections.deque`): visit everything\
+    \ 1 step\n  away, then 2 steps, and so on. It finds the **fewest hops** to every node.\n- **Depth-first\
+    \ search (DFS)** uses a **stack** (or recursion): follow one path as deep as it\n  goes, then backtrack.\
+    \ Great for \"is everything connected?\" and counting regions."
+- type: showcase
+  algorithm: bfs
+  md: '**BFS** spreads out in rings. Watch the queue: nodes join at the back and leave from the front.'
+- type: showcase
+  algorithm: dfs
+  md: '**DFS** dives down one path first. Watch the stack: the newest node is explored next.'
+- type: try-it
+  prompt: 'Use a `deque` as a queue: append ''A'' then ''B'', then `popleft()` into `first`.'
+  starter: 'from collections import deque
+
+
+    q = deque()
+
+    # add A then B
+
+    first = None
+
+    '
+  solution: 'from collections import deque
+
+
+    q = deque()
+
+    q.append(''A'')
+
+    q.append(''B'')
+
+    first = q.popleft()
+
+    '
+  check: 'assert first == ''A'', f''first is {first!r}: a queue is first in, first out''
+
+    assert list(q) == [''B'']
+
+    '
+  hints:
+  - q.append('A'); q.append('B')
+  - first = q.popleft()
+- type: exercise
+  ref: ex01-shortest-hops
+- type: exercise
+  ref: ex02-count-islands
+- type: quiz
+  question: Which search finds the route with the fewest edges in an unweighted graph?
+  options:
+  - DFS
+  - BFS
+  - Either, always
+  answer: 1
+  explanation: BFS reaches everything at distance 1 before distance 2, so the first time it reaches the
+    goal is via a shortest path. DFS can wander down a long path first.

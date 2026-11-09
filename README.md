@@ -4,11 +4,13 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M5 done**: guided browser IDE with live IntelliSense and notebooks;
-> **Python Basics**, **Data Science** and **AI** modules (12 lessons and 24 exercises
-> each) plus **Projects**: six multi-checkpoint builds at Guided / Assisted / Solo level,
-> collected in a downloadable portfolio. AI work runs on a local model (Ollama) or Claude
-> with your own key. Next: M6 (DSA module + algorithm showcases). See
+> Status: **M6 done**: guided browser IDE with live IntelliSense and notebooks;
+> **Python Basics**, **Data Science**, **AI** and **Data Structures & Algorithms** modules
+> (12 lessons and 24 exercises each) plus **Projects**: six multi-checkpoint builds at
+> Guided / Assisted / Solo level, collected in a downloadable portfolio. DSA lessons open
+> with step-through algorithm animations, and its tests fail code that is too slow. AI work
+> runs on a local model (Ollama) or Claude with your own key. Next: M7 (Docker, Kubernetes
+> and MLOps labs). See
 > [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
@@ -51,8 +53,8 @@ sandbox.
 ## What it is
 
 - **Modular courses** — self-contained modules that plug in. v1 ships **Python Basics**,
-  **Data Science**, **AI**, and **Projects** (guided build plans); DSA, Docker, Kubernetes
-  and MLOps come later. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
+  **Data Science**, **AI**, **Data Structures & Algorithms** and **Projects** (guided build
+  plans); Docker, Kubernetes and MLOps come later. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
 - **Hand-holding** — bite-sized guided steps, escalating hints, a friendly error explainer,
   and scaffolding that fades as you improve. See
   [docs/LEARNING-EXPERIENCE.md](docs/LEARNING-EXPERIENCE.md).

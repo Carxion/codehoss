@@ -81,6 +81,20 @@ stored in `submissions`; a project is finished when every checkpoint has one, an
 `/api/portfolio/.../export` zips the final code with a generated README (notebooks are
 also converted to `.ipynb`).
 
+## Showcases and speed grading
+
+A `showcase` step names an algorithm and optional input; the API passes it through and the
+browser does the rest. `web/src/showcase/algorithms.ts` has one recorder per algorithm: it
+runs the algorithm in TypeScript and returns a list of frames (array, stack, tree, graph or
+grid, each with a message). `ShowcaseView` is the player and renderers. Recording in the
+browser means no sandbox round trip, instant replays, and safe custom input (recorders clamp
+sizes). The editor stays mounted but hidden during a showcase, so code isn't lost.
+
+Speed tests call `dojo_checks.assert_fast(fn, *args, budget=…, size=…, hint=…)`. In the
+sandbox it arms `setitimer(ITIMER_REAL)`; SIGALRM raises an `AssertionError` that says
+which input was too slow, so an O(n²) attempt fails within the budget instead of running
+until the exercise's `time_limit_s`.
+
 ## AI gateway
 
 Sandboxes have no network, yet AI lessons call models. The path:

@@ -1,0 +1,17 @@
+id: dsa.min-coins
+title: Fewest coins
+difficulty: 4
+prompt: 'Write `min_coins(coins, amount)`: the fewest coins that add up to `amount` (unlimited coins of
+
+  each value), or `-1` if it can''t be done.
+
+
+  The starter is **greedy**: biggest coin first. Run the tests to see where it goes wrong, then
+
+  replace it with a DP table where `best[a]` is the fewest coins for amount `a`. It must handle
+
+  amounts up to 10,000.'
+hints:
+- best = [0] + [infinity] * amount, where infinity = float('inf').
+- 'For a in 1..amount, for each coin c <= a: best[a] = min(best[a], best[a - c] + 1).'
+- At the end, return -1 if best[amount] is still infinity, else best[amount].

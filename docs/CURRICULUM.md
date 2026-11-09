@@ -8,9 +8,10 @@ drives IntelliSense and the Library Explorer.
 ```
 Python Basics ──► Data Science ──► AI
       │                │            │
-      └────────────────┴────────────┴──► Projects (build plans)
+      ├────────────────┴────────────┴──► Projects (build plans)
+      └──► Data Structures & Algorithms
 
-Later: DSA · Docker · Kubernetes · MLOps
+Later: Docker · Kubernetes · MLOps
 ```
 
 ## Starter modules
@@ -118,11 +119,30 @@ passes.
 
 </details>
 
+### 5. Data Structures & Algorithms — `dsa`
+Audience: finished Python Basics. Image: `dojo-python`. Lessons start with **showcases**
+(animated, step-through, with your own input) and exercises include **speed tests**
+(`assert_fast`) on inputs of 50k–1M items, with Big-O advice when code is too slow.
+
+| # | Lesson | Showcases | Exercises |
+|---|---|---|---|
+| 1 | Big-O | linear vs binary search | contains duplicate, most frequent |
+| 2 | Two pointers | two pointers | palindrome, pair with sum |
+| 3 | Hashing | | group anagrams, two sum |
+| 4 | Stacks and queues | bracket stack | balanced brackets, RPN calculator |
+| 5 | Recursion | Fibonacci call tree | flatten, memoised Fibonacci |
+| 6 | Sorting | bubble, insertion, merge sort | insertion sort, merge sort (no `sorted()`) |
+| 7 | Binary search | binary search | binary search, first value ≥ target (no `bisect`) |
+| 8 | Trees and BSTs | BST insert | height and size, build a BST |
+| 9 | Heaps | min-heap push/pop | k smallest, merge many sorted lists |
+| 10 | Graphs | BFS, DFS | fewest hops, count islands |
+| 11 | Shortest paths | Dijkstra | distances, cheapest route |
+| 12 | Dynamic programming | coin-change table | fewest coins, ways to make change |
+
 ## Later modules
 
 | Module | Highlights | Needs |
 |---|---|---|
-| DSA | Big-O, hashing, pointers, trees, graphs, DP; animated showcases; perf grading | showcases (M6) |
 | Docker | images, Dockerfiles, compose, multi-stage builds | lab capability (M7) |
 | Kubernetes | pods, deployments, services, config, probes, Helm | lab capability (M7) |
 | MLOps | serve a model, containerize, deploy to k8s, GitLab CI, monitoring | lab capability (M7) |

@@ -1,0 +1,22 @@
+id: dsa.bst
+title: Build a binary search tree
+difficulty: 3
+prompt: 'Finish the `BST` class:
+
+
+  - `insert(value)`: add the value in the right place (ignore duplicates)
+
+  - `contains(value)`: `True` if the value is in the tree, walking left or right from the root
+
+  - `in_order()`: a list of all values, smallest to largest (left subtree, node, right subtree)
+
+
+  The tests insert **50,000** shuffled numbers and look each one up, so walk the tree; don''t scan
+
+  everything. No `sorted()` or `.sort()`: an in-order walk of a BST is already sorted!'
+hints:
+- 'Empty tree: self.root = Node(value). Otherwise start at the root and go left if value < node.value,
+  right if bigger.'
+- When the side you want is None, put the new Node there. contains() walks the same way and returns False
+  when it falls off the tree.
+- 'in_order: a helper walk(node) that does walk(node.left), out.append(node.value), walk(node.right).'

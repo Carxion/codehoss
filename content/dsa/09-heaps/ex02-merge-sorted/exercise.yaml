@@ -1,0 +1,17 @@
+id: dsa.merge-sorted
+title: Merge many sorted lists
+difficulty: 4
+prompt: 'Write `merge_sorted(lists)`: given a list of **already-sorted** lists, return one sorted
+
+  list with every item.
+
+
+  Keep a heap holding the **front item of each list** as `(value, list_index, item_index)`. Pop the
+
+  smallest, add it to the output, and push the next item from the same list. No `sorted()` or
+
+  `.sort()`. The tests merge 1,000 lists of 200 items.'
+hints:
+- 'Start: push (lst[0], i, 0) for every non-empty list i.'
+- 'Loop while the heap isn''t empty: value, i, j = heappop(h); append value.'
+- If j + 1 < len(lists[i]), push (lists[i][j + 1], i, j + 1).

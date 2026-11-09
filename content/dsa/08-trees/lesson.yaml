@@ -1,0 +1,43 @@
+title: Trees and binary search trees
+summary: Nodes that point to children, and a tree that keeps itself in order.
+steps:
+- type: explain
+  md: "A **tree** is made of nodes; each node has a value and links to its\n**children**. In a **binary**\
+    \ tree each node has at most two: `left` and `right`.\n\n```python\nclass Node:\n    def __init__(self,\
+    \ value, left=None, right=None):\n        self.value = value\n        self.left = left\n        self.right\
+    \ = right\n```\n\nA **binary search tree** (BST) adds one rule: everything in the left subtree is\
+    \ **smaller**,\neverything in the right subtree is **bigger**. To find or insert a value you go left\
+    \ or right at\neach node, like binary search, so it takes O(height) steps. Trees are naturally recursive:\
+    \ a\nnode's left child is the root of a smaller tree."
+- type: showcase
+  algorithm: bst-insert
+  md: 'Watch each value walk down from the root: smaller goes left, bigger goes right, until it finds
+    an empty spot. Try inserting already-sorted numbers: the tree becomes a long chain!'
+- type: try-it
+  prompt: 'Build this tree by hand: 2 at the root, 1 on the left, 3 on the right. Store it in `root`.'
+  starter: "class Node:\n    def __init__(self, value, left=None, right=None):\n        self.value = value\n\
+    \        self.left = left\n        self.right = right\n\nroot = Node(2)\n# attach the children\n"
+  solution: "class Node:\n    def __init__(self, value, left=None, right=None):\n        self.value =\
+    \ value\n        self.left = left\n        self.right = right\n\nroot = Node(2, Node(1), Node(3))\n"
+  check: 'assert root.left is not None and root.left.value == 1, ''root.left should be Node(1)''
+
+    assert root.right is not None and root.right.value == 3, ''root.right should be Node(3)''
+
+    '
+  hints:
+  - root.left = Node(1)
+  - 'Or in one go: root = Node(2, Node(1), Node(3))'
+- type: exercise
+  ref: ex01-tree-height
+- type: exercise
+  ref: ex02-bst
+- type: quiz
+  question: Values 1, 2, 3, 4, 5 are inserted into an empty BST in that order. What does the tree look
+    like?
+  options:
+  - Perfectly balanced
+  - A chain leaning right, height 5
+  - A chain leaning left, height 5
+  answer: 1
+  explanation: Each value is bigger than all before it, so it always goes right. Searching it is O(n),
+    which is why real libraries use self-balancing trees.

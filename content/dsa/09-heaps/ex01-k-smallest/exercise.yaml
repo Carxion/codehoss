@@ -1,0 +1,15 @@
+id: dsa.k-smallest
+title: The k smallest
+difficulty: 3
+prompt: 'Write `k_smallest(nums, k)`: the `k` smallest numbers, smallest first.
+
+
+  Use `heapq.heappush` / `heapq.heappop` (or `heapify`). Not allowed: `sorted()`, `.sort()` and
+
+  `heapq.nsmallest`, because the point is to see how a heap does it.
+
+  Bonus thought: if `k` is bigger than the list, return everything.'
+hints:
+- heapq.heapify(h) turns a copy of the list into a heap in O(n).
+- Then pop k times (but not more than len(h) times).
+- h = list(nums); heapq.heapify(h); return [heapq.heappop(h) for _ in range(min(k, len(h)))]

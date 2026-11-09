@@ -558,9 +558,13 @@ const coinChange: Algorithm = {
     for (let a = 1; a <= amount; a++) {
       let value = Infinity;
       const used: number[] = [];
+      const tries: string[] = [];
       for (const c of coins) {
-        if (c <= a && best[a - c] !== null && (best[a - c] as number) + 1 < value) {
-          value = (best[a - c] as number) + 1;
+        if (c > a) continue;
+        const rest = best[a - c] as number;
+        tries.push(rest === Infinity ? `coin ${c} → ∞` : `coin ${c} → 1 + ${rest} = ${rest + 1}`);
+        if (rest + 1 < value) {
+          value = rest + 1;
           used.length = 0;
           used.push(a - c);
         }
@@ -568,8 +572,8 @@ const coinChange: Algorithm = {
       best[a] = value;
       snap(
         value === Infinity
-          ? `Amount ${a} can't be made with these coins.`
-          : `Amount ${a}: one coin of ${a - used[0]} plus the best for ${used[0]} (${best[used[0]]}) = ${value} coins.`,
+          ? `Amount ${a}: ${tries.join(", ")}. It can't be made with these coins.`
+          : `Amount ${a}: ${tries.join(", ")}. Best: one coin of ${a - used[0]} plus the best for ${used[0]} = ${value} coins.`,
         a,
         used,
       );

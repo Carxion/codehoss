@@ -1,0 +1,14 @@
+id: dsa.tree-height
+title: Height and size of a tree
+difficulty: 2
+prompt: 'Using the `Node` class, write two **recursive** functions:
+
+
+  - `size(node)`: how many nodes are in the tree (an empty tree, `None`, has 0)
+
+  - `height(node)`: the number of nodes on the longest path from the root down (`None` is 0, a single
+  node is 1)'
+hints:
+- 'Base case first: if node is None: return 0.'
+- size = 1 + size(left) + size(right).
+- height = 1 + max(height(left), height(right)).
