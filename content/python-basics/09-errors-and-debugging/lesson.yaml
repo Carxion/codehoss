@@ -1,0 +1,71 @@
+title: Errors and debugging
+summary: Read error messages, fix bugs, and handle problems gracefully.
+steps:
+  - type: explain
+    md: |
+      Errors are normal: every programmer sees them all day. When Python stops with an
+      error, read the message **from the bottom up**:
+
+      1. The **last line** says what went wrong, e.g. `NameError: name 'totl' is not defined`.
+      2. The lines above say **where**: `line 3` of your file.
+
+      DataDojo also explains common errors in plain English under the output.
+  - type: example
+    md: Run this to see an error message, then fix the typo and run it again.
+    code: |
+      total = 10
+      print(totl)
+  - type: explain
+    md: |
+      Some errors are expected, like a user typing `abc` when you asked for a number.
+      Handle them with `try` / `except`:
+
+      ```python
+      try:
+          age = int(text)
+      except ValueError:
+          age = 0
+      ```
+
+      If the code in `try` fails with a `ValueError`, Python runs the `except` block
+      instead of stopping.
+  - type: try-it
+    prompt: Use `try` / `except ValueError` so that `number` becomes `0` when `text` isn't a number.
+    starter: |
+      text = "abc"
+      number = int(text)
+    solution: |
+      text = "abc"
+      try:
+          number = int(text)
+      except ValueError:
+          number = 0
+    check: |
+      assert number == 0, f"number is {number!r}, expected 0"
+    hints:
+      - Put the int(text) line inside a try block, indented.
+      - 'try: number = int(text), then except ValueError: number = 0'
+  - type: try-it
+    prompt: This loop has an **indentation** bug. Fix it so `total` ends up as 6.
+    starter: |
+      total = 0
+      for n in [1, 2, 3]:
+      total = total + n
+    solution: |
+      total = 0
+      for n in [1, 2, 3]:
+          total = total + n
+    check: |
+      assert total == 6, f"total is {total}"
+    hints:
+      - The line inside the loop must be indented to belong to it.
+      - Add 4 spaces before total = total + n
+  - type: exercise
+    ref: ex01-fix-the-bugs
+  - type: exercise
+    ref: ex02-safe-age
+  - type: quiz
+    question: 'Which error does `int("hello")` cause?'
+    options: [NameError, TypeError, ValueError]
+    answer: 2
+    explanation: The value "hello" is the wrong kind of value for int(), which is a ValueError.

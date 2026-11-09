@@ -1,0 +1,16 @@
+id: py.fix-the-bugs
+title: Fix the bugs
+difficulty: 2
+prompt: |
+  This program should print the average and the highest of a list of numbers:
+
+  ```
+  Average: 4.0
+  Highest: 7
+  ```
+
+  It has **three bugs**. Run it, read each error, and fix them one at a time.
+hints:
+  - Run it and read the last line of the error. Fix that, then run again.
+  - Look for a missing colon at the end of the for line.
+  - Check every name is spelt the same way each time it is used.

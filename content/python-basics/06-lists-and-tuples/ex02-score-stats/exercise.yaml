@@ -1,0 +1,20 @@
+id: py.score-stats
+title: Score stats
+difficulty: 3
+prompt: |
+  Ask how many scores there are, read each score into a list, then print the highest,
+  the lowest and the average (rounded to 1 decimal place):
+
+  ```
+  How many scores? 3
+  Score: 4
+  Score: 9
+  Score: 6
+  Highest: 9
+  Lowest: 4
+  Average: 6.3
+  ```
+hints:
+  - Start with an empty list, scores = [], and append each score inside a for loop.
+  - max(scores), min(scores) and sum(scores) / len(scores) do the maths.
+  - 'print("Average:", round(sum(scores) / len(scores), 1))'

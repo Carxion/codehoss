@@ -58,8 +58,26 @@ Deferred to M2: interactive stdin over the WebSocket (M1 takes inputs up front).
 
 **Exit:** a script can start a session, run code, and get graded results back.
 
-## M2 — Guided IDE + Python Basics module
+## M2 — Guided IDE + Python Basics module ✅ (2026-11-08)
 Goal: a beginner can learn Python from zero in the browser.
+
+Shipped: React/Vite app (login, course catalog with progress, guided lesson view);
+Monaco editor with completions, signature help, hover and diagnostics from basedpyright
+running in its own sandbox container; beginner snippets and lesson-aware ranking;
+Library Explorer (index built with the image); interactive console (type at `input()`,
+Stop button, CPU-time limit); escalating hints ending in an animated "show me"; error
+explainer for runs and test failures; accounts + per-step progress in SQLite; all 12
+Python Basics lessons (24 exercises incl. 2 mini-projects); `dojo validate --sandbox`.
+Verified with a 15-step headless-browser walkthrough.
+
+Changed from the plan:
+- **Own LSP client** (~300 lines in `web/src/lsp.ts`) instead of `monaco-languageclient`:
+  smaller, and lets us re-rank and reword results for beginners.
+- **Console instead of an xterm.js shell**: beginners need "type an answer", not a shell.
+  A real terminal comes with the Docker/Kubernetes modules, where it matters.
+- **Lesson 12** teaches the standard library + testing instead of `requests` (sandboxes
+  have no network).
+- Deferred: curated beginner hover docs (M3), trimming the 4.4 MB Monaco bundle (M3).
 
 - React + Vite frontend; Monaco editor, lesson pane, output pane, terminal (xterm.js)
 - **Live IntelliSense:** a Python language server (basedpyright) runs inside the session

@@ -1,0 +1,19 @@
+id: py.dice-stats
+title: Dice stats
+difficulty: 3
+prompt: |
+  Write two functions:
+
+  - `roll_dice(count, rng)` returns a list of `count` dice rolls (1 to 6), using
+    `rng.randint(1, 6)`. `rng` is a `random.Random` object; passing it in makes the
+    rolls repeatable in tests.
+  - `summarize(rolls)` returns a dictionary with the `"min"`, `"max"` and `"mean"`
+    of the rolls. Round the mean to 2 decimal places.
+
+  ```python
+  summarize([2, 6, 3])   # {"min": 2, "max": 6, "mean": 3.67}
+  ```
+hints:
+  - 'A list comprehension works well: [rng.randint(1, 6) for _ in range(count)]'
+  - statistics.mean(rolls) gives the mean.
+  - 'return {"min": min(rolls), "max": max(rolls), "mean": round(statistics.mean(rolls), 2)}'

@@ -1,0 +1,14 @@
+id: py.tip-calculator
+title: Tip calculator
+difficulty: 2
+prompt: |
+  Write two functions:
+
+  - `calculate_tip(bill, percent)` returns the tip, rounded to 2 decimal places.
+    `calculate_tip(50, 20)` gives `10.0`.
+  - `split_bill(total, people)` returns each person's share, rounded to 2 decimal
+    places. `split_bill(100, 3)` gives `33.33`.
+hints:
+  - The tip is bill * percent / 100.
+  - 'return round(bill * percent / 100, 2)'
+  - 'return round(total / people, 2)'

@@ -1,0 +1,67 @@
+title: Dictionaries and sets
+summary: Look things up by name, and keep only unique values.
+steps:
+  - type: explain
+    md: |
+      A **dictionary** stores pairs: a **key** and its **value**. Think of a real
+      dictionary: you look up a word (key) to find its meaning (value).
+
+      ```python
+      ages = {"Ada": 36, "Alan": 41}
+      print(ages["Ada"])     # 36
+      ages["Grace"] = 85     # add or change a value
+      ```
+
+      `ages.get("Bob", 0)` gives `0` instead of an error when the key is missing.
+      Loop over pairs with `for name, age in ages.items():`.
+  - type: example
+    code: |
+      ages = {"Ada": 36, "Alan": 41}
+      ages["Grace"] = 85
+      for name, age in ages.items():
+          print(name, "is", age)
+      print(ages.get("Bob", "unknown"))
+  - type: try-it
+    prompt: Add a key `"blue"` with the value `3` to the `colours` dictionary.
+    starter: |
+      colours = {"red": 5}
+    solution: |
+      colours = {"red": 5}
+      colours["blue"] = 3
+    check: |
+      assert colours == {"red": 5, "blue": 3}, f"colours is {colours}"
+    hints:
+      - Use square brackets with the new key, then = and the value.
+      - colours["blue"] = 3
+  - type: explain
+    md: |
+      A **set** keeps only **unique** values, with no duplicates and no order:
+
+      ```python
+      words = ["hi", "bye", "hi"]
+      unique = set(words)     # {"hi", "bye"}
+      ```
+
+      Sets are great for "have I seen this before?" with `x in seen` and `seen.add(x)`.
+  - type: try-it
+    prompt: Make `unique_count` hold how many **different** words are in `words`.
+    starter: |
+      words = ["cat", "dog", "cat", "bird", "dog"]
+      unique_count = 0
+    solution: |
+      words = ["cat", "dog", "cat", "bird", "dog"]
+      unique_count = len(set(words))
+    check: |
+      assert unique_count == 3, f"unique_count is {unique_count}, expected 3"
+    hints:
+      - set(words) removes the duplicates.
+      - unique_count = len(set(words))
+  - type: exercise
+    ref: ex01-word-counter
+  - type: exercise
+    ref: ex02-text-adventure
+  - type: quiz
+    question: '`d = {"a": 1}`. What does `d.get("x", 0)` give?'
+    options: ['an error', '0', 'None']
+    answer: 1
+    explanation: get returns the default you give it when the key isn't there.

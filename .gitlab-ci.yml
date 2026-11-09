@@ -41,6 +41,19 @@ test-sandbox:
     - uv run dojo build-images
     - uv run pytest -m docker
 
+web:
+  stage: test
+  image: node:22-slim
+  before_script: []
+  cache:
+    key:
+      files: [web/package-lock.json]
+    paths: [web/.npm]
+  script:
+    - cd web
+    - npm ci --cache .npm
+    - npm run build   # includes the TypeScript typecheck
+
 validate-content:
   stage: validate
   script:

@@ -1,0 +1,14 @@
+id: py.contact-book
+title: Contact book
+difficulty: 3
+prompt: |
+  Write three functions for a contact book stored as a dictionary of name -> phone:
+
+  - `add_contact(book, name, phone)` adds the contact to `book`.
+  - `save_contacts(book, path)` writes `book` to the file at `path` as JSON.
+  - `load_contacts(path)` reads the JSON file and returns the dictionary. If the file
+    doesn't exist yet, return an empty dictionary `{}`.
+hints:
+  - 'add_contact only needs one line: book[name] = phone'
+  - 'with open(path, "w") as f: json.dump(book, f)'
+  - Catch FileNotFoundError in load_contacts and return {}.

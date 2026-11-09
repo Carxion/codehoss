@@ -11,10 +11,18 @@ sandbox:
   network: none
 default_view: editor
 library_explorer:
-  featured: [builtins, math, random, datetime]
+  featured: [builtins, math, random]
+  modules: [datetime, string, statistics, json, csv, time]
 lessons:
   - 01-first-program
   - 02-variables-and-types
   - 03-input-and-strings
   - 04-decisions
   - 05-loops
+  - 06-lists-and-tuples
+  - 07-dictionaries-and-sets
+  - 08-functions
+  - 09-errors-and-debugging
+  - 10-files-and-modules
+  - 11-classes-and-objects
+  - 12-libraries-and-testing

@@ -1,0 +1,13 @@
+id: py.safe-age
+title: Safe age parser
+difficulty: 3
+prompt: |
+  Write `parse_age(text)` that turns what a user typed into an age:
+
+  - return the age as an `int` if `text` is a whole number from 0 to 130
+    (spaces around it are fine: `" 7 "` gives `7`)
+  - return `None` for anything else: `"abc"`, `"3.5"`, `"-1"`, `"200"`
+hints:
+  - int(" 7 ") already ignores the spaces. int("abc") raises ValueError.
+  - Wrap the conversion in try / except ValueError and return None in the except.
+  - After converting, check the range with if 0 <= age <= 130.

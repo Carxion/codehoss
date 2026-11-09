@@ -1,0 +1,27 @@
+id: py.text-adventure
+title: "Mini-project: text adventure"
+difficulty: 4
+prompt: |
+  Build a tiny adventure game. The map is a dictionary of rooms (given in the starter).
+
+  - Start in the `"hall"` and print its description.
+  - Keep asking for a command with `input("> ")`:
+    - `go <direction>`: if the room has that exit, move there and print the new
+      room's description; otherwise print `You can't go that way.`
+    - `quit`: print `Goodbye!` and stop.
+    - anything else: print `I don't understand.`
+  - Commands should work in any case (`GO NORTH` works too).
+
+  ```
+  You are in a dusty hall.
+  > go north
+  Books line the walls.
+  > go west
+  You can't go that way.
+  > quit
+  Goodbye!
+  ```
+hints:
+  - 'rooms[current]["exits"] is a dictionary of direction -> room name.'
+  - 'command.startswith("go ") checks for a go command; command[3:] is the direction.'
+  - 'if direction in exits: current = exits[direction] then print(rooms[current]["description"])'

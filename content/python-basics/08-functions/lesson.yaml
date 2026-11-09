@@ -1,0 +1,74 @@
+title: Functions
+summary: Name a piece of code so you can reuse it.
+steps:
+  - type: explain
+    md: |
+      A **function** is a named, reusable piece of code. You **define** it once with
+      `def`, then **call** it as often as you like:
+
+      ```python
+      def square(n):
+          return n * n
+
+      print(square(4))   # 16
+      ```
+
+      `n` is a **parameter**: a name for the value passed in. `return` sends a result
+      back to whoever called the function.
+  - type: example
+    code: |
+      def square(n):
+          return n * n
+
+      for i in range(1, 4):
+          print(i, "squared is", square(i))
+  - type: try-it
+    prompt: Finish the function `double` so it **returns** its number times 2.
+    starter: |
+      def double(n):
+          pass
+    solution: |
+      def double(n):
+          return n * 2
+    check: |
+      assert double(4) == 8, f"double(4) gave {double(4)}"
+      assert double(-1) == -2
+    hints:
+      - Replace pass with a return statement.
+      - return n * 2
+  - type: explain
+    md: |
+      Parameters can have **default values**, used when the caller leaves them out:
+
+      ```python
+      def greet(name, greeting="Hello"):
+          return f"{greeting}, {name}!"
+
+      greet("Ada")              # "Hello, Ada!"
+      greet("Ada", "Welcome")   # "Welcome, Ada!"
+      ```
+
+      A function with no `return` gives back `None`. Variables created inside a
+      function only exist inside it.
+  - type: try-it
+    prompt: Finish `greet` so it returns text like `Hello, Ada!` and uses `greeting` (default `"Hello"`).
+    starter: |
+      def greet(name, greeting="Hello"):
+          pass
+    solution: |
+      def greet(name, greeting="Hello"):
+          return f"{greeting}, {name}!"
+    check: |
+      assert greet("Ada") == "Hello, Ada!", f"greet('Ada') gave {greet('Ada')!r}"
+      assert greet("Sam", "Hi") == "Hi, Sam!", f"greet('Sam', 'Hi') gave {greet('Sam', 'Hi')!r}"
+    hints:
+      - Build the text with an f-string using both greeting and name.
+      - 'return f"{greeting}, {name}!"'
+  - type: exercise
+    ref: ex01-tip-calculator
+  - type: exercise
+    ref: ex02-text-tools
+  - type: quiz
+    question: What does a function give back if it has no return statement?
+    options: ['0', 'None', 'an error']
+    answer: 1

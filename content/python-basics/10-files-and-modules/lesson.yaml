@@ -1,0 +1,66 @@
+title: Files and modules
+summary: Use code other people wrote, and save data to files.
+steps:
+  - type: explain
+    md: |
+      A **module** is a file of ready-made code. Python comes with hundreds of them
+      (the *standard library*). Bring one in with `import`:
+
+      ```python
+      import math
+      print(math.sqrt(16))      # 4.0
+
+      from random import randint
+      print(randint(1, 6))      # a dice roll
+      ```
+
+      Open the **📚 Library** panel to browse what each module offers.
+  - type: try-it
+    prompt: Import `math` and make `root` hold the square root of 81 using `math.sqrt`.
+    starter: |
+      root = 0
+    solution: |
+      import math
+      root = math.sqrt(81)
+    check: |
+      assert root == 9.0, f"root is {root}"
+    hints:
+      - Start with import math on the first line.
+      - root = math.sqrt(81)
+  - type: explain
+    md: |
+      **Files** keep data after your program ends. Use `with open(...)`, which closes
+      the file for you automatically:
+
+      ```python
+      with open("notes.txt", "w") as f:    # "w" = write
+          f.write("Hello file!")
+
+      with open("notes.txt") as f:         # read is the default
+          print(f.read())
+      ```
+
+      The `json` module saves lists and dictionaries: `json.dump(data, f)` writes and
+      `json.load(f)` reads them back.
+  - type: example
+    code: |
+      import json
+
+      scores = {"Ada": 9, "Alan": 7}
+      with open("scores.json", "w") as f:
+          json.dump(scores, f)
+
+      with open("scores.json") as f:
+          loaded = json.load(f)
+      print(loaded["Ada"])
+  - type: exercise
+    ref: ex01-contact-book
+  - type: exercise
+    ref: ex02-sales-report
+  - type: quiz
+    question: Why use `with open(...) as f:`?
+    options:
+      - It makes the file load faster
+      - It closes the file automatically when the block ends
+      - It is the only way to read a file
+    answer: 1

@@ -3,25 +3,24 @@
 ## Components
 
 ```
-Browser (React + Monaco + xterm.js + notebook view + Library Explorer + showcase renderer)
-   │  HTTPS / WebSocket (incl. LSP-over-WebSocket)
+Browser (React + Monaco + console + Library Explorer; notebook view M3, showcases M6)
+   │  HTTP + WebSockets (interactive runs, LSP), all under /api, cookie auth
    ▼
-API (FastAPI)
+API (FastAPI, src/dojo/api.py)
    ├── module registry   — discovers modules in /content, resolves prerequisites
-   ├── content service   — serves lessons/steps/exercises (solutions never leave the server)
-   ├── session manager   — creates/destroys learner sandboxes from the module's image
-   ├── LSP proxy         — bridges Monaco ↔ language server inside the session
-   ├── grader            — runs hidden tests inside the sandbox, parses results
+   ├── content service   — lessons/steps with answers stripped; hints one level at a time
+   ├── session manager   — one sandbox per (user, module), reused across page loads
+   ├── LSP bridge        — WebSocket ↔ stdio of a per-connection language-server container
+   ├── grader            — runs hidden tests / try-it checks inside the sandbox
    ├── error explainer   — traceback → plain-English message + did-you-mean
-   ├── progress store    — SQLite (M0–M2) → Postgres (M3+)
+   ├── store             — accounts, tokens, per-step progress: SQLite (→ Postgres later)
    └── tutor (M8)        — Ollama client
    │
    ▼
-Sandbox runtime (one per session; image chosen by module.yaml)
-   ├── learner workspace + Python
-   ├── basedpyright language server  — completions/signatures/hover from installed packages
-   ├── Jupyter kernel (notebook modules)
-   ├── optional sidecars (e.g. Postgres)
+Sandbox containers (image chosen by module.yaml, same lockdown for all)
+   ├── session container   — learner runs, tests, try-its (one folder per run)
+   ├── LSP container       — basedpyright, 512 MB, lives as long as the editor connection
+   ├── Jupyter kernel (notebook modules, M3) · sidecars e.g. Postgres (M3)
    └── runtime: Docker (M1–M6) → Kubernetes pods + lab namespaces (M7+)
 ```
 
@@ -40,10 +39,25 @@ new capability (notebook view, sidecar services, network allowlist, labs).
 
 ## IntelliSense
 
-The language server runs **inside** the session container, not on the API host, so it
-sees exactly the packages the learner's code will run with. The API proxies LSP messages
-over WebSocket to `monaco-languageclient` in the browser. A thin middleware layer adds
-beginner snippets, curated hover docs, and lesson-aware ranking on top of raw LSP results.
+basedpyright runs from the **module's own image**, in its own locked-down container
+(not the session's, so learner code can't starve or kill it), so it sees exactly the
+packages the learner's code will run with. The API relays LSP JSON messages between a
+WebSocket and the server's stdio (`src/dojo/lsp.py`).
+
+In the browser, `web/src/lsp.ts` is a small purpose-built LSP client (completion +
+resolve, hover, signature help, diagnostics) rather than `monaco-languageclient`. It
+keeps the bundle smaller and lets us post-process results for beginners: identifiers
+the current step mentions rank first, and common diagnostics are reworded. Beginner
+snippets (`web/src/snippets.ts`) are a separate completion provider. Curated hover docs
+are planned for M3.
+
+## Interactive runs
+
+The Run button uses a WebSocket: output streams back as it's printed, keystrokes typed in
+the console are fed to the program's stdin, and Stop kills the run's process group.
+Because a run may sit waiting for typing, wall-clock time is generous (5 minutes) and
+**CPU time** (`ulimit -t 10`) is what stops runaway loops. Check/try-it runs are not
+interactive and keep short wall-clock limits.
 
 ## Sandboxing (the part that must be right)
 
@@ -80,7 +94,7 @@ reviewed like code.
 | Backend | FastAPI + Pydantic | async, WebSockets, typed |
 | Package mgmt | uv | fast, already in use on this machine |
 | Frontend | React + Vite + Monaco | Monaco = VS Code editor |
-| IntelliSense | basedpyright + monaco-languageclient | real completions from installed packages |
+| IntelliSense | basedpyright + own small LSP client | real completions from installed packages |
 | Terminal | xterm.js | standard |
 | Notebooks | Jupyter kernel protocol | reuse existing kernels, rich output |
 | Grading | pytest + custom plugin (JSON results) | familiar to learners |

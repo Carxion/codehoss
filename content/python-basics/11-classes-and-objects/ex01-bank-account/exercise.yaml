@@ -1,0 +1,21 @@
+id: py.bank-account
+title: Bank account
+difficulty: 3
+prompt: |
+  Write a `BankAccount` class:
+
+  - `BankAccount(owner, balance=0)` stores the owner's name and starting balance.
+  - `deposit(amount)` adds money. If `amount` isn't above 0, raise `ValueError`.
+  - `withdraw(amount)` takes money out. If it's more than the balance, raise
+    `ValueError` and leave the balance unchanged.
+  - `statement()` returns text like `Ada has $50.00`.
+
+  ```python
+  account = BankAccount("Ada", 20)
+  account.deposit(30)
+  account.statement()   # "Ada has $50.00"
+  ```
+hints:
+  - Store self.owner and self.balance in __init__.
+  - 'Raise an error with: raise ValueError("Not enough money")'
+  - 'Format money with two decimals: f"{self.owner} has ${self.balance:.2f}"'

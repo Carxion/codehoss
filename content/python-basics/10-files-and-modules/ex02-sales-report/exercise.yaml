@@ -1,0 +1,23 @@
+id: py.sales-report
+title: Sales report from a CSV file
+difficulty: 3
+prompt: |
+  A CSV file has one sale per line, with a header row:
+
+  ```
+  item,amount
+  tea,3.50
+  cake,4.25
+  tea,3.50
+  ```
+
+  Write two functions:
+
+  - `total_sales(path)` returns the total of the `amount` column as a float
+    (11.25 for the file above).
+  - `best_seller(path)` returns the item with the highest **total** amount
+    (`"tea"` above: 7.00 vs 4.25).
+hints:
+  - 'csv.DictReader(f) gives each row as a dictionary like {"item": "tea", "amount": "3.50"}.'
+  - Amounts are text in the file. Convert them with float(row["amount"]).
+  - 'For best_seller, add up totals per item in a dictionary, then use max(totals, key=totals.get)'

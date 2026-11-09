@@ -1,7 +1,7 @@
-"""End-to-end demo of the sandbox API.
+"""End-to-end demo of the API without the browser.
 
-    uv run dojo serve            # in one terminal
-    uv run python scripts/api_demo.py
+uv run dojo serve            # in one terminal
+uv run python scripts/api_demo.py
 """
 
 import sys
@@ -9,8 +9,11 @@ import sys
 import httpx
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000"
+DEMO_USER = {"username": "api-demo", "password": "api-demo-password"}
 
-with httpx.Client(base_url=BASE, timeout=60) as api:
+with httpx.Client(base_url=f"{BASE}/api", timeout=60) as api:
+    if api.post("/auth/login", json=DEMO_USER).status_code != 200:
+        api.post("/auth/register", json=DEMO_USER).raise_for_status()
     session = api.post("/sessions", json={"module_id": "python-basics"}).json()["session_id"]
     print(f"session {session[:8]} started")
     try:
@@ -20,11 +23,8 @@ with httpx.Client(base_url=BASE, timeout=60) as api:
         ).json()
         print(f"run      -> {run['stdout'].strip()!r} (exit {run['exit_code']})")
 
-        escape = api.post(
-            f"/sessions/{session}/run",
-            json={"code": "import urllib.request\nurllib.request.urlopen('https://example.com')"},
-        ).json()
-        print(f"network  -> blocked: {escape['exit_code'] != 0}")
+        oops = api.post(f"/sessions/{session}/run", json={"code": 'pirnt("hi")'}).json()
+        print(f"error    -> {oops['explanation']['message']}")
 
         for label, code in [
             ("starter ", "# Write your code below this line.\n"),

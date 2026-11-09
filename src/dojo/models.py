@@ -29,7 +29,8 @@ class Sandbox(_Strict):
 
 
 class LibraryExplorer(_Strict):
-    featured: list[str] = []
+    featured: list[str] = []  # pinned at the top of the explorer
+    modules: list[str] = []  # also indexed, listed below the featured ones
 
 
 class Module(_Strict):

@@ -6,12 +6,13 @@ Every function takes an executor, so the same grading logic works locally
 
 from __future__ import annotations
 
+import threading
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from dojo.executors import ExecResult, Executor, LocalExecutor, OutputCallback
+from dojo.executors import ExecResult, Executor, LocalExecutor, OutputCallback, StdinFeed
 from dojo.registry import LoadedExercise
 
 PACKAGE_DIR = Path(__file__).parent
@@ -59,20 +60,28 @@ class SnippetResult:
 
 def run_program(
     code: str,
-    inputs: list[str] | None = None,
+    inputs: list[str] | StdinFeed | None = None,
     *,
     executor: Executor = LOCAL,
     timeout: float = RUN_TIMEOUT_S,
     on_output: OutputCallback | None = None,
+    cpu_seconds: int | None = None,
+    cancel: threading.Event | None = None,
 ) -> ExecResult:
-    """Run learner code as a script, feeding `inputs` as lines typed at input()."""
-    stdin = "".join(f"{line}\n" for line in inputs or [])
+    """Run learner code as a script.
+
+    `inputs` is either a list of lines typed at input() up front, or a StdinFeed for
+    interactive runs where the learner types while the program waits.
+    """
+    stdin = inputs if isinstance(inputs, StdinFeed) else "".join(f"{x}\n" for x in inputs or [])
     return executor.execute(
         {"main.py": code.encode("utf-8")},
         [executor.python, "-u", "main.py"],
         timeout=timeout,
         stdin=stdin,
         on_output=on_output,
+        cpu_seconds=cpu_seconds,
+        cancel=cancel,
     )
 
 

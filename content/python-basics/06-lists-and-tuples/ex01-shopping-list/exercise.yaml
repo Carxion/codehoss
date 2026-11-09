@@ -1,0 +1,21 @@
+id: py.shopping-list
+title: Shopping list
+difficulty: 2
+prompt: |
+  Start with `shopping = ["milk", "eggs"]`, then:
+
+  1. add `"bread"` to the end
+  2. remove `"eggs"`
+  3. put `"apples"` at the **front**
+  4. print how many items there are, then each item on its own line:
+
+  ```
+  3 items:
+  - apples
+  - milk
+  - bread
+  ```
+hints:
+  - append adds to the end, remove takes an item out, insert(0, ...) puts one at the front.
+  - 'print(len(shopping), "items:") prints the first line.'
+  - 'Use a loop for the items: for item in shopping: print("-", item)'

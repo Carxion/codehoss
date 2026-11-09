@@ -1,0 +1,18 @@
+id: py.word-counter
+title: Word counter
+difficulty: 3
+prompt: |
+  Ask for a sentence, then print how many times each word appears, in the order the
+  words first appear. Treat words as lowercase.
+
+  ```
+  Sentence: The cat saw the dog
+  the: 2
+  cat: 1
+  saw: 1
+  dog: 1
+  ```
+hints:
+  - sentence.lower().split() gives a list of lowercase words.
+  - 'Use a dictionary: counts[word] = counts.get(word, 0) + 1'
+  - 'Dictionaries remember the order keys were added, so loop over counts.items() and print f"{word}: {count}"'

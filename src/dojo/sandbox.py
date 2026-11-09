@@ -4,24 +4,30 @@ Every session is one long-lived container started from its module's image with:
 no network, a read-only root filesystem, a small writable tmpfs workspace, a
 non-root user with no capabilities, and CPU / memory / process limits.
 Code runs inside it via `docker exec` (see dojo.executors.DockerSession).
+The language server (dojo.lsp) gets its own container with the same lockdown.
 """
 
 from __future__ import annotations
 
+import json
 import subprocess
 import threading
 import time
 import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from dojo.executors import DockerSession
 from dojo.registry import Content
 
 BASE_IMAGE = "python:3.12-slim"
 LABEL = "dojo.session"
-# The grader needs pytest in every image, whatever the module declares.
-GRADER_PACKAGES = ["pytest>=8"]
+# Every image needs pytest (grading) and basedpyright (IntelliSense), whatever the
+# module declares.
+PLATFORM_PACKAGES = ["pytest>=8", "basedpyright>=1.20"]
+LIBRARY_DIR = Path("var/library")
+LIBRARY_INDEXER = Path(__file__).parent / "_library_indexer.py"
 
 
 class SandboxError(RuntimeError):
@@ -43,10 +49,28 @@ DEFAULT_LIMITS = Limits()
 class Session:
     id: str
     module_id: str
+    owner: int | None
     container: str
     executor: DockerSession
     created: float = field(default_factory=time.monotonic)
     last_used: float = field(default_factory=time.monotonic)
+
+
+def lockdown_flags(limits: Limits) -> list[str]:
+    """`docker run` flags shared by every sandbox container."""
+    return [
+        "--init",
+        "--network", "none",
+        "--read-only",
+        "--tmpfs", f"/work:rw,size={limits.workspace},uid=1000,gid=1000,mode=0700",
+        "--tmpfs", "/tmp:rw,size=32m,uid=1000,gid=1000,mode=0700",
+        "--user", "1000:1000",
+        "--cap-drop", "ALL",
+        "--security-opt", "no-new-privileges",
+        "--memory", limits.memory, "--memory-swap", limits.memory,
+        "--cpus", limits.cpus,
+        "--pids-limit", str(limits.pids),
+    ]  # fmt: skip
 
 
 def docker_available() -> bool:
@@ -65,7 +89,7 @@ def image_specs(content: Content) -> dict[str, list[str]]:
     """Image name -> packages, merged across every module that uses that image."""
     specs: dict[str, list[str]] = {}
     for module in content.modules.values():
-        packages = specs.setdefault(module.spec.sandbox.image, list(GRADER_PACKAGES))
+        packages = specs.setdefault(module.spec.sandbox.image, list(PLATFORM_PACKAGES))
         packages += [p for p in module.spec.sandbox.packages if p not in packages]
     return specs
 
@@ -101,6 +125,29 @@ def build_image(image: str, packages: list[str], on_output: Callable[[str], None
         raise SandboxError(f"docker build failed for {image}")
 
 
+def build_library_index(content: Content, module_id: str) -> Path:
+    """Introspect the module's libraries inside its image -> var/library/<module>.json.
+
+    Generated at build time so the Library Explorer loads instantly, without a session.
+    """
+    module = content.modules[module_id]
+    explorer = module.spec.library_explorer
+    names = list(dict.fromkeys(explorer.featured + explorer.modules))
+    proc = subprocess.run(
+        ["docker", "run", "--rm", "-i", *lockdown_flags(DEFAULT_LIMITS),
+         module.spec.sandbox.image, "python", "-", *names],
+        input=LIBRARY_INDEXER.read_bytes(),
+        capture_output=True,
+    )  # fmt: skip
+    if proc.returncode != 0:
+        raise SandboxError(f"library indexing failed: {proc.stderr.decode(errors='replace')}")
+    index = {"featured": explorer.featured, "libraries": json.loads(proc.stdout)}
+    LIBRARY_DIR.mkdir(parents=True, exist_ok=True)
+    path = LIBRARY_DIR / f"{module_id}.json"
+    path.write_text(json.dumps(index), encoding="utf-8")
+    return path
+
+
 class SessionManager:
     def __init__(
         self,
@@ -117,7 +164,7 @@ class SessionManager:
         self._sessions: dict[str, Session] = {}
         self._lock = threading.Lock()
 
-    def create(self, module_id: str) -> Session:
+    def create(self, module_id: str, owner: int | None = None) -> Session:
         module = self.content.modules.get(module_id)
         if module is None:
             raise KeyError(module_id)
@@ -132,22 +179,12 @@ class SessionManager:
 
         session_id = uuid.uuid4().hex
         container = f"dojo-{session_id[:12]}"
-        lim = self.limits
         cmd = [
-            "docker", "run", "--detach", "--init",
+            "docker", "run", "--detach",
             "--name", container,
             "--label", f"{LABEL}={session_id}",
             "--label", f"dojo.module={module_id}",
-            "--network", "none",
-            "--read-only",
-            "--tmpfs", f"/work:rw,size={lim.workspace},uid=1000,gid=1000,mode=0700",
-            "--tmpfs", "/tmp:rw,size=16m,uid=1000,gid=1000,mode=0700",
-            "--user", "1000:1000",
-            "--cap-drop", "ALL",
-            "--security-opt", "no-new-privileges",
-            "--memory", lim.memory, "--memory-swap", lim.memory,
-            "--cpus", lim.cpus,
-            "--pids-limit", str(lim.pids),
+            *lockdown_flags(self.limits),
             sandbox.image,
             "sleep", "infinity",
         ]  # fmt: skip
@@ -155,10 +192,22 @@ class SessionManager:
         if proc.returncode != 0:
             raise SandboxError(f"could not start sandbox: {proc.stderr.strip()}")
 
-        session = Session(session_id, module_id, container, DockerSession(container))
+        session = Session(session_id, module_id, owner, container, DockerSession(container))
         with self._lock:
             self._sessions[session_id] = session
         return session
+
+    def find(self, owner: int, module_id: str) -> Session | None:
+        """An owner's existing session for a module, so page reloads reuse it."""
+        with self._lock:
+            return next(
+                (
+                    s
+                    for s in self._sessions.values()
+                    if s.owner == owner and s.module_id == module_id
+                ),
+                None,
+            )
 
     def get(self, session_id: str) -> Session:
         with self._lock:
@@ -188,7 +237,7 @@ class SessionManager:
 
     @staticmethod
     def remove_orphans() -> int:
-        """Remove session containers left behind by a previous run of the server."""
+        """Remove sandbox containers left behind by a previous run of the server."""
         proc = subprocess.run(
             ["docker", "ps", "--all", "--quiet", "--filter", f"label={LABEL}"],
             capture_output=True,

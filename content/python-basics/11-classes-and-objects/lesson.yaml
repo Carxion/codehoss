@@ -1,0 +1,66 @@
+title: Classes and objects
+summary: Bundle data and the actions that go with it.
+steps:
+  - type: explain
+    md: |
+      A **class** is a blueprint for making **objects**. Each object keeps its own data
+      (**attributes**) and has actions (**methods**):
+
+      ```python
+      class Dog:
+          def __init__(self, name):
+              self.name = name          # an attribute
+
+          def speak(self):              # a method
+              return f"{self.name} says woof"
+
+      rex = Dog("Rex")                  # make an object
+      print(rex.speak())                # Rex says woof
+      ```
+
+      `__init__` runs when an object is created. `self` means "this particular object".
+  - type: example
+    code: |
+      class Dog:
+          def __init__(self, name):
+              self.name = name
+
+          def speak(self):
+              return f"{self.name} says woof"
+
+      for dog in [Dog("Rex"), Dog("Bella")]:
+          print(dog.speak())
+  - type: try-it
+    prompt: Finish the `describe` method so it returns text like `Rex is 3`.
+    starter: |
+      class Pet:
+          def __init__(self, name, age):
+              self.name = name
+              self.age = age
+
+          def describe(self):
+              pass
+    solution: |
+      class Pet:
+          def __init__(self, name, age):
+              self.name = name
+              self.age = age
+
+          def describe(self):
+              return f"{self.name} is {self.age}"
+    check: |
+      assert Pet("Rex", 3).describe() == "Rex is 3", f"describe() gave {Pet('Rex', 3).describe()!r}"
+    hints:
+      - Use self.name and self.age inside the method.
+      - 'return f"{self.name} is {self.age}"'
+  - type: exercise
+    ref: ex01-bank-account
+  - type: exercise
+    ref: ex02-todo-list
+  - type: quiz
+    question: Inside a method, what does `self` refer to?
+    options:
+      - The class itself
+      - The object the method was called on
+      - The previous object that was created
+    answer: 1

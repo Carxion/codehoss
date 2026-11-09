@@ -1,0 +1,28 @@
+id: py.budget-tracker
+title: "Mini-project: budget tracker"
+difficulty: 4
+prompt: |
+  Build a command-line budget tracker. Keep asking for a command with `input("> ")`:
+
+  - `add <category> <amount>`: add the amount to that category.
+    If the amount isn't a number, print `Amount must be a number`.
+  - `report`: print each category in alphabetical order with its total (2 decimals),
+    then the overall total.
+  - `quit`: print `Bye!` and stop.
+  - anything else: print `Unknown command`.
+
+  ```
+  > add food 12.5
+  > add rent 500
+  > add food 7.5
+  > report
+  food: 20.00
+  rent: 500.00
+  Total: 520.00
+  > quit
+  Bye!
+  ```
+hints:
+  - 'command.split() turns "add food 12.5" into ["add", "food", "12.5"].'
+  - 'Keep totals in a dictionary and use try / except ValueError around float(...).'
+  - 'For the report: for category in sorted(totals): print(f"{category}: {totals[category]:.2f}")'

@@ -20,7 +20,13 @@ from rich.tree import Tree
 
 from dojo.grader import grade
 from dojo.registry import Content, LoadedExercise, load_content
-from dojo.sandbox import SandboxError, SessionManager, build_image, image_specs
+from dojo.sandbox import (
+    SandboxError,
+    SessionManager,
+    build_image,
+    build_library_index,
+    image_specs,
+)
 from dojo.validate import validate as validate_content
 
 app = typer.Typer(
@@ -73,11 +79,25 @@ def validate(
     run: Annotated[
         bool, typer.Option("--run/--no-run", help="Execute solutions and starters.")
     ] = True,
+    sandbox: Annotated[
+        bool, typer.Option(help="Run code in the Docker sandboxes learners use.")
+    ] = False,
 ) -> None:
     """Check that all content is well-formed and every exercise is solvable."""
     content = _load()
-    with console.status("Validating content..."):
-        problems = validate_content(content, run=run)
+    manager = SessionManager(content) if sandbox and run else None
+    try:
+        with console.status("Validating content..."):
+            executors = None
+            if manager:
+                executors = {m: manager.create(m).executor for m in content.modules}
+            problems = validate_content(content, run=run, executors=executors)
+    except SandboxError as e:
+        console.print(f"[red]{e}[/]")
+        raise typer.Exit(2) from None
+    finally:
+        if manager:
+            manager.close_all()
 
     errors = [p for p in problems if p.level == "error"]
     warnings = [p for p in problems if p.level == "warning"]
@@ -180,22 +200,31 @@ def hint(exercise_id: str, level: int = 1) -> None:
 
 @app.command("build-images")
 def build_images() -> None:
-    """Build the Docker sandbox image for every module."""
-    for image, packages in image_specs(_load()).items():
-        console.print(f"[bold]Building {image}[/] with {', '.join(packages)}")
-        try:
+    """Build the Docker sandbox image and Library Explorer index for every module."""
+    content = _load()
+    try:
+        for image, packages in image_specs(content).items():
+            console.print(f"[bold]Building {image}[/] with {', '.join(packages)}")
             build_image(image, packages, on_output=lambda line: console.print(f"[dim]{line}[/]"))
-        except SandboxError as e:
-            console.print(f"[red]{e}[/]")
-            raise typer.Exit(1) from None
-        console.print(f"[green]Built {image}[/]")
+            console.print(f"[green]Built {image}[/]")
+        for module_id in content.modules:
+            path = build_library_index(content, module_id)
+            console.print(f"[green]Indexed libraries for {module_id}[/] -> {path}")
+    except SandboxError as e:
+        console.print(f"[red]{e}[/]")
+        raise typer.Exit(1) from None
 
 
 @app.command()
 def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
-    """Start the API server (sandboxed sessions, run/check endpoints)."""
+    """Start the server: API under /api, the browser app (web/dist) at /."""
     import uvicorn
 
     from dojo.api import create_app
 
-    uvicorn.run(create_app(_load()), host=host, port=port)
+    static = Path("web/dist")
+    if not static.is_dir():
+        console.print(
+            "[yellow]web/dist not found: API only. Build the app: cd web && npm run build[/]"
+        )
+    uvicorn.run(create_app(_load(), static_dir=static), host=host, port=port)

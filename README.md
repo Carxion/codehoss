@@ -4,34 +4,39 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M1 done** — module system, validator, CLI, first 5 Python Basics lessons,
-> Docker sandbox and API. Next: M2 (guided browser IDE). See [ROADMAP.md](ROADMAP.md).
+> Status: **M2 done**: guided browser IDE with live IntelliSense, Library Explorer,
+> accounts and progress, and the complete Python Basics module (12 lessons, 24 exercises).
+> Next: M3 (Data Science module). See [ROADMAP.md](ROADMAP.md).
 
-## Quick start
+## Run it (needs Docker running)
 
 ```bash
 uv sync
+uv run dojo build-images            # sandbox image + Library Explorer index (~580 MB)
+cd web && npm install && npm run build && cd ..
+uv run dojo serve                   # open http://127.0.0.1:8000 and create an account
+```
+
+For frontend work, run `uv run dojo serve` and `cd web && npm run dev` side by side;
+Vite (http://localhost:5173) forwards `/api` to the server.
+
+Keep the server on localhost for now: accounts exist, but there's no HTTPS, rate
+limiting, or admin tooling yet.
+
+## Terminal tools
+
+```bash
 uv run dojo list                    # browse modules, lessons, exercises
 uv run dojo start py.hello          # read the exercise, get a starter in workspace/
-uv run dojo check py.hello          # run the tests against your code
+uv run dojo check py.hello          # run the tests against your code (--sandbox: in Docker)
 uv run dojo hint py.hello 2         # escalating hints
-uv run dojo validate                # authors: check all content is solvable
+uv run dojo validate                # authors: every exercise solvable (--sandbox: in Docker)
 uv run pytest                       # platform tests (Docker tests skip if Docker is off)
 ```
 
-### Sandbox & API (needs Docker running)
-
-```bash
-uv run dojo build-images            # build per-module sandbox images (dojo-python ~210 MB)
-uv run dojo check py.hello --sandbox   # grade inside a locked-down container
-uv run dojo serve                   # API on http://127.0.0.1:8000 (docs at /docs)
-uv run python scripts/api_demo.py   # end-to-end: session -> run -> check -> close
-```
-
-`dojo check` without `--sandbox` and `dojo validate` still run code directly on your
-machine. That's fine for your own code and authored content, but anything from other
-people should go through the sandbox. The API has no auth yet (M2), so keep it on
-localhost.
+`dojo check` and `dojo validate` without `--sandbox` run code directly on your machine.
+That's fine for your own code and authored content; the browser app always uses the
+sandbox.
 
 ## What it is
 
@@ -60,9 +65,9 @@ localhost.
 | [docs/LEARNING-EXPERIENCE.md](docs/LEARNING-EXPERIENCE.md) | IntelliSense, Library Explorer, guided steps, hints, error explainer |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, module registry, LSP, sandboxing, tech choices |
 
-## Local prerequisites (planned)
+## Local prerequisites
 
-- Python 3.12+ (3.13 installed)
+- Python 3.12+ and [uv](https://docs.astral.sh/uv/)
 - Docker Desktop (or Rancher Desktop — pick one; running both wastes disk)
-- `kubectl` + `kind` (for the Kubernetes track and the M6 runtime)
 - Node 20+ (frontend)
+- Later: `kubectl` + `kind` (Kubernetes module, M7)

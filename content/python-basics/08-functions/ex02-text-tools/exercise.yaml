@@ -1,0 +1,14 @@
+id: py.text-tools
+title: Text tools
+difficulty: 3
+prompt: |
+  Write two functions:
+
+  - `count_vowels(text)` returns how many vowels (a, e, i, o, u, upper or lower case)
+    are in `text`. `count_vowels("Hello")` gives `2`.
+  - `is_palindrome(text)` returns `True` if `text` reads the same backwards, ignoring
+    capitals and spaces. `is_palindrome("Never odd or even")` gives `True`.
+hints:
+  - 'Loop over text.lower() and check: if letter in "aeiou"'
+  - For palindromes, first make a cleaned version with text.lower().replace(" ", "")
+  - 'A string reversed is cleaned[::-1]. Return cleaned == cleaned[::-1]'

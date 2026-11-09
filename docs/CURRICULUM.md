@@ -31,9 +31,11 @@ Audience: never coded before. Image: `dojo-python` (stdlib + pytest + rich).
 | 9 | Errors & debugging — reading tracebacks, try/except | fix-the-bugs challenge |
 | 10 | Files & modules — open, csv, json, import | contact book saved to JSON |
 | 11 | Classes & objects | bank account simulator |
-| 12 | Using libraries — pip, venvs, requests, datetime; testing with pytest | API-powered quote app |
+| 12 | Libraries & testing — standard library, pip/venvs (concepts), asserts and pytest | dice stats |
 
-Mini-projects: Text Adventure (after L7), Personal Budget CLI (after L12).
+Mini-projects (the last exercise of L7 and L12): Text Adventure, Budget Tracker.
+Lesson 12 originally planned `requests`; sandboxes have no network, so it teaches the
+standard library instead.
 
 ### 2. Data Science — `data-science`
 Prereq: Python Basics. Image: `dojo-ds` (numpy, pandas, matplotlib, seaborn, plotly,

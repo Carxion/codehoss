@@ -1,0 +1,14 @@
+id: py.todo-list
+title: To-do list
+difficulty: 3
+prompt: |
+  Write a `TodoList` class:
+
+  - `add(task)` adds a task (a string).
+  - `complete(task)` marks it done. If there's no such task, raise `ValueError`.
+  - `pending()` returns a list of tasks not done yet, in the order they were added.
+  - `done_count()` returns how many tasks are done.
+hints:
+  - 'Keep two things in __init__: self.tasks = [] and self.done = set()'
+  - In complete, check if task not in self.tasks and raise ValueError.
+  - 'pending can use a list comprehension: [t for t in self.tasks if t not in self.done]'

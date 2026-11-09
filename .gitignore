@@ -7,3 +7,4 @@ __pycache__/
 dist/
 # Learner scratch files created by `dojo start`
 workspace/
+var/

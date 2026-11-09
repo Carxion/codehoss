@@ -1,0 +1,68 @@
+title: Lists and tuples
+summary: Keep many values in order, and change them.
+steps:
+  - type: explain
+    md: |
+      A **list** holds many values in order, inside square brackets:
+
+      ```python
+      fruits = ["apple", "banana", "cherry"]
+      ```
+
+      Each item has a **position** (index) starting at **0**: `fruits[0]` is `"apple"`.
+      Negative positions count from the end: `fruits[-1]` is `"cherry"`.
+      `len(fruits)` tells you how many items there are.
+  - type: example
+    code: |
+      fruits = ["apple", "banana", "cherry"]
+      print(fruits[0], fruits[-1], len(fruits))
+      fruits.append("date")
+      print(fruits)
+  - type: try-it
+    prompt: Add `"cherry"` to the end of `fruits` using `.append()`.
+    starter: |
+      fruits = ["apple", "banana"]
+    solution: |
+      fruits = ["apple", "banana"]
+      fruits.append("cherry")
+    check: |
+      assert fruits == ["apple", "banana", "cherry"], f"fruits is {fruits}"
+    hints:
+      - Lists have an append method that adds one item at the end.
+      - 'fruits.append("cherry")'
+  - type: explain
+    md: |
+      Useful list tools:
+
+      | Code | What it does |
+      |---|---|
+      | `items.insert(0, x)` | put `x` at position 0 |
+      | `items.remove(x)` | remove the first `x` |
+      | `items.pop()` | remove and return the last item |
+      | `items.sort()` | sort the list in place (`reverse=True` for biggest first) |
+      | `x in items` | `True` if `x` is in the list |
+      | `sum(items)`, `max(items)`, `min(items)` | add up, biggest, smallest |
+
+      A **tuple** is like a list that can't be changed, written with round brackets:
+      `point = (3, 4)`. Use tuples for things that belong together and stay fixed.
+  - type: try-it
+    prompt: Sort `scores` from **highest to lowest** using `.sort()`.
+    starter: |
+      scores = [7, 10, 3, 8]
+    solution: |
+      scores = [7, 10, 3, 8]
+      scores.sort(reverse=True)
+    check: |
+      assert scores == [10, 8, 7, 3], f"scores is {scores}"
+    hints:
+      - sort() puts the smallest first. Is there an option to flip that?
+      - scores.sort(reverse=True)
+  - type: exercise
+    ref: ex01-shopping-list
+  - type: exercise
+    ref: ex02-score-stats
+  - type: quiz
+    question: 'If `nums = [10, 20, 30]`, what is `nums[-1]`?'
+    options: ['10', '30', 'an error']
+    answer: 1
+    explanation: Negative positions count from the end, so -1 is the last item.
