@@ -1,0 +1,15 @@
+id: project.digit-classifier.train
+title: 'Checkpoint 3: Train the network'
+prompt: '
+
+  Write `train_model(X_train, y_train)` that trains and returns
+
+  `MLPClassifier(hidden_layer_sizes=(64,), max_iter=500, random_state=0)`. The cell
+
+  below compares its accuracy with the baseline.
+
+  '
+difficulty: 3
+time_limit_s: 60
+hints:
+- Create the classifier, then .fit(X_train, y_train) and return it.

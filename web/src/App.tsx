@@ -4,17 +4,22 @@ import { api } from "./api";
 import Catalog from "./components/Catalog";
 import LessonView from "./components/LessonView";
 import Login from "./components/Login";
+import Portfolio from "./components/Portfolio";
 
 // Hash routes keep the server simple (no SPA fallback needed):
 //   #/                          catalog
 //   #/learn/<module>/<lesson>/<step>
-type Route = { page: "catalog" } | { page: "learn"; module: string; lesson: string; step: number };
+type Route =
+  | { page: "catalog" }
+  | { page: "portfolio" }
+  | { page: "learn"; module: string; lesson: string; step: number };
 
 function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, "").split("/");
   if (parts[0] === "learn" && parts[1] && parts[2]) {
     return { page: "learn", module: parts[1], lesson: parts[2], step: Number(parts[3] ?? 0) || 0 };
   }
+  if (parts[0] === "portfolio") return { page: "portfolio" };
   return { page: "catalog" };
 }
 
@@ -55,8 +60,11 @@ export default function App() {
           <span className="brand-mark">D</span> DataDojo
         </a>
         <div className="topbar-right">
+          <a href="#/portfolio" className="small">
+            Portfolio
+          </a>
           <AIChip />
-          <span className="muted">{user}</span>
+          <span className="muted username">{user}</span>
           <button className="link" onClick={logout}>
             Log out
           </button>
@@ -64,6 +72,8 @@ export default function App() {
       </header>
       {route.page === "catalog" ? (
         <Catalog />
+      ) : route.page === "portfolio" ? (
+        <Portfolio />
       ) : (
         <LessonView
           key={`${route.module}/${route.lesson}`}

@@ -155,8 +155,28 @@ Original plan:
 
 **Exit:** a learner builds and runs a working RAG app inside DataDojo.
 
-## M5 — Projects module (build plans)
+## M5 — Projects module (build plans) ✅ (2026-11-09)
 Goal: bridge "I did exercises" → "I can build things".
+
+Shipped: a `project:` block makes a lesson a multi-checkpoint project (each exercise
+step is a checkpoint; hidden tests re-check every earlier checkpoint). Per-project
+levels, switchable any time: **Guided** (TODO skeleton, hints, show me), **Assisted**
+(function outlines, hints), **Solo** (your own passing code from the last checkpoint,
+no hints; enforced by the API). "Start from my code" works at every level. Passing code
+is saved server-side; a **Portfolio** page lists finished projects and exports each as
+a zip (README + `main.py`, or `project.ipynb` + `project.py`). Six projects, 24
+checkpoints, all three starters of each validated in the sandbox (72 starter checks).
+Projects can override the view (editor/notebook) and turn on the AI picker. Verified
+with an 11-step browser walkthrough that completes the Expense Tracker end to end.
+
+Changed from the plan:
+- Projects: Expense Tracker, Weather Dashboard, **House Price Report** (the Data Science
+  capstone, replacing the data-cleaning pipeline, which repeated DS lesson 5), Movie
+  Recommender, **Document Q&A Bot** (the AI capstone), **Digit Classifier** (instead of
+  an image classifier with a web demo; sandboxes can't serve web apps yet).
+- Portfolio has code and READMEs but no screenshots yet.
+
+Original plan:
 
 - Build plan format: a multi-milestone project with a spec, checkpoints, and graded
   milestones (each checkpoint = tests the learner's project must pass)

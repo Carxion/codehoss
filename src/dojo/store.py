@@ -41,6 +41,20 @@ CREATE TABLE IF NOT EXISTS ai_settings (
     model TEXT,
     api_key_encrypted BLOB
 );
+CREATE TABLE IF NOT EXISTS project_levels (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    module_id TEXT NOT NULL,
+    lesson_slug TEXT NOT NULL,
+    level TEXT NOT NULL,
+    PRIMARY KEY (user_id, module_id, lesson_slug)
+);
+CREATE TABLE IF NOT EXISTS submissions (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    exercise_id TEXT NOT NULL,
+    code TEXT NOT NULL,
+    passed_at REAL NOT NULL,
+    PRIMARY KEY (user_id, exercise_id)
+);
 CREATE TABLE IF NOT EXISTS progress (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     module_id TEXT NOT NULL,
@@ -200,6 +214,44 @@ class Store:
             ref: StepProgress(bool(done), attempts, hints, bool(showed))
             for ref, done, attempts, hints, showed in rows
         }
+
+    # --- projects --------------------------------------------------------------
+
+    def project_level(self, user: User, module_id: str, lesson_slug: str) -> str:
+        with self._db() as db:
+            row = db.execute(
+                "SELECT level FROM project_levels WHERE user_id = ? AND module_id = ? "
+                "AND lesson_slug = ?",
+                (user.id, module_id, lesson_slug),
+            ).fetchone()
+        return row[0] if row else "guided"
+
+    def set_project_level(self, user: User, module_id: str, lesson_slug: str, level: str) -> None:
+        with self._db() as db:
+            db.execute(
+                "INSERT INTO project_levels (user_id, module_id, lesson_slug, level) "
+                "VALUES (?, ?, ?, ?) ON CONFLICT (user_id, module_id, lesson_slug) "
+                "DO UPDATE SET level = excluded.level",
+                (user.id, module_id, lesson_slug, level),
+            )
+
+    def save_submission(self, user: User, exercise_id: str, code: str) -> None:
+        """Keep the latest passing code per exercise (portfolio, carry-forward)."""
+        with self._db() as db:
+            db.execute(
+                "INSERT INTO submissions (user_id, exercise_id, code, passed_at) "
+                "VALUES (?, ?, ?, ?) ON CONFLICT (user_id, exercise_id) "
+                "DO UPDATE SET code = excluded.code, passed_at = excluded.passed_at",
+                (user.id, exercise_id, code, time.time()),
+            )
+
+    def submission(self, user: User, exercise_id: str) -> tuple[str, float] | None:
+        with self._db() as db:
+            row = db.execute(
+                "SELECT code, passed_at FROM submissions WHERE user_id = ? AND exercise_id = ?",
+                (user.id, exercise_id),
+            ).fetchone()
+        return (row[0], row[1]) if row else None
 
     # --- AI settings -----------------------------------------------------------
 

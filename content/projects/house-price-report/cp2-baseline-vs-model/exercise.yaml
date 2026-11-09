@@ -1,0 +1,11 @@
+id: project.house-price-report.baseline-vs-model
+title: 'Checkpoint 2: Baseline vs model'
+prompt: "\nWrite `evaluate(df, features)` that splits `df` with `test_size=0.2, random_state=42`,\nthen\
+  \ returns a dictionary:\n\n- `baseline_mae`: the mean absolute error of always predicting the **training**\n\
+  \  average price\n- `model_mae`: the MAE of a `LinearRegression` trained on `features`\n"
+difficulty: 3
+time_limit_s: 30
+hints:
+- train, test = train_test_split(df, test_size=0.2, random_state=42)
+- 'The baseline predicts train["price"].mean() for every test house: [mean] * len(test)'
+- LinearRegression().fit(train[features], train["price"]).predict(test[features])

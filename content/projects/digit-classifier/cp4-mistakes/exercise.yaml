@@ -1,0 +1,13 @@
+id: project.digit-classifier.mistakes
+title: 'Checkpoint 4: Learn from mistakes'
+prompt: "\nWrite two functions:\n\n- `most_confused(model, X_test, y_test)`: the `(true_digit, predicted_digit)`\
+  \ pair the\n  model gets wrong most often (from `confusion_matrix`, ignoring the diagonal). On a\n \
+  \ tie, the pair that comes first (smallest true digit, then predicted).\n- `predict_digit(model, pixels)`:\
+  \ takes 64 raw pixel values (0 to 16, like the original\n  data) and returns the predicted digit as\
+  \ an `int`.\n"
+difficulty: 4
+time_limit_s: 60
+hints:
+- cm = confusion_matrix(y_test, model.predict(X_test)); np.fill_diagonal(cm, 0)
+- np.unravel_index(cm.argmax(), cm.shape) gives (row, column) of the biggest count.
+- 'Scale pixels like the training data: np.array(pixels) / 16, reshaped to one row with .reshape(1, -1)'

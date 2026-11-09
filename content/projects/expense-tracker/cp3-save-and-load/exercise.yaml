@@ -1,0 +1,16 @@
+id: project.expense-tracker.save-and-load
+title: 'Checkpoint 3: Save and load'
+prompt: '
+
+  Add:
+
+
+  - `save(expenses, path)`: write the list to `path` as JSON.
+
+  - `load(path)`: read the list back. If the file doesn''t exist yet, return `[]`.
+
+  '
+difficulty: 3
+hints:
+- 'with open(path, "w") as f: json.dump(expenses, f)'
+- Catch FileNotFoundError in load and return [].

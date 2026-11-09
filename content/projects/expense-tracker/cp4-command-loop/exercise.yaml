@@ -1,0 +1,34 @@
+id: project.expense-tracker.command-loop
+title: 'Checkpoint 4: The command loop'
+prompt: '
+
+  Write `main(path="expenses.json")`: load the expenses, then keep reading commands with
+
+  `input("> ")`:
+
+
+  | Command | Does |
+
+  |---|---|
+
+  | `add <amount> <category> <description...>` | adds it, prints `Added.` |
+
+  | `list` | prints each expense (`format_expense`), or `No expenses yet.` |
+
+  | `report` | prints `category: $total` per category, then `Total: $total` |
+
+  | `quit` | saves to `path` and stops |
+
+  | anything else | prints `Commands: add, list, report, quit` |
+
+
+  For example `add 12.50 food Lunch with Sam` adds a $12.50 food expense called
+
+  "Lunch with Sam". The bottom of the file already runs `main()` when you run it.
+
+  '
+difficulty: 4
+hints:
+- parts = command.split(maxsplit=3) gives ["add", "12.50", "food", "Lunch with Sam"].
+- 'In report, money looks like f"{category}: ${amount:.2f}".'
+- Remember to save(expenses, path) before breaking out of the loop on quit.

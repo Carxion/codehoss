@@ -1,0 +1,70 @@
+title: House Price Report
+summary: 'The Data Science capstone: explore, model, improve and write it up.'
+project:
+  brief: '
+
+    A client wants to know what drives house prices in `/data/houses.csv` and how well
+
+    prices can be predicted. Work like a data scientist: **explore** first, compare a
+
+    **model against a baseline**, **engineer features** to do better, and finish with a
+
+    short written **report** of your findings.
+
+    '
+  uses:
+  - data-science
+  view: notebook
+steps:
+- type: explain
+  md: 'A client wants to know what drives house prices in `/data/houses.csv` and how well
+
+    prices can be predicted. Work like a data scientist: **explore** first, compare a
+
+    **model against a baseline**, **engineer features** to do better, and finish with a
+
+    short written **report** of your findings.
+
+
+    ### Checkpoints
+
+
+    1. **Explore**: the key facts before any modelling
+
+    2. **Baseline vs model**: prove the model beats guessing
+
+    3. **Engineer features**: give the model better inputs
+
+    4. **Write the report**: findings a client can read
+
+
+    Pick your level above: **Guided** gives you a skeleton with TODOs and full hints, **Assisted** gives
+    you function outlines and hints, **Solo** gives you just your own code from the last checkpoint. You
+    can change level any time. Every checkpoint is checked by tests that also re-check the earlier ones,
+    so nothing quietly breaks.'
+- type: exercise
+  ref: cp1-explore
+- type: exercise
+  ref: cp2-baseline-vs-model
+- type: exercise
+  ref: cp3-features
+- type: exercise
+  ref: cp4-report
+- type: explain
+  md: '
+
+    ### Capstone complete 🎉
+
+
+    You explored data, proved your model beats a baseline, tested whether new features
+
+    help, and wrote it up. That''s the full data science loop. Download it from your
+
+    **Portfolio** as a notebook.
+
+
+    **Stretch goals:** try a `RandomForestRegressor`, plot predicted vs actual prices, or
+
+    add a paragraph explaining *why* the strongest driver matters.
+
+    '

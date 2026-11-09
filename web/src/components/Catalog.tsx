@@ -41,6 +41,15 @@ export default function Catalog() {
                     <span className="lesson-title">
                       {lesson.title}
                       <small className="muted">{lesson.summary}</small>
+                      {lesson.project && (
+                        <span className="uses">
+                          {lesson.project.uses.map((u) => (
+                            <span key={u} className="pill">
+                              uses {MODULE_NAMES[u] ?? u}
+                            </span>
+                          ))}
+                        </span>
+                      )}
                     </span>
                     <span className="muted small">
                       {lesson.done}/{lesson.steps}
@@ -55,6 +64,12 @@ export default function Catalog() {
     </main>
   );
 }
+
+const MODULE_NAMES: Record<string, string> = {
+  "python-basics": "Python Basics",
+  "data-science": "Data Science",
+  ai: "AI",
+};
 
 function Progress({ done, total }: { done: number; total: number }) {
   const percent = total ? Math.round((done / total) * 100) : 0;

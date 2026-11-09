@@ -1,0 +1,12 @@
+id: project.document-qa-bot.load-and-chunk
+title: 'Checkpoint 1: Load and chunk'
+prompt: "\nWrite:\n\n- `load_documents(folder)`: a list of `{\"source\": filename, \"text\": file text}`\
+  \ for\n  every `.md` file in `folder`, sorted by filename\n- `chunk_documents(docs, size=40, overlap=10)`:\
+  \ split each document's text into\n  chunks of `size` words, each starting `size - overlap` words after\
+  \ the previous one\n  (stop once a chunk reaches the end). Return a list of\n  `{\"source\": ..., \"\
+  text\": ...}` dictionaries.\n"
+difficulty: 3
+hints:
+- sorted(Path(folder).glob("*.md")) lists the files in order; path.name is the filename.
+- 'For chunking: words = text.split(); for start in range(0, len(words), size - overlap)'
+- Append the chunk, then break if start + size >= len(words).

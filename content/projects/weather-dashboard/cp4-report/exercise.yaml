@@ -1,0 +1,11 @@
+id: project.weather-dashboard.report
+title: 'Checkpoint 4: Publish a report'
+prompt: "\nWrite `build_report(summary)` returning an HTML string that contains:\n\n- `<h1>Weather report</h1>`\n\
+  - for each city (alphabetically) a line\n  `<p><b>Denver</b>: warmest month 7, wettest month 5</p>`:\
+  \ the month with the highest\n  `avg_temp_c` and the month with the highest `total_precip_mm`\n- the\
+  \ summary table: `summary.to_html(index=False)`\n\nThen `save_report(html, path)` writes it to a file.\n"
+difficulty: 4
+hints:
+- 'For one city: rows.loc[rows["avg_temp_c"].idxmax(), "month"] is the warmest month.'
+- Collect the pieces in a list of strings and join them with newlines.
+- 'with open(path, "w", encoding="utf-8") as f: f.write(html)'

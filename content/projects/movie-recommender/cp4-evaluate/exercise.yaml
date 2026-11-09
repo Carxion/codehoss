@@ -1,0 +1,19 @@
+id: project.movie-recommender.evaluate
+title: 'Checkpoint 4: Are they any good?'
+prompt: '
+
+  A simple quality check: recommendations should usually share the movie''s genre. Write
+
+  `genre_precision(movies, features, k=5)`: for every movie, the fraction of its `k`
+
+  recommendations with the **same genre**, averaged over all movies and rounded to 3
+
+  decimals.
+
+  '
+difficulty: 4
+time_limit_s: 30
+hints:
+- 'A title -> genre lookup: genre_of = dict(zip(movies["title"], movies["genre"]))'
+- For each title, count recommendations with genre_of[r] == genre_of[title], divide by k.
+- Average the fractions, then round(..., 3).

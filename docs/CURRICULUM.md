@@ -84,8 +84,28 @@ company handbook for the RAG lessons.
 Capstone (document Q&A assistant with evals) lives in the Projects module.
 
 ### 4. Projects — `projects`
-Build plans that combine modules. Each plan has a spec, checkpoints (graded by tests),
-and three scaffolding levels: **Guided → Assisted → Solo**.
+Build plans that combine modules. Each plan has a brief, checkpoints (graded by tests
+that also re-check earlier checkpoints), and three levels the learner can switch
+between: **Guided** (TODO skeleton, hints, show me), **Assisted** (function outlines,
+hints), **Solo** (own code carried forward, no hints). Finished projects appear in the
+learner's portfolio and download as a zip with a README.
+
+| Project | Uses | View | Checkpoints |
+|---|---|---|---|
+| Expense Tracker | Python Basics | editor | add & list → totals → save/load JSON → command loop |
+| Weather Dashboard | Data Science | notebook | load & clean → monthly summary → chart → HTML report |
+| House Price Report (DS capstone) | Data Science | notebook | explore → baseline vs model → features → written report |
+| Movie Recommender | Data Science | notebook | vectors → similarity → recommend → genre precision |
+| Document Q&A Bot (AI capstone) | AI | notebook + AI picker | load & chunk → retrieve → answer with sources → eval |
+| Digit Classifier | AI | notebook | split → baseline → train → mistakes & predict |
+
+Authoring: put a `project:` block in `lesson.yaml` (`brief`, `uses`, optional `view` and
+`ai`); each checkpoint folder has `starter.py` (Guided), `starter.assisted.py` and
+`starter.solo.py` (used only when the learner has no passing code from the previous
+checkpoint). `dojo validate` checks that every starter variant fails and the solution
+passes.
+
+<details><summary>Original plan</summary>
 
 | Plan | Uses | Checkpoints |
 |---|---|---|
@@ -95,6 +115,8 @@ and three scaffolding levels: **Guided → Assisted → Solo**.
 | Movie Recommender | DS + ML | explore → similarity → recommend → evaluate |
 | Document Q&A Bot | AI | chunk → embed → retrieve → answer → eval |
 | Image Classifier | AI | dataset → train → evaluate → simple web demo |
+
+</details>
 
 ## Later modules
 

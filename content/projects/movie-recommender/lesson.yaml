@@ -1,0 +1,64 @@
+title: Movie Recommender
+summary: Recommend similar movies with feature vectors and cosine similarity.
+project:
+  brief: '
+
+    Build a **"because you liked..."** recommender for `/data/movies.csv`. You''ll turn
+
+    each movie into a vector of numbers, measure how similar movies are, recommend the
+
+    closest ones, and then measure how good the recommendations are.
+
+    '
+  uses:
+  - data-science
+  view: notebook
+steps:
+- type: explain
+  md: 'Build a **"because you liked..."** recommender for `/data/movies.csv`. You''ll turn
+
+    each movie into a vector of numbers, measure how similar movies are, recommend the
+
+    closest ones, and then measure how good the recommendations are.
+
+
+    ### Checkpoints
+
+
+    1. **Movies as vectors**: describe each movie with numbers
+
+    2. **How similar?**: cosine similarity between two movies
+
+    3. **Recommend**: the k most similar movies
+
+    4. **Are they any good?**: measure recommendation quality
+
+
+    Pick your level above: **Guided** gives you a skeleton with TODOs and full hints, **Assisted** gives
+    you function outlines and hints, **Solo** gives you just your own code from the last checkpoint. You
+    can change level any time. Every checkpoint is checked by tests that also re-check the earlier ones,
+    so nothing quietly breaks.'
+- type: exercise
+  ref: cp1-features
+- type: exercise
+  ref: cp2-similarity
+- type: exercise
+  ref: cp3-recommend
+- type: exercise
+  ref: cp4-evaluate
+- type: explain
+  md: '
+
+    ### Recommender built 🎉
+
+
+    From raw rows to vectors, similarity, recommendations and a quality score. This is the
+
+    core of how real recommenders start. It''s in your **Portfolio**.
+
+
+    **Stretch goals:** weight genre more than year, recommend from a *list* of liked
+
+    movies (average their vectors), or use `dojo_ai.embed` on plot descriptions.
+
+    '

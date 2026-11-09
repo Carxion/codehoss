@@ -2,24 +2,30 @@
 
     uv run python scripts/make_datasets.py
 
-Writes content/data-science/datasets/. Standard library only. Each dataset is shaped to
-teach something: the survey is messy on purpose, the A/B test has a real but modest
-effect, the customers fall into three clusters, and so on. Change the generators and
+Writes content/data-science/datasets/ and content/projects/datasets/ (the Projects
+module gets its own copies of what it uses, plus a weather dataset). Standard library
+only. Each dataset is shaped to teach something: the survey is messy on purpose, the
+A/B test has a real but modest effect, the customers fall into three clusters, and so
+on. Change the generators and
 re-run; exercise tests compute expectations from the files, so they stay valid as long
 as column names don't change.
 """
 
 import csv
+import math
 import random
+import shutil
 import sqlite3
 from datetime import date, timedelta
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "content" / "data-science" / "datasets"
+CONTENT = Path(__file__).resolve().parent.parent / "content"
+OUT = CONTENT / "data-science" / "datasets"
+PROJECTS = CONTENT / "projects" / "datasets"
 
 
-def write_csv(name, header, rows):
-    with (OUT / name).open("w", newline="", encoding="utf-8") as f:
+def write_csv(name, header, rows, folder=OUT):
+    with (folder / name).open("w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(header)
         writer.writerows(rows)
@@ -288,12 +294,56 @@ def store_db(rng):
     print("store.db: customers, products, orders")
 
 
+def weather(rng):
+    """Daily weather for three cities in 2025, with a few gaps and a duplicate."""
+    climates = {  # (mean temp °C, seasonal swing, rainy-month peak, rain scale)
+        "Denver": (10.5, 12.0, 5, 1.2),
+        "Seattle": (11.5, 7.0, 12, 3.0),
+        "Austin": (21.0, 8.5, 5, 2.2),
+    }
+    rows = []
+    for city, (mean, swing, wet_month, rain) in climates.items():
+        for day in range(365):
+            when = date(2025, 1, 1) + timedelta(days=day)
+            seasonal = mean - swing * math.cos(2 * math.pi * (day - 15) / 365)
+            high = round(seasonal + 6 + rng.gauss(0, 2.5), 1)
+            low = round(seasonal - 6 + rng.gauss(0, 2.5), 1)
+            wetness = 1 + math.cos(2 * math.pi * (when.month - wet_month) / 12)
+            precip = (
+                round(max(0.0, rng.gauss(rain * wetness, 3.0)), 1) if rng.random() < 0.35 else 0.0
+            )
+            wind = round(abs(rng.gauss(14, 6)), 1)
+            row = [when.isoformat(), city, high, low, precip, wind]
+            if rng.random() < 0.01:
+                row[rng.choice([2, 3])] = ""  # a missing reading
+            rows.append(row)
+    rows.insert(100, list(rows[99]))  # a duplicated row
+    write_csv(
+        "weather.csv",
+        ["date", "city", "temp_max_c", "temp_min_c", "precip_mm", "wind_kph"],
+        rows,
+        folder=PROJECTS,
+    )
+
+
+def share_with_projects():
+    for name in ("houses.csv", "movies.csv"):
+        shutil.copy(OUT / name, PROJECTS / name)
+    handbook = CONTENT / "ai" / "datasets" / "handbook"
+    if handbook.exists():
+        shutil.copytree(handbook, PROJECTS / "handbook", dirs_exist_ok=True)
+    print("projects: copied houses.csv, movies.csv, handbook/")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    PROJECTS.mkdir(parents=True, exist_ok=True)
     for i, generate in enumerate(
-        [grades, movies, survey, sales, ab_test, houses, messages, customers, store_db]
+        # Append new generators at the end so existing datasets keep their seeds.
+        [grades, movies, survey, sales, ab_test, houses, messages, customers, store_db, weather]
     ):
         generate(random.Random(1000 + i))
+    share_with_projects()
 
 
 if __name__ == "__main__":

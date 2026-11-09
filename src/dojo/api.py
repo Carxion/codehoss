@@ -38,8 +38,17 @@ from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
 from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
 from dojo.lsp import LanguageServer
-from dojo.models import ExampleStep, ExerciseStep, ExplainStep, QuizStep, Step, TryItStep
+from dojo.models import (
+    LEVELS,
+    ExampleStep,
+    ExerciseStep,
+    ExplainStep,
+    QuizStep,
+    Step,
+    TryItStep,
+)
 from dojo.notebook import Kernel
+from dojo.portfolio import export_zip
 from dojo.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, load_content
 from dojo.sandbox import LIBRARY_DIR, SandboxError, Session, SessionManager
 from dojo.store import AuthError, Store, User
@@ -86,6 +95,10 @@ class AISettingsBody(BaseModel):
     model: str | None = Field(default=None, max_length=100)
     api_key: str | None = Field(default=None, max_length=300)
     clear_key: bool = False
+
+
+class LevelBody(BaseModel):
+    level: Literal["guided", "assisted", "solo"]
 
 
 class QuizAnswer(BaseModel):
@@ -279,6 +292,9 @@ def create_app(
                             "slug": lesson.slug,
                             "title": lesson.spec.title,
                             "summary": lesson.spec.summary,
+                            "project": {"uses": lesson.spec.project.uses}
+                            if lesson.spec.project
+                            else None,
                             "steps": len(lesson.spec.steps),
                             "done": sum(
                                 1
@@ -299,16 +315,38 @@ def create_app(
         slugs = [les.slug for les in module.lessons]
         position = slugs.index(slug)
         progress = db.progress(user, module_id)
+        project = lesson.spec.project
+        steps = [_public_step(lesson, i, step) for i, step in enumerate(lesson.spec.steps)]
+        if project:
+            # Projects send every level's starter and the learner's last passing code, so
+            # assisted/solo learners can carry their own code forward between checkpoints.
+            for public, step in zip(steps, lesson.spec.steps, strict=True):
+                if isinstance(step, ExerciseStep):
+                    exercise = lesson.exercises[step.ref]
+                    public["exercise"]["starters"] = {
+                        level: (path.read_text(encoding="utf-8") if path else None)
+                        for level in LEVELS
+                        for path in [exercise.starter_for(level)]
+                    }
+                    saved = db.submission(user, exercise.spec.id)
+                    public["exercise"]["submission"] = saved[0] if saved else None
         return {
             "module_id": module_id,
             "slug": slug,
             "title": lesson.spec.title,
             "summary": lesson.spec.summary,
-            "view": module.spec.default_view,
-            "ai": module.spec.sandbox.ai,
+            "view": (project and project.view) or module.spec.default_view,
+            "ai": bool(project and project.ai) or module.spec.sandbox.ai,
+            "project": {
+                "brief": project.brief,
+                "uses": project.uses,
+                "level": db.project_level(user, module_id, slug),
+            }
+            if project
+            else None,
             "previous": slugs[position - 1] if position > 0 else None,
             "next": slugs[position + 1] if position + 1 < len(slugs) else None,
-            "steps": [_public_step(lesson, i, step) for i, step in enumerate(lesson.spec.steps)],
+            "steps": steps,
             "progress": {
                 ref.split("/", 1)[1]: asdict(p)
                 for ref, p in progress.items()
@@ -334,6 +372,14 @@ def create_app(
     def get_exercise(exercise_id: str, user: UserDep) -> dict:
         return _public_exercise(exercise_or_404(exercise_id))
 
+    @api.put("/modules/{module_id}/lessons/{slug}/level")
+    def set_level(module_id: str, slug: str, body: LevelBody, user: UserDep) -> dict:
+        lesson = lesson_or_404(module_or_404(module_id), slug)
+        if not lesson.spec.project:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "only projects have levels")
+        db.set_project_level(user, module_id, slug, body.level)
+        return {"level": body.level}
+
     @api.get("/modules/{module_id}/lessons/{slug}/steps/{index}/hints/{level}")
     def get_hint(module_id: str, slug: str, index: int, level: int, user: UserDep) -> dict:
         """Levels 1..n are hints; level n+1 is "show me" (the solution)."""
@@ -350,6 +396,17 @@ def create_app(
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "this step has no hints")
         if not 1 <= level <= len(hints) + 1:
             raise HTTPException(status.HTTP_404_NOT_FOUND, f"levels go from 1 to {len(hints) + 1}")
+        if lesson.spec.project:
+            project_level = db.project_level(user, module_id, slug)
+            if project_level == "solo":
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN,
+                    "Hints are off in Solo. Switch to Assisted or Guided for help.",
+                )
+            if project_level == "assisted" and level > len(hints):
+                raise HTTPException(
+                    status.HTTP_403_FORBIDDEN, "Show me is only in Guided. Switch level to see it."
+                )
         ref = f"{slug}/{index}"
         if level <= len(hints):
             db.record(user, module_id, ref, hints_used=level)
@@ -376,6 +433,54 @@ def create_app(
         if not isinstance(step, ExplainStep | ExampleStep):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "this step is completed by doing it")
         db.record(user, module_id, f"{slug}/{index}", done=True)
+
+    # -- portfolio --
+
+    def finished_project(user: User, module: LoadedModule, lesson: LoadedLesson) -> dict | None:
+        """A project counts as finished when every checkpoint has passed."""
+        project = lesson.spec.project
+        if not project:
+            return None
+        checkpoints = [s for s in lesson.spec.steps if isinstance(s, ExerciseStep)]
+        saved = [db.submission(user, lesson.exercises[s.ref].spec.id) for s in checkpoints]
+        if not checkpoints or not all(saved):
+            return None
+        view = project.view or module.spec.default_view
+        return {
+            "module_id": module.spec.id,
+            "slug": lesson.slug,
+            "title": lesson.spec.title,
+            "summary": lesson.spec.summary,
+            "brief": project.brief,
+            "uses": project.uses,
+            "level": db.project_level(user, module.spec.id, lesson.slug),
+            "view": view,
+            "checkpoints": [lesson.exercises[s.ref].spec.title for s in checkpoints],
+            "code": saved[-1][0],
+            "completed_at": max(when for _, when in saved),
+        }
+
+    @api.get("/portfolio")
+    def portfolio(user: UserDep) -> list[dict]:
+        items = [
+            item
+            for module in content.modules.values()
+            for lesson in module.lessons
+            if (item := finished_project(user, module, lesson))
+        ]
+        return sorted(items, key=lambda item: item["completed_at"], reverse=True)
+
+    @api.get("/portfolio/{module_id}/{slug}/export")
+    def export_project(module_id: str, slug: str, user: UserDep) -> Response:
+        module = module_or_404(module_id)
+        item = finished_project(user, module, lesson_or_404(module, slug))
+        if item is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "finish every checkpoint first")
+        return Response(
+            export_zip(item, user.username),
+            media_type="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{slug}.zip"'},
+        )
 
     # -- sessions --
 
@@ -417,6 +522,8 @@ def create_app(
         result = grader.grade(exercise, body.code, executor=session.executor)
         if (ref := _exercise_step_ref(content, exercise)) is not None:
             db.record(user, exercise.module_id, ref, attempt=True, done=result.passed)
+        if result.passed:
+            db.save_submission(user, exercise.spec.id, body.code)
         return {
             "passed": result.passed,
             "timed_out": result.timed_out,

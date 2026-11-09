@@ -4,10 +4,12 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M4 done**: guided browser IDE with live IntelliSense and notebooks;
-> complete **Python Basics**, **Data Science** and **AI** modules (12 lessons and 24
-> exercises each). AI lessons run on a local model (Ollama) or Claude with your own key,
-> your choice, always visible. Next: M5 (Projects). See [ROADMAP.md](ROADMAP.md).
+> Status: **M5 done**: guided browser IDE with live IntelliSense and notebooks;
+> **Python Basics**, **Data Science** and **AI** modules (12 lessons and 24 exercises
+> each) plus **Projects**: six multi-checkpoint builds at Guided / Assisted / Solo level,
+> collected in a downloadable portfolio. AI work runs on a local model (Ollama) or Claude
+> with your own key. Next: M6 (DSA module + algorithm showcases). See
+> [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 

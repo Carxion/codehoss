@@ -38,7 +38,7 @@ markers = ["docker: needs a running Docker daemon and the sandbox images (skippe
 line-length = 100
 target-version = "py312"
 # Starter files are learner scaffolding: deliberately incomplete, sometimes deliberately broken.
-extend-exclude = ["workspace", "content/**/starter.py"]
+extend-exclude = ["workspace", "content/**/starter*.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -47,6 +47,8 @@ select = ["E", "F", "I", "UP", "B"]
 # Learner-facing content: a bare last expression is how a notebook cell shows its value;
 # zip(strict=...) is noise for beginners; expected-output strings in tests run long.
 "content/**/*.py" = ["B018", "B905", "E501"]
+# A project keeps one import header for all checkpoints; early ones don't use it all yet.
+"content/projects/**/*.py" = ["B018", "B905", "E501", "F401"]
 # A catalogue of learner-facing messages; splitting them hurts readability.
 "src/dojo/explain.py" = ["E501"]
 "src/dojo/ai.py" = ["E501"]

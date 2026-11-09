@@ -1,0 +1,16 @@
+id: project.weather-dashboard.monthly-summary
+title: 'Checkpoint 2: Monthly summary'
+prompt: '
+
+  Write `monthly_summary(df)` returning a DataFrame with columns `city`, `month` (1-12),
+
+  `avg_temp_c` (mean of `temp_mean_c`, rounded to 1 decimal) and `total_precip_mm` (sum
+
+  of `precip_mm`, rounded to 1 decimal), sorted by city then month, index reset.
+
+  '
+difficulty: 3
+hints:
+- 'Add a month column: df["date"].dt.month (on a copy, so df is unchanged).'
+- groupby(["city", "month"]).agg(avg_temp_c=("temp_mean_c", "mean"), total_precip_mm=("precip_mm", "sum"))
+- .round(1).reset_index() finishes it; groupby already sorts.

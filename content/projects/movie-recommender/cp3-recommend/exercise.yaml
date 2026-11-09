@@ -1,0 +1,14 @@
+id: project.movie-recommender.recommend
+title: 'Checkpoint 3: Recommend'
+prompt: '
+
+  Write `recommend(features, title, k=5)`: the `k` most similar **other** movies, best
+
+  first. When two movies score the same, put them in title order (A to Z).
+
+  '
+difficulty: 3
+hints:
+- Score every other title with similarity(features, title, other).
+- Sort by (-score, other_title) so ties fall back to alphabetical order.
+- Return just the titles of the first k.

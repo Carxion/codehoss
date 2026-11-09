@@ -1,0 +1,23 @@
+id: project.weather-dashboard.load-and-clean
+title: 'Checkpoint 1: Load and clean'
+prompt: '
+
+  Write `load_weather(path)` that reads the CSV and returns a cleaned DataFrame:
+
+
+  - `date` parsed as dates (`pd.to_datetime`)
+
+  - duplicate rows removed
+
+  - rows missing `temp_max_c` or `temp_min_c` dropped
+
+  - a new column `temp_mean_c`: the average of the max and min
+
+  - the index reset (0, 1, 2, ...)
+
+  '
+difficulty: 3
+hints:
+- df = pd.read_csv(path, parse_dates=["date"]) handles the dates.
+- df.drop_duplicates() then df.dropna(subset=["temp_max_c", "temp_min_c"])
+- Finish with .reset_index(drop=True).

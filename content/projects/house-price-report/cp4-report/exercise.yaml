@@ -1,0 +1,39 @@
+id: project.house-price-report.report
+title: 'Checkpoint 4: Write the report'
+prompt: '
+
+  Write `report(df)` returning a Markdown string with these lines (use `explore` and
+
+  `evaluate` on the **original** features):
+
+
+  ```
+
+  # House price report
+
+  Houses analysed: 300
+
+  Typical price: $<median, with thousands separators>
+
+  Strongest driver: <strongest_feature>
+
+  Baseline error: $<baseline_mae, whole dollars with separators>
+
+  Model error: $<model_mae, same format>
+
+  Improvement: <percent>%
+
+  ```
+
+
+  Improvement is `(baseline_mae - model_mae) / baseline_mae * 100`, rounded to a whole
+
+  number. Format money like `f"${value:,.0f}"`.
+
+  '
+difficulty: 4
+time_limit_s: 30
+hints:
+- facts = explore(df) and scores = evaluate(df, FEATURES)
+- f"${facts['price_median']:,.0f}" gives $1,234,567 style numbers.
+- Build a list of lines and join them with newlines.

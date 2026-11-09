@@ -1,0 +1,49 @@
+# Data Science + AI notes (generated from those modules' glossaries).
+read_csv: Loads a CSV file (a table saved as text) into a DataFrame. Pass the file path, like `pd.read_csv("/data/movies.csv")`.
+DataFrame: A table with named columns and numbered rows, like a spreadsheet you control with code.
+Series: One column of a DataFrame. It has values plus an index (row labels).
+head: Shows the first rows (5 unless you say otherwise). Great for a quick look at new data.
+describe: 'Summary statistics for every number column: count, mean, min, max and more.'
+shape: How big the table is, as (rows, columns). It's a property, so no brackets.
+loc: Pick rows and columns by label or by a True/False filter, like `df.loc[df["year"] > 2000, "title"]`.
+iloc: Pick rows and columns by position (0, 1, 2...), like `df.iloc[0]` for the first row.
+sort_values: Sorts rows by a column. Add `ascending=False` for biggest first.
+groupby: Splits rows into groups that share a value, so you can summarise each group, like `df.groupby("region")["units"].sum()`.
+merge: Joins two tables on a shared column, like VLOOKUP in a spreadsheet.
+pivot_table: Turns rows into a grid summary, e.g. regions down the side and products across the top.
+dropna: Removes rows (or columns) that have missing values.
+fillna: Replaces missing values with something you choose.
+drop_duplicates: Removes rows that are exact copies of an earlier row.
+astype: Converts a column to another type, like text to numbers.
+value_counts: Counts how many times each value appears in a column.
+mean: 'The average: add everything up and divide by how many there are.'
+median: The middle value when sorted. Less affected by extreme values than the mean.
+std: 'Standard deviation: how spread out the values are around the mean.'
+corr: 'Correlation: how strongly two columns move together, from -1 to 1.'
+array: NumPy's fast list of numbers. Maths on an array applies to every element at once.
+plot: Draws a line chart. Call `plt.title`, `plt.xlabel` and `plt.ylabel` to label it.
+bar: 'Draws a bar chart: one bar per category.'
+scatter: Draws one dot per row, to see how two numbers relate.
+train_test_split: Splits data into a part to learn from and a part to test on, so you can check the model on data it hasn't seen.
+LinearRegression: A model that fits a straight line (or flat surface) through the data to predict a number.
+LogisticRegression: Despite the name, a model for choosing between categories, like spam or not spam.
+fit: 'Teaches a model from data: `model.fit(X, y)`.'
+predict: Uses a trained model to make predictions for new rows.
+KMeans: Groups rows into k clusters of similar values, without being told the answers.
+StandardScaler: Rescales columns so each has mean 0 and similar spread; many models work better after this.
+connect: Opens a database. With `sqlite3.connect("/data/store.db")` you can run SQL on it.
+read_sql: Runs a SQL query and returns the result as a DataFrame.
+chat: Sends your prompt to the AI model you picked (top bar, AI) and returns its reply as text. While exercises are checked, a practice model answers instead.
+embed: Turns text into a list of numbers (an embedding). Texts with similar meaning get similar numbers.
+simple_embed: A tiny built-in embedding that counts words. It needs no model and always gives the same answer.
+cosine_similarity: 'How alike two embeddings are: 1 means same direction, 0 means unrelated.'
+backend: 'Tells you which model is answering right now, e.g. {''provider'': ''ollama'', ''model'': ''qwen2.5:7b''}.'
+fake: Used by exercise checks to script the practice model's replies.
+system: 'Instructions for the model, separate from the conversation: who it is and how to answer.'
+temperature: 0 makes answers focused and repeatable; higher values make them more varied. Hosted Claude models choose their own.
+MLPClassifier: A neural network for choosing between categories. hidden_layer_sizes sets how many neurons are in each hidden layer.
+load_digits: A built-in dataset of 1,797 small (8x8) pictures of handwritten digits, with their labels.
+loads: json.loads turns a JSON string into Python dicts and lists. It raises an error if the text isn't valid JSON.
+dumps: json.dumps turns Python dicts and lists into a JSON string.
+exp: np.exp(x) is e to the power x, used in the sigmoid function.
+dot: 'np.dot multiplies matching numbers and adds them up: a weighted sum.'

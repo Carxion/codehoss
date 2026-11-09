@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { navigate } from "../App";
-import { api, type Lesson, type Step, type StepProgress, type TestResult } from "../api";
+import { api, type Lesson, type Level, type Step, type StepProgress, type TestResult } from "../api";
 import { useAI } from "../aiContext";
 import { loadMonaco } from "../monacoSetup";
 import type { WorkspaceHandle } from "../workspace";
@@ -42,6 +42,23 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const savedCode = useRef("");
 
   const index = lesson ? Math.min(Math.max(stepIndex, 0), lesson.steps.length - 1) : 0;
+  const level: Level | null = lesson?.project?.level ?? null;
+  /** The learner's passing code from the checkpoint before this one, if any. */
+  const previousSubmission = (i: number): string | null => {
+    if (!lesson) return null;
+    for (let j = i - 1; j >= 0; j--) {
+      const s = lesson.steps[j];
+      if (s.type === "exercise") return s.exercise.submission ?? null;
+    }
+    return null;
+  };
+  const startingCode = (s: Step, forLevel: Level | null = level): string | null => {
+    if (s.type === "exercise" && forLevel && s.exercise.starters) {
+      if (forLevel === "solo") return previousSubmission(s.index) ?? s.exercise.starters.solo ?? s.exercise.starter;
+      return s.exercise.starters[forLevel] ?? s.exercise.starter;
+    }
+    return defaultCode(s);
+  };
   const step: Step | undefined = lesson?.steps[index];
   const progress = (i: number) => lesson?.progress[String(i)] ?? BLANK_PROGRESS;
   const notebook = lesson?.view === "notebook";
@@ -81,7 +98,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
     const ws = workspace.current;
     if (!lesson || !step || !workspaceReady || !ws) return;
     if (showingSolution) setShowingSolution(false);
-    const fallback = defaultCode(step);
+    const fallback = startingCode(step);
     const code = loadDraft(draftKey(moduleId, lessonSlug, step)) ?? fallback;
     if (code !== null) ws.restore(code);
     else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
@@ -107,7 +124,23 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   function resetCode() {
     if (!step || !workspace.current) return;
     clearDraft(draftKey(moduleId, lessonSlug, step));
-    workspace.current.restore(defaultCode(step) ?? (notebook ? "" : PLAYGROUND));
+    workspace.current.restore(startingCode(step) ?? (notebook ? "" : PLAYGROUND));
+  }
+
+  async function changeLevel(next: Level) {
+    if (!lesson?.project || next === lesson.project.level) return;
+    await api.setLevel(moduleId, lessonSlug, next);
+    setLesson((l) => l && l.project && { ...l, project: { ...l.project, level: next } });
+    // Swap in the new level's starter, but never over code the learner has written.
+    if (step && !showingSolution && workspace.current && loadDraft(draftKey(moduleId, lessonSlug, step)) === null) {
+      const code = startingCode(step, next);
+      if (code !== null) workspace.current.restore(code);
+    }
+  }
+
+  function useMyPreviousCode() {
+    const code = previousSubmission(index);
+    if (code && workspace.current) workspace.current.restore(code);
   }
 
   async function check() {
@@ -130,7 +163,16 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           ...f,
           [index]: { kind: "results", passed: result.passed, timedOut: result.timed_out, results: result.results },
         }));
-        if (result.passed) markDone(index);
+        if (result.passed) {
+          markDone(index);
+          // The next checkpoint can carry this code forward (Solo / "use my code").
+          setLesson((l) => l && {
+            ...l,
+            steps: l.steps.map((s) =>
+              s.index === index && s.type === "exercise" ? { ...s, exercise: { ...s.exercise, submission: code } } : s,
+            ),
+          });
+        }
       }
     } catch (e) {
       setFeedback((f) => ({ ...f, [index]: { kind: "fail", message: (e as Error).message } }));
@@ -193,6 +235,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
         <div className="lesson-head">
           <a href="#/" className="small">← All lessons</a>
           <h1>{lesson.title}</h1>
+          {lesson.project && <LevelPicker level={lesson.project.level} onChange={changeLevel} />}
           <nav className="step-dots" aria-label="Lesson steps">
             {lesson.steps.map((s, i) => (
               <button
@@ -209,10 +252,20 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
         <div className="step-body">
           <p className="step-kind">
-            Step {index + 1} of {lesson.steps.length} · {STEP_LABEL[step.type]}
+            Step {index + 1} of {lesson.steps.length} · {lesson.project && step.type === "exercise" ? "Checkpoint" : STEP_LABEL[step.type]}
           </p>
           <StepContent step={step} notebook={notebook} feedback={feedback[index]} onAnswer={answer} />
 
+          {lesson.project && step.type === "exercise" && (
+            <div className="level-note small">
+              {LEVEL_NOTE[lesson.project.level]}
+              {previousSubmission(index) && (
+                <button className="link small" onClick={useMyPreviousCode}>
+                  Start from my code from the last checkpoint
+                </button>
+              )}
+            </div>
+          )}
           {hints[index]?.map((hint, i) => (
             <div key={i} className="hint">
               <strong>Hint {i + 1}</strong>
@@ -252,7 +305,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
               {checking ? "Checking…" : "✓ Check"}
             </button>
           )}
-          {checkable && (
+          {checkable && level !== "solo" && !(level === "assisted" && hintsShown >= hintCount) && (
             <button onClick={nextHint} disabled={showingSolution}>
               {hintsShown < hintCount ? `💡 Hint (${hintsShown}/${hintCount})` : "👀 Show me"}
             </button>
@@ -315,6 +368,37 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           onClose={() => setShowLibrary(false)}
         />
       )}
+    </div>
+  );
+}
+
+const LEVELS: { id: Level; label: string; help: string }[] = [
+  { id: "guided", label: "Guided", help: "Skeleton with TODOs, hints and show me" },
+  { id: "assisted", label: "Assisted", help: "Function outlines and hints" },
+  { id: "solo", label: "Solo", help: "Just your code; no hints" },
+];
+
+const LEVEL_NOTE: Record<Level, string> = {
+  guided: "Guided: fill in the TODOs. Hints and show me are available.",
+  assisted: "Assisted: the outlines tell you what to build. Hints are available.",
+  solo: "Solo: you're building on your own code. Switch level any time if you want help.",
+};
+
+function LevelPicker({ level, onChange }: { level: Level; onChange: (l: Level) => void }) {
+  return (
+    <div className="level-picker" role="radiogroup" aria-label="Project level">
+      {LEVELS.map((l) => (
+        <button
+          key={l.id}
+          role="radio"
+          aria-checked={level === l.id}
+          className={level === l.id ? "selected" : ""}
+          onClick={() => onChange(l.id)}
+          title={l.help}
+        >
+          {l.label}
+        </button>
+      ))}
     </div>
   );
 }

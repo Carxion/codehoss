@@ -1,0 +1,10 @@
+id: project.house-price-report.explore
+title: 'Checkpoint 1: Explore'
+prompt: "\nWrite `explore(df)` returning a dictionary:\n\n- `rows`: number of houses\n- `price_mean`,\
+  \ `price_median`: rounded to whole dollars (`round(x)`)\n- `strongest_feature`: the one of `FEATURES`\
+  \ whose correlation with `price` is\n  largest **in absolute value** (strong negative counts too)\n"
+difficulty: 3
+hints:
+- df[FEATURES].corrwith(df["price"]) gives every feature's correlation at once.
+- .abs().idxmax() names the strongest.
+- round(df["price"].mean()) rounds to whole dollars.

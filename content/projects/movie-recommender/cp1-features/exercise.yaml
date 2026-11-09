@@ -1,0 +1,10 @@
+id: project.movie-recommender.features
+title: 'Checkpoint 1: Movies as vectors'
+prompt: "\nWrite `build_features(movies)` returning a DataFrame **indexed by title** with:\n\n- one column\
+  \ per genre (1 if the movie has that genre, else 0), genres in alphabetical\n  order (`pd.get_dummies`\
+  \ does this)\n- `rating` and `year`, each rescaled to 0..1 with `(x - min) / (max - min)`\n"
+difficulty: 3
+hints:
+- pd.get_dummies(movies["genre"], dtype=int) makes the genre columns.
+- Rescale with (col - col.min()) / (col.max() - col.min()).
+- Put them together with pd.concat([...], axis=1), then .set_index(movies["title"]).

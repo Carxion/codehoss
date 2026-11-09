@@ -1,0 +1,13 @@
+id: project.digit-classifier.baseline
+title: 'Checkpoint 2: A baseline'
+prompt: '
+
+  Write `baseline_accuracy(y_train, y_test)`: the accuracy of always guessing the digit
+
+  that''s **most common in the training labels**.
+
+  '
+difficulty: 3
+hints:
+- np.bincount(y_train).argmax() is the most common digit.
+- (y_test == guess).mean() is the accuracy.

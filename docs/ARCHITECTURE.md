@@ -70,6 +70,17 @@ For IntelliSense the client stitches the cells into one virtual document (plus a
 `display` import), so names from earlier cells complete in later ones; results are
 mapped back to the right cell.
 
+## Projects and portfolio
+
+A lesson with a `project:` block is a project; its exercise steps are checkpoints. The
+lesson payload sends every level's starter plus the learner's latest passing code for
+each checkpoint, so the browser can carry code forward (Solo, or "start from my code")
+without another round trip. The level is stored per user and project, and the hint
+endpoint enforces it (Solo: no hints; Assisted: no show me). Every passing check is
+stored in `submissions`; a project is finished when every checkpoint has one, and
+`/api/portfolio/.../export` zips the final code with a generated README (notebooks are
+also converted to `.ipynb`).
+
 ## AI gateway
 
 Sandboxes have no network, yet AI lessons call models. The path:

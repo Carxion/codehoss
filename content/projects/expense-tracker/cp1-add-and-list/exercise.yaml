@@ -1,0 +1,11 @@
+id: project.expense-tracker.add-and-list
+title: 'Checkpoint 1: Add and list expenses'
+prompt: "\nEach expense is a dictionary like\n`{\"description\": \"Lunch\", \"amount\": 12.5, \"category\"\
+  : \"food\"}`. Write:\n\n- `add_expense(expenses, description, amount, category)`: append a new expense\
+  \ to the\n  `expenses` list. Store `amount` as a float rounded to 2 decimals, and `category`\n  lowercased\
+  \ with spaces trimmed.\n- `format_expense(expense)`: return text like `Lunch: $12.50 (food)`.\n"
+difficulty: 2
+hints:
+- Build the dictionary, then expenses.append(...) it.
+- round(float(amount), 2) and category.strip().lower()
+- 'return f"{expense[''description'']}: ${expense[''amount'']:.2f} ({expense[''category'']})"'

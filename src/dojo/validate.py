@@ -161,8 +161,11 @@ def _run_exercise(ex: LoadedExercise, executor: Executor) -> list[Problem]:
         detail = "; ".join(failing) or solution.output.strip()[-300:]
         problems.append(Problem("error", _where(ex), f"reference solution fails: {detail}"))
 
-    if grade(ex, ex.starter_path.read_text(encoding="utf-8"), executor=executor).passed:
-        problems.append(Problem("error", _where(ex), "starter already passes all tests"))
+    for starter in [ex.starter_path, *ex.variant_starters]:
+        if grade(ex, starter.read_text(encoding="utf-8"), executor=executor).passed:
+            problems.append(
+                Problem("error", _where(ex), f"{starter.name} already passes all tests")
+            )
     return problems
 
 

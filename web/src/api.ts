@@ -31,10 +31,13 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
 // --- types -------------------------------------------------------------------
 
+export type Level = "guided" | "assisted" | "solo";
+
 export interface LessonSummary {
   slug: string;
   title: string;
   summary: string;
+  project: { uses: string[] } | null;
   steps: number;
   done: number;
 }
@@ -59,6 +62,10 @@ export interface Exercise {
   hint_count: number;
   starter: string;
   visible_tests: string;
+  /** Projects only: the starter for each level (null: continue from your own code). */
+  starters?: Record<Level, string | null>;
+  /** Projects only: the learner's latest passing code for this checkpoint. */
+  submission?: string | null;
 }
 
 export type Step =
@@ -82,6 +89,7 @@ export interface Lesson {
   summary: string;
   view: "editor" | "notebook";
   ai: boolean;
+  project: { brief: string; uses: string[]; level: Level } | null;
   previous: string | null;
   next: string | null;
   steps: Step[];
@@ -160,6 +168,10 @@ export const api = {
   viewed: (moduleId: string, slug: string, step: number) =>
     request<void>("POST", `${lessonPath(moduleId, slug)}/steps/${step}/viewed`),
 
+  setLevel: (moduleId: string, slug: string, level: Level) =>
+    request<{ level: Level }>("PUT", `${lessonPath(moduleId, slug)}/level`, { level }),
+  portfolio: () => request<PortfolioItem[]>("GET", "/portfolio"),
+
   session: (moduleId: string) =>
     request<{ session_id: string }>("POST", "/sessions", { module_id: moduleId }),
   check: (sessionId: string, exerciseId: string, code: string) =>
@@ -208,3 +220,19 @@ export const aiApi = {
 };
 
 export const PROVIDER_LABEL: Record<AIProvider, string> = { ollama: "Local", anthropic: "Claude" };
+
+export interface PortfolioItem {
+  module_id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  brief: string;
+  uses: string[];
+  level: Level;
+  view: "editor" | "notebook";
+  checkpoints: string[];
+  code: string;
+  completed_at: number;
+}
+
+export const exportUrl = (item: PortfolioItem) => `/api/portfolio/${item.module_id}/${item.slug}/export`;

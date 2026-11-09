@@ -1,0 +1,13 @@
+id: project.document-qa-bot.eval
+title: 'Checkpoint 4: Evaluate the bot'
+prompt: "\nWrite `evaluate(cases, chunks)`. Each case looks like\n`{\"question\": ..., \"keywords\": [...],\
+  \ \"source\": \"returns.md\"}`. For each case, run\n`answer`, then compute:\n\n- the **keyword score**:\
+  \ the fraction of `keywords` found in the answer\n  (case-insensitive)\n- a **source hit**: 1 if the\
+  \ expected `source` is in the answer's sources, else 0\n\nReturn `{\"keyword_score\": average, \"source_accuracy\"\
+  : average}`, each rounded to 3\ndecimals. `CASES` below has a few to start with; run it with each model\
+  \ and compare!\n"
+difficulty: 4
+hints:
+- result = answer(case['question'], chunks)
+- sum(k.lower() in result["answer"].lower() for k in case["keywords"]) / len(case["keywords"])
+- Collect both scores per case, then average and round.

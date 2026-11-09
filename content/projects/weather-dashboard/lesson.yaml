@@ -1,0 +1,68 @@
+title: Weather Dashboard
+summary: Clean a year of weather data, summarise it, chart it and publish a report.
+project:
+  brief: '
+
+    `/data/weather.csv` has a year of daily weather for Denver, Seattle and Austin, with
+
+    the usual problems: a duplicated row and a few missing readings. Turn it into a small
+
+    **dashboard**: clean data, a monthly summary, a chart, and an HTML report you could
+
+    share.
+
+    '
+  uses:
+  - data-science
+  view: notebook
+steps:
+- type: explain
+  md: '`/data/weather.csv` has a year of daily weather for Denver, Seattle and Austin, with
+
+    the usual problems: a duplicated row and a few missing readings. Turn it into a small
+
+    **dashboard**: clean data, a monthly summary, a chart, and an HTML report you could
+
+    share.
+
+
+    ### Checkpoints
+
+
+    1. **Load and clean**: a tidy DataFrame you can trust
+
+    2. **Monthly summary**: one row per city per month
+
+    3. **Chart the year**: one line per city, labelled
+
+    4. **Publish a report**: an HTML page with highlights and the table
+
+
+    Pick your level above: **Guided** gives you a skeleton with TODOs and full hints, **Assisted** gives
+    you function outlines and hints, **Solo** gives you just your own code from the last checkpoint. You
+    can change level any time. Every checkpoint is checked by tests that also re-check the earlier ones,
+    so nothing quietly breaks.'
+- type: exercise
+  ref: cp1-load-and-clean
+- type: exercise
+  ref: cp2-monthly-summary
+- type: exercise
+  ref: cp3-chart
+- type: exercise
+  ref: cp4-report
+- type: explain
+  md: '
+
+    ### Dashboard done 🎉
+
+
+    You cleaned real-world-messy data, summarised it, charted it and published a report.
+
+    Find it in your **Portfolio** and download it as a Jupyter notebook.
+
+
+    **Stretch goals:** add wind to the report, flag the three hottest days per city, or
+
+    embed the chart in the HTML (save it with `plt.savefig` to a PNG and base64-encode it).
+
+    '

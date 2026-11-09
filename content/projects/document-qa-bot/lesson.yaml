@@ -1,0 +1,77 @@
+title: Document Q&A Bot
+summary: 'The AI capstone: a RAG assistant over a handbook, with sources and an eval.'
+project:
+  brief: '
+
+    Build a **support assistant** that answers questions about Lumen Bikes from the
+
+    handbook in `/data/handbook/`, says **where** each answer came from, and comes with an
+
+    **eval** so you can measure it, and compare your local model with Claude.
+
+
+    The checks use a practice model, so they''re about your pipeline; run the cells to see
+
+    your chosen model answer for real.
+
+    '
+  uses:
+  - ai
+  view: notebook
+  ai: true
+steps:
+- type: explain
+  md: 'Build a **support assistant** that answers questions about Lumen Bikes from the
+
+    handbook in `/data/handbook/`, says **where** each answer came from, and comes with an
+
+    **eval** so you can measure it, and compare your local model with Claude.
+
+
+    The checks use a practice model, so they''re about your pipeline; run the cells to see
+
+    your chosen model answer for real.
+
+
+    ### Checkpoints
+
+
+    1. **Load and chunk**: the handbook as small, labelled passages
+
+    2. **Retrieve**: find the passages that matter
+
+    3. **Answer with sources**: grounded answers that cite the handbook
+
+    4. **Evaluate the bot**: numbers that tell you if it''s good
+
+
+    Pick your level above: **Guided** gives you a skeleton with TODOs and full hints, **Assisted** gives
+    you function outlines and hints, **Solo** gives you just your own code from the last checkpoint. You
+    can change level any time. Every checkpoint is checked by tests that also re-check the earlier ones,
+    so nothing quietly breaks.'
+- type: exercise
+  ref: cp1-load-and-chunk
+- type: exercise
+  ref: cp2-retrieve
+- type: exercise
+  ref: cp3-answer
+- type: exercise
+  ref: cp4-eval
+- type: explain
+  md: '
+
+    ### Your assistant works 🎉
+
+
+    Loading, chunking, retrieval, grounded answers with sources, and an eval to keep it
+
+    honest. Try the eval with **Local** and then **Claude** (🤖 AI in the top bar) and
+
+    compare the scores. Download it from your **Portfolio**.
+
+
+    **Stretch goals:** add tricky cases where the answer isn''t in the handbook (does it
+
+    say "I don''t know"?), try `k=5`, or show the cited passages under each answer.
+
+    '

@@ -105,9 +105,27 @@ Step = Annotated[
 ]
 
 
+LEVELS = ("guided", "assisted", "solo")
+
+
+class Project(_Strict):
+    """Makes a lesson a multi-checkpoint project (Projects module).
+
+    Each exercise step is a checkpoint whose tests cover everything built so far.
+    Learners choose a level: guided (starter.py), assisted (starter.assisted.py, else
+    the guided one), solo (starter.solo.py, else they continue from their own code).
+    """
+
+    brief: str
+    uses: list[str] = []  # modules whose skills it practises (shown as badges)
+    view: Literal["editor", "notebook"] | None = None  # overrides the module's view
+    ai: bool = False  # shows the AI model picker banner
+
+
 class Lesson(_Strict):
     title: str
     summary: str = ""
+    project: Project | None = None
     steps: list[Step] = Field(min_length=1)
 
 

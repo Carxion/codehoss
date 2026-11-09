@@ -36,7 +36,7 @@ def test_starter_that_already_passes_is_an_error(make_content):
             **exercise_files("mod-a/01-intro/ex01", "a.one", "x = 1\n", "x = 1\n", PASSING_TEST),
         }
     )
-    assert ("error", "starter already passes all tests") in _messages(root)
+    assert ("error", "starter.py already passes all tests") in _messages(root)
 
 
 def test_broken_solution_is_an_error(make_content):

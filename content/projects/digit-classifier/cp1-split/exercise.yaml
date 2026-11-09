@@ -1,0 +1,17 @@
+id: project.digit-classifier.split
+title: 'Checkpoint 1: Split the data'
+prompt: '
+
+  Write `split_digits()` that loads the digits, scales the pixels to 0..1 (divide by
+
+  16), and returns `X_train, X_test, y_train, y_test` from `train_test_split` with
+
+  `test_size=0.25`, `random_state=0` and `stratify` set to the labels (so every digit
+
+  appears in the same proportions in both sets).
+
+  '
+difficulty: 3
+hints:
+- digits = load_digits(); X = digits.data / 16; y = digits.target
+- train_test_split(X, y, test_size=0.25, random_state=0, stratify=y)

@@ -1,0 +1,70 @@
+title: Expense Tracker
+summary: A command-line app that records spending, totals it and remembers it.
+project:
+  brief: '
+
+    Build a command-line **expense tracker**: add what you spend, list it, see totals by
+
+    category, and keep everything in a file so it''s still there next time.
+
+
+    You''ll use functions, lists of dictionaries, string formatting, files with JSON and a
+
+    command loop: most of Python Basics in one program.
+
+    '
+  uses:
+  - python-basics
+  view: editor
+steps:
+- type: explain
+  md: 'Build a command-line **expense tracker**: add what you spend, list it, see totals by
+
+    category, and keep everything in a file so it''s still there next time.
+
+
+    You''ll use functions, lists of dictionaries, string formatting, files with JSON and a
+
+    command loop: most of Python Basics in one program.
+
+
+    ### Checkpoints
+
+
+    1. **Add and list expenses**: store expenses as dictionaries and print them neatly
+
+    2. **Totals by category**: add up spending overall and per category
+
+    3. **Save and load**: keep expenses in a JSON file between runs
+
+    4. **The command loop**: tie it together into an app you can use
+
+
+    Pick your level above: **Guided** gives you a skeleton with TODOs and full hints, **Assisted** gives
+    you function outlines and hints, **Solo** gives you just your own code from the last checkpoint. You
+    can change level any time. Every checkpoint is checked by tests that also re-check the earlier ones,
+    so nothing quietly breaks.'
+- type: exercise
+  ref: cp1-add-and-list
+- type: exercise
+  ref: cp2-totals
+- type: exercise
+  ref: cp3-save-and-load
+- type: exercise
+  ref: cp4-command-loop
+- type: explain
+  md: '
+
+    ### You built an app 🎉
+
+
+    Your expense tracker remembers spending between runs, totals it and reports it. It''s
+
+    in your **Portfolio** (top bar), where you can download it with a README.
+
+
+    **Stretch goals:** a `delete <number>` command, a monthly budget warning, or dates on
+
+    each expense with a `report <month>` command.
+
+    '

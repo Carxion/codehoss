@@ -1,0 +1,22 @@
+id: project.house-price-report.features
+title: 'Checkpoint 3: Engineer features'
+prompt: '
+
+  Write `add_features(df)` that returns a **copy** of `df` with two new columns:
+
+
+  - `is_new`: 1 if `age_years` is under 10, else 0
+
+  - `size_per_bedroom`: `size_sqft / bedrooms`
+
+
+  The cell below compares `evaluate` with and without them. (Better features don''t
+
+  always help a straight-line model; measuring is how you find out.)
+
+  '
+difficulty: 3
+time_limit_s: 30
+hints:
+- df = df.copy() first, so the original is untouched.
+- (df["age_years"] < 10).astype(int) turns True/False into 1/0.

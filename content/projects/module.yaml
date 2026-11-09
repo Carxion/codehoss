@@ -1,0 +1,35 @@
+id: projects
+title: Projects
+description: Build real things from start to finish, checkpoint by checkpoint, at the level of help you
+  choose. Finished projects go in your portfolio.
+level: all levels
+prerequisites:
+- python-basics
+sandbox:
+  image: dojo-ds
+  packages:
+  - ipython
+  - numpy
+  - pandas
+  - matplotlib
+  - scikit-learn
+  memory: 1g
+  data: datasets
+default_view: notebook
+library_explorer:
+  featured:
+  - pandas
+  - numpy
+  - dojo_ai
+  modules:
+  - matplotlib.pyplot
+  - sklearn.linear_model
+  - sklearn.neural_network
+  - json
+lessons:
+- expense-tracker
+- weather-dashboard
+- house-price-report
+- movie-recommender
+- document-qa-bot
+- digit-classifier

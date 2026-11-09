@@ -48,6 +48,23 @@ class LoadedExercise:
     def hidden_tests(self) -> Path:
         return self.dir / "tests" / "test_hidden.py"
 
+    def starter_for(self, level: str) -> Path | None:
+        """Starter file for a project level; None means "continue from your own code"."""
+        if level == "solo":
+            path = self.dir / "starter.solo.py"
+            return path if path.exists() else None
+        if level == "assisted" and (self.dir / "starter.assisted.py").exists():
+            return self.dir / "starter.assisted.py"
+        return self.starter_path
+
+    @property
+    def variant_starters(self) -> list[Path]:
+        return [
+            p
+            for p in (self.dir / "starter.assisted.py", self.dir / "starter.solo.py")
+            if p.exists()
+        ]
+
     @property
     def required_files(self) -> list[Path]:
         return [self.starter_path, self.solution_path, self.visible_tests, self.hidden_tests]

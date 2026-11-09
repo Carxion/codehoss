@@ -1,0 +1,64 @@
+title: Digit Classifier
+summary: Train a neural network to read handwriting, and learn from its mistakes.
+project:
+  brief: '
+
+    Build a **handwritten digit reader** with scikit-learn''s built-in digits dataset:
+
+    split the data properly, set a baseline, train a neural network that beats it, and
+
+    study the mistakes it still makes.
+
+    '
+  uses:
+  - ai
+  view: notebook
+steps:
+- type: explain
+  md: 'Build a **handwritten digit reader** with scikit-learn''s built-in digits dataset:
+
+    split the data properly, set a baseline, train a neural network that beats it, and
+
+    study the mistakes it still makes.
+
+
+    ### Checkpoints
+
+
+    1. **Split the data**: train and test sets that are fair
+
+    2. **A baseline**: the score to beat
+
+    3. **Train the network**: a model that reads digits
+
+    4. **Learn from mistakes**: which digits get confused, and a predict function
+
+
+    Pick your level above: **Guided** gives you a skeleton with TODOs and full hints, **Assisted** gives
+    you function outlines and hints, **Solo** gives you just your own code from the last checkpoint. You
+    can change level any time. Every checkpoint is checked by tests that also re-check the earlier ones,
+    so nothing quietly breaks.'
+- type: exercise
+  ref: cp1-split
+- type: exercise
+  ref: cp2-baseline
+- type: exercise
+  ref: cp3-train
+- type: exercise
+  ref: cp4-mistakes
+- type: explain
+  md: '
+
+    ### It reads handwriting 🎉
+
+
+    Fair splits, a baseline, a trained network and an analysis of its mistakes: the
+
+    workflow behind every classifier. It''s in your **Portfolio**.
+
+
+    **Stretch goals:** show the most-confused examples with `plt.imshow`, try
+
+    `hidden_layer_sizes=(128, 64)`, or draw your own digit as 64 numbers and predict it.
+
+    '

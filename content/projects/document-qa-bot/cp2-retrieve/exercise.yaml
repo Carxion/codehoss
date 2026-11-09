@@ -1,0 +1,16 @@
+id: project.document-qa-bot.retrieve
+title: 'Checkpoint 2: Retrieve'
+prompt: '
+
+  Write `retrieve(question, chunks, k=3)`: the `k` chunks (the dictionaries) most similar
+
+  to the question, best first. Embed the question and every chunk''s text in **one**
+
+  `dojo_ai.embed` call and score with `dojo_ai.cosine_similarity`.
+
+  '
+difficulty: 3
+hints:
+- vectors = dojo_ai.embed([question] + [c["text"] for c in chunks])
+- The first vector is the question; pair the rest with their chunks.
+- sorted(pairs, key=..., reverse=True)[:k]
