@@ -57,6 +57,12 @@ Learner code is untrusted. Every session container gets:
 | Resources | CPU quota, memory cap, pids limit, wall-clock timeout |
 | Lifetime | idle sessions reaped after N minutes |
 
+Implementation notes (M1): containers are driven through the `docker` CLI rather than the
+SDK, because files are streamed into the tmpfs workspace as a tar over `docker exec -i`
+(`docker cp` can't write into tmpfs mounts). Each run gets its own `/work/run-<id>`
+folder that is deleted afterwards. Time limits are enforced *inside* the container with
+`timeout`, since killing the host-side `docker exec` would leave the process running.
+
 Hidden tests are copied in at grade time and removed after, so learners can't read them
 from the workspace. Lab tracks (Docker/K8s) are the exception to "no network/no privileges"
 and run in their own isolated environment — never on the host Docker socket.

@@ -4,8 +4,8 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M0 done** — module system, validator, CLI, and the first 5 Python Basics
-> lessons. Next: M1 (sandboxed execution). See [ROADMAP.md](ROADMAP.md).
+> Status: **M1 done** — module system, validator, CLI, first 5 Python Basics lessons,
+> Docker sandbox and API. Next: M2 (guided browser IDE). See [ROADMAP.md](ROADMAP.md).
 
 ## Quick start
 
@@ -16,10 +16,22 @@ uv run dojo start py.hello          # read the exercise, get a starter in worksp
 uv run dojo check py.hello          # run the tests against your code
 uv run dojo hint py.hello 2         # escalating hints
 uv run dojo validate                # authors: check all content is solvable
-uv run pytest                       # platform tests
+uv run pytest                       # platform tests (Docker tests skip if Docker is off)
 ```
 
-Note: M0 runs learner code directly on your machine. Sandboxing arrives in M1.
+### Sandbox & API (needs Docker running)
+
+```bash
+uv run dojo build-images            # build per-module sandbox images (dojo-python ~210 MB)
+uv run dojo check py.hello --sandbox   # grade inside a locked-down container
+uv run dojo serve                   # API on http://127.0.0.1:8000 (docs at /docs)
+uv run python scripts/api_demo.py   # end-to-end: session -> run -> check -> close
+```
+
+`dojo check` without `--sandbox` and `dojo validate` still run code directly on your
+machine. That's fine for your own code and authored content, but anything from other
+people should go through the sandbox. The API has no auth yet (M2), so keep it on
+localhost.
 
 ## What it is
 

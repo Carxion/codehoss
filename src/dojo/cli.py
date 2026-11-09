@@ -1,12 +1,13 @@
 """The `dojo` command-line interface.
 
-M0's way to work through exercises; the browser IDE (M2) replaces it for learners,
-but `dojo validate` stays the authoring/CI tool.
+The terminal way to work through exercises (the browser IDE in M2 replaces it for
+learners), plus authoring and ops commands: validate, build-images, serve.
 """
 
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Annotated
 
@@ -19,6 +20,7 @@ from rich.tree import Tree
 
 from dojo.grader import grade
 from dojo.registry import Content, LoadedExercise, load_content
+from dojo.sandbox import SandboxError, SessionManager, build_image, image_specs
 from dojo.validate import validate as validate_content
 
 app = typer.Typer(
@@ -26,6 +28,9 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
+# Windows consoles often can't encode everything that learner code or docker prints.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(errors="replace")
 console = Console()
 
 WORKSPACE = Path("workspace")
@@ -112,16 +117,34 @@ def start(
 def check(
     exercise_id: str,
     file: Annotated[Path | None, typer.Argument(help="Defaults to workspace/<id>.py")] = None,
+    sandbox: Annotated[
+        bool, typer.Option(help="Run inside a Docker sandbox instead of on this machine.")
+    ] = False,
 ) -> None:
     """Run the tests for an exercise against your code."""
-    exercise = _find(_load(), exercise_id)
+    content = _load()
+    exercise = _find(content, exercise_id)
     path = file or WORKSPACE / f"{exercise_id}.py"
     if not path.exists():
         console.print(f"[red]{path} not found.[/] Run [bold]dojo start {exercise_id}[/] first.")
         raise typer.Exit(2)
 
-    with console.status("Running tests..."):
-        result = grade(exercise, path.read_text(encoding="utf-8"))
+    code = path.read_text(encoding="utf-8")
+    if sandbox:
+        manager = SessionManager(content)
+        with console.status("Starting sandbox and running tests..."):
+            try:
+                session = manager.create(exercise.module_id)
+            except SandboxError as e:
+                console.print(f"[red]{e}[/]")
+                raise typer.Exit(2) from None
+            try:
+                result = grade(exercise, code, executor=session.executor)
+            finally:
+                manager.close(session.id)
+    else:
+        with console.status("Running tests..."):
+            result = grade(exercise, code)
 
     if result.timed_out:
         console.print("[red]Your program took too long.[/] Is there a loop that never ends?")
@@ -153,3 +176,26 @@ def hint(exercise_id: str, level: int = 1) -> None:
     console.print(f"[yellow]Hint {level}/{len(hints)}:[/] {hints[level - 1]}")
     if level < len(hints):
         console.print(f"[dim]More help: dojo hint {exercise_id} {level + 1}[/]")
+
+
+@app.command("build-images")
+def build_images() -> None:
+    """Build the Docker sandbox image for every module."""
+    for image, packages in image_specs(_load()).items():
+        console.print(f"[bold]Building {image}[/] with {', '.join(packages)}")
+        try:
+            build_image(image, packages, on_output=lambda line: console.print(f"[dim]{line}[/]"))
+        except SandboxError as e:
+            console.print(f"[red]{e}[/]")
+            raise typer.Exit(1) from None
+        console.print(f"[green]Built {image}[/]")
+
+
+@app.command()
+def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+    """Start the API server (sandboxed sessions, run/check endpoints)."""
+    import uvicorn
+
+    from dojo.api import create_app
+
+    uvicorn.run(create_app(_load()), host=host, port=port)

@@ -39,8 +39,15 @@ Python Basics (10 exercises, 10 try-its, 5 quizzes).
 
 **Exit:** `dojo validate` passes; modules can be added/removed by dropping a folder.
 
-## M1 — Sandboxed execution service
+## M1 — Sandboxed execution service ✅ (2026-11-08)
 Goal: run untrusted learner code safely.
+
+Shipped: executor abstraction (local / Docker), `SessionManager` (one container per
+session, idle reaping, orphan cleanup, session cap), FastAPI with `/run`, `/check`,
+`/try-it`, and a WebSocket stream; `dojo build-images`, `dojo serve`,
+`dojo check --sandbox`. Tests prove: no network, read-only root, uid 1000, memory and
+pids limits, timeouts with the session surviving, runs isolated from each other.
+Deferred to M2: interactive stdin over the WebSocket (M1 takes inputs up front).
 
 - FastAPI backend: `/run`, `/check`, session lifecycle
 - One Docker container per session: no network, non-root, read-only image, writable tmpfs
