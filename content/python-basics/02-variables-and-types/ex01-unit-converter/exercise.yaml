@@ -1,0 +1,17 @@
+id: py.unit-converter
+title: Unit converter
+difficulty: 1
+prompt: |
+  Convert 10 kilometres to miles.
+
+  1. Create a variable `miles` that holds `km` converted to miles
+     (1 km = 0.621371 miles), rounded to 2 decimal places with `round(value, 2)`.
+  2. Print the result in this form:
+
+  ```
+  10 km is 6.21 miles
+  ```
+hints:
+  - Multiply km by 0.621371 to get miles.
+  - miles = round(km * 0.621371, 2)
+  - 'print(km, "km is", miles, "miles"). The commas add the spaces for you.'

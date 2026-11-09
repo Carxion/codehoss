@@ -1,0 +1,50 @@
+"""Copied into every grading run as conftest.py.
+
+Gives exercise tests a `run_program` fixture that runs the learner's main.py
+with simulated keyboard input and captures what it prints.
+"""
+
+import builtins
+import runpy
+from dataclasses import dataclass
+from pathlib import Path
+
+import pytest
+
+MAIN = Path(__file__).parent / "main.py"
+
+
+@dataclass
+class ProgramResult:
+    out: str
+    vars: dict
+
+    @property
+    def lines(self) -> list[str]:
+        return self.out.splitlines()
+
+    @property
+    def last_line(self) -> str:
+        return self.lines[-1] if self.lines else ""
+
+
+@pytest.fixture
+def run_program(monkeypatch, capsys):
+    def _run(inputs=()):
+        feed = iter(inputs)
+
+        def fake_input(prompt=""):
+            try:
+                value = next(feed)
+            except StopIteration:
+                pytest.fail("Your program asked for more input than the test expected.")
+            # Echo like a real terminal, so prompts and answers share a line.
+            print(f"{prompt}{value}")
+            return value
+
+        monkeypatch.setattr(builtins, "input", fake_input)
+        capsys.readouterr()
+        namespace = runpy.run_path(str(MAIN), run_name="__main__")
+        return ProgramResult(out=capsys.readouterr().out, vars=namespace)
+
+    return _run

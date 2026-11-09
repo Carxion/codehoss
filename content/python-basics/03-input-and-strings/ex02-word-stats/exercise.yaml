@@ -1,0 +1,16 @@
+id: py.word-stats
+title: Word stats
+difficulty: 2
+prompt: |
+  Ask for a word, then print three facts about it. The `Length` line is done for you.
+
+  ```
+  Word: python
+  Length: 6
+  Upper: PYTHON
+  Reversed: nohtyp
+  ```
+hints:
+  - .upper() makes a string uppercase.
+  - word[::-1] reverses a string.
+  - 'print(f"Reversed: {word[::-1]}")'

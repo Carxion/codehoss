@@ -1,0 +1,42 @@
+[project]
+name = "datadojo"
+version = "0.0.1"
+description = "Interactive platform for learning Python, data science and AI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "typer>=0.12",
+    "rich>=13.7",
+    "pytest>=8.0",  # runtime dep: the grader runs exercise tests with pytest
+]
+
+[project.scripts]
+dojo = "dojo.cli:app"
+
+[dependency-groups]
+dev = ["ruff>=0.6", "pre-commit>=3.7"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dojo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["content", "workspace", ".venv"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["workspace"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Starter files are deliberately incomplete learner scaffolding.
+"content/**/starter.py" = ["F841", "E501"]

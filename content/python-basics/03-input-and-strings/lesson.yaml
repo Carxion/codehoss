@@ -1,0 +1,74 @@
+title: Input and strings
+summary: Ask the user questions and work with text.
+steps:
+  - type: explain
+    md: |
+      `input()` pauses the program and waits for the user to type something. The text in
+      the brackets is the question shown to them. Whatever they type comes back as a
+      **string** (`str`), even if it looks like a number.
+  - type: example
+    code: |
+      name = input("What is your name? ")
+      print("Hello", name)
+  - type: explain
+    md: |
+      An **f-string** lets you put variables inside text. Put `f` before the quotes and
+      wrap each variable in `{ }`:
+
+      ```python
+      name = "Sam"
+      print(f"Hello, {name}!")   # Hello, Sam!
+      ```
+  - type: try-it
+    prompt: Use an f-string so `message` becomes `Hello, Sam!`
+    starter: |
+      name = "Sam"
+      message = "Hello, name!"
+    solution: |
+      name = "Sam"
+      message = f"Hello, {name}!"
+    check: |
+      assert message == "Hello, Sam!", f"message is {message!r}, expected 'Hello, Sam!'"
+    hints:
+      - Put the letter f right before the opening quote, and wrap name in { }.
+      - 'message = f"Hello, {name}!"'
+  - type: explain
+    md: |
+      Strings come with built-in **methods**, tools you call with a dot:
+
+      | Code | Result |
+      |---|---|
+      | `"  hi  ".strip()` | `"hi"` (removes spaces at both ends) |
+      | `"hi".upper()` | `"HI"` |
+      | `"ada lovelace".title()` | `"Ada Lovelace"` |
+      | `len("python")` | `6` |
+
+      You can also **slice** a string: `"python"[:3]` is `"pyt"`, the first three
+      characters, and `"python"[::-1]` is the string reversed.
+  - type: example
+    code: |
+      word = "  Python  "
+      clean = word.strip()
+      print(clean.upper(), len(clean), clean[:3], clean[::-1])
+  - type: try-it
+    prompt: Make `first_three` hold the first three letters of `word` using a slice.
+    starter: |
+      word = "python"
+      first_three = ""
+    solution: |
+      word = "python"
+      first_three = word[:3]
+    check: |
+      assert first_three == "pyt", f"first_three is {first_three!r}, expected 'pyt'"
+    hints:
+      - "A slice looks like word[start:end]. Leaving out start means: from the beginning."
+      - first_three = word[:3]
+  - type: exercise
+    ref: ex01-name-formatter
+  - type: exercise
+    ref: ex02-word-stats
+  - type: quiz
+    question: The user types 42 at an input() prompt. What type of value do you get back?
+    options: [int, str, float]
+    answer: 1
+    explanation: input() always returns a string. Use int(...) to turn it into a number.

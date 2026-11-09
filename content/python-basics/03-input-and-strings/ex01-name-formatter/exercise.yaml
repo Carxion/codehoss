@@ -1,0 +1,18 @@
+id: py.name-formatter
+title: Name formatter
+difficulty: 2
+prompt: |
+  Ask for a first name and a last name, tidy them up, and greet the user.
+
+  People type messy things like `  ada ` or `LOVELACE`, so remove extra spaces with
+  `.strip()` and fix the capitals with `.title()`.
+
+  ```
+  First name:   ada
+  Last name: LOVELACE
+  Nice to meet you, Ada Lovelace!
+  ```
+hints:
+  - You can chain methods, like first.strip().title()
+  - 'Ask for the last name the same way: last = input("Last name: ")'
+  - 'print(f"Nice to meet you, {first} {last}!")'

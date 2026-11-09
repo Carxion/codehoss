@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      # Structural checks only; the full run (executing solutions) happens in CI.
+      - id: dojo-validate
+        name: dojo validate (structure)
+        entry: uv run dojo validate --no-run
+        language: system
+        pass_filenames: false
+        files: ^content/

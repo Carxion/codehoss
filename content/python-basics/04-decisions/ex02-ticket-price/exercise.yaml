@@ -1,0 +1,24 @@
+id: py.ticket-price
+title: Cinema ticket price
+difficulty: 3
+prompt: |
+  Ask for the customer's age and whether it is Tuesday, then print the ticket price.
+
+  | Age | Price |
+  |---|---|
+  | under 5 | 0 |
+  | 5 to 17 | 8 |
+  | 18 to 64 | 12 |
+  | 65 and over | 6 |
+
+  On Tuesdays every ticket that isn't free is **2 cheaper**.
+
+  ```
+  Age: 30
+  Is it Tuesday? (yes/no): yes
+  Price: 10
+  ```
+hints:
+  - Work out the normal price first with if/elif/else, then apply the Tuesday discount.
+  - 'The discount needs two conditions at once: if tuesday == "yes" and price > 0:'
+  - price = price - 2

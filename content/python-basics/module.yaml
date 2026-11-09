@@ -1,0 +1,20 @@
+id: python-basics
+title: Python Basics
+description: >
+  Learn to program from zero. Every lesson is a series of small steps with instant
+  feedback, so you always know what to do next.
+level: beginner
+prerequisites: []
+sandbox:
+  image: dojo-python
+  packages: []        # standard library only
+  network: none
+default_view: editor
+library_explorer:
+  featured: [builtins, math, random, datetime]
+lessons:
+  - 01-first-program
+  - 02-variables-and-types
+  - 03-input-and-strings
+  - 04-decisions
+  - 05-loops

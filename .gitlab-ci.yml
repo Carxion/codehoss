@@ -1,0 +1,32 @@
+image: python:3.12-slim
+
+stages: [lint, test, validate]
+
+variables:
+  UV_CACHE_DIR: .uv-cache
+
+cache:
+  key:
+    files: [uv.lock]
+  paths: [.uv-cache]
+
+before_script:
+  - pip install --quiet uv
+  - uv sync --locked
+
+lint:
+  stage: lint
+  script:
+    - uv run ruff check .
+    - uv run ruff format --check .
+
+test:
+  stage: test
+  script:
+    - uv run pytest
+
+validate-content:
+  stage: validate
+  script:
+    # Runs every reference solution and starter against its tests.
+    - uv run dojo validate

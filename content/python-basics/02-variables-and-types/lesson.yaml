@@ -1,0 +1,70 @@
+title: Variables and types
+summary: Store values in named boxes and meet the four basic types.
+steps:
+  - type: explain
+    md: |
+      A **variable** is a name that holds a value. You create one with `=`:
+
+      ```python
+      age = 25
+      ```
+
+      Read it as "age **gets** 25". Afterwards you can use `age` anywhere you'd use 25.
+  - type: example
+    md: "`print` can show several things at once. Separate them with commas and Python puts a space between them."
+    code: |
+      city = "Denver"
+      year = 2026
+      print(city, year)
+  - type: try-it
+    prompt: Create a variable called `age` that holds the number `25` (no quotes).
+    starter: |
+      # create age below
+    solution: |
+      age = 25
+    check: |
+      assert "age" in globals(), "Create a variable named age"
+      assert age == 25 and type(age) is int, "age should be the number 25, without quotes"
+    hints:
+      - The pattern is name = value
+      - age = 25
+  - type: explain
+    md: |
+      Every value has a **type**:
+
+      | Type | Example | What it is |
+      |---|---|---|
+      | `str` | `"hello"` | text (a *string*) |
+      | `int` | `42` | whole number |
+      | `float` | `3.14` | number with a decimal point |
+      | `bool` | `True` | yes/no value: `True` or `False` |
+
+      `type(x)` tells you the type. You can also convert: `int("42")` turns text into a number.
+  - type: example
+    code: |
+      print(type("42"))
+      print(type(42))
+      print(int("42") + 1)
+  - type: try-it
+    prompt: '`text` holds "42" as text. Make `number` hold it as a real number using `int()`.'
+    starter: |
+      text = "42"
+      number = text  # fix this line
+    solution: |
+      text = "42"
+      number = int(text)
+    check: |
+      assert type(number) is int, "number should be an int. Wrap text in int( )"
+      assert number == 42
+    hints:
+      - int(...) converts text to a whole number.
+      - number = int(text)
+  - type: exercise
+    ref: ex01-unit-converter
+  - type: exercise
+    ref: ex02-type-detective
+  - type: quiz
+    question: What type is 3.0?
+    options: [int, float, str]
+    answer: 1
+    explanation: It has a decimal point, so it is a float even though it is a whole number.

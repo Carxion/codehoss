@@ -1,0 +1,14 @@
+id: py.hello
+title: Hello, world!
+difficulty: 1
+prompt: |
+  Write a program that prints exactly these two lines:
+
+  ```
+  Hello, world!
+  I am learning Python.
+  ```
+hints:
+  - Use one print() for each line.
+  - 'Start with: print("Hello, world!")'
+  - 'print("Hello, world!") on one line, then print("I am learning Python.") on the next.'

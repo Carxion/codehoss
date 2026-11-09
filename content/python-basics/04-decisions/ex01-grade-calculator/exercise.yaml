@@ -1,0 +1,22 @@
+id: py.grade-calculator
+title: Grade calculator
+difficulty: 2
+prompt: |
+  Read a score (0 to 100) and print the letter grade:
+
+  | Score | Grade |
+  |---|---|
+  | 90 and above | A |
+  | 80 to 89 | B |
+  | 70 to 79 | C |
+  | 60 to 69 | D |
+  | below 60 | F |
+
+  ```
+  Enter your score: 85
+  Grade: B
+  ```
+hints:
+  - Check the highest grade first, then work down with elif.
+  - 'if score >= 90: grade = "A", then elif score >= 80: grade = "B", and so on.'
+  - Use else for F, since it catches everything below 60.

@@ -1,0 +1,67 @@
+title: Making decisions
+summary: Use if, elif and else to let your program choose what to do.
+steps:
+  - type: explain
+    md: |
+      **Comparisons** ask a yes/no question and give back a `bool`:
+
+      | Code | Meaning |
+      |---|---|
+      | `a == b` | equal (two `=` signs; one `=` stores a value) |
+      | `a != b` | not equal |
+      | `a > b`, `a >= b` | greater than, greater than or equal |
+      | `a < b`, `a <= b` | less than, less than or equal |
+  - type: try-it
+    prompt: Make `is_hot` hold the result of checking whether `temperature` is greater than 25.
+    starter: |
+      temperature = 30
+      is_hot = None
+    solution: |
+      temperature = 30
+      is_hot = temperature > 25
+    check: |
+      assert is_hot is True, "is_hot should be the comparison: temperature > 25"
+    hints:
+      - The comparison itself gives back True or False, so you can store it directly.
+      - is_hot = temperature > 25
+  - type: explain
+    md: |
+      `if` runs a block of code only when its condition is `True`. The block is the
+      **indented** lines underneath (4 spaces). `elif` ("else if") checks another
+      condition, and `else` catches everything left over.
+  - type: example
+    code: |
+      score = 72
+      if score >= 90:
+          print("Excellent!")
+      elif score >= 50:
+          print("You passed.")
+      else:
+          print("Keep practising.")
+  - type: try-it
+    prompt: 'Set `label` to "even" or "odd" using if/else. `number % 2` is 0 for even numbers.'
+    starter: |
+      number = 7
+      label = ""
+    solution: |
+      number = 7
+      if number % 2 == 0:
+          label = "even"
+      else:
+          label = "odd"
+    check: |
+      assert label == "odd", f"label is {label!r}, but 7 is odd"
+    hints:
+      - "% gives the remainder after dividing. 7 % 2 is 1."
+      - 'if number % 2 == 0: set label = "even", otherwise (else) label = "odd"'
+  - type: exercise
+    ref: ex01-grade-calculator
+  - type: exercise
+    ref: ex02-ticket-price
+  - type: quiz
+    question: What is the difference between = and ==?
+    options:
+      - 'They do the same thing'
+      - '= stores a value, == compares two values'
+      - '== stores a value, = compares two values'
+    answer: 1

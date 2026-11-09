@@ -1,0 +1,16 @@
+id: py.type-detective
+title: Type detective
+difficulty: 1
+prompt: |
+  Create four variables describing Ada Lovelace, each with the right type:
+
+  | Variable | Value | Type |
+  |---|---|---|
+  | `name` | Ada | `str` |
+  | `born` | 1815 | `int` |
+  | `height_m` | 1.65 | `float` |
+  | `is_programmer` | True | `bool` |
+hints:
+  - Text needs quotes. Numbers and True/False don't.
+  - 'name = "Ada" and born = 1815 are the first two.'
+  - True must start with a capital T and have no quotes.

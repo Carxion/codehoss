@@ -1,0 +1,22 @@
+id: py.fizzbuzz
+title: FizzBuzz
+difficulty: 3
+prompt: |
+  Ask how many numbers to count, then print each number from 1 up to that number, except:
+
+  - multiples of 3 print `Fizz`
+  - multiples of 5 print `Buzz`
+  - multiples of both 3 and 5 print `FizzBuzz`
+
+  ```
+  How many numbers? 5
+  1
+  2
+  Fizz
+  4
+  Buzz
+  ```
+hints:
+  - number % 3 == 0 means number is a multiple of 3.
+  - Check for FizzBuzz (a multiple of 15) first, otherwise the Fizz check catches it.
+  - 'if number % 15 == 0: print("FizzBuzz"), then elif number % 3 == 0: print("Fizz"), and so on.'

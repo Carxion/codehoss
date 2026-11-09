@@ -1,0 +1,22 @@
+id: py.guessing-game
+title: Number guessing game
+difficulty: 3
+prompt: |
+  The secret number is 7. Keep asking the player for guesses until they get it right.
+
+  - If the guess is too low, print `Too low!`
+  - If it is too high, print `Too high!`
+  - If it is correct, print `Correct! Guesses: N` (N = how many guesses it took) and stop.
+
+  ```
+  Your guess: 3
+  Too low!
+  Your guess: 9
+  Too high!
+  Your guess: 7
+  Correct! Guesses: 3
+  ```
+hints:
+  - "while True: makes a loop that only stops when you break out of it."
+  - Add 1 to guesses every time you read a guess.
+  - 'When guess == secret: print(f"Correct! Guesses: {guesses}") and then break'

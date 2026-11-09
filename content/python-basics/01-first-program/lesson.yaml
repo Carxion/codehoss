@@ -1,0 +1,58 @@
+title: Your first program
+summary: Write code, run it, and make Python print messages.
+steps:
+  - type: explain
+    md: |
+      A **program** is a list of instructions the computer follows from top to bottom.
+
+      The first instruction most people learn is `print()`. Whatever you put inside the
+      brackets is shown on the screen. Text goes inside quotes so Python knows it is
+      text, not code.
+  - type: example
+    md: Press **Run** to see it work.
+    code: |
+      print("Hello, world!")
+  - type: try-it
+    prompt: Change the message so the program prints `Hello, Dojo!`
+    starter: |
+      print("Hello, world!")
+    solution: |
+      print("Hello, Dojo!")
+    check: |
+      assert _output.strip() == "Hello, Dojo!", "Print exactly: Hello, Dojo!"
+    hints:
+      - Only the text inside the quotes needs to change.
+      - 'print("Hello, Dojo!")'
+  - type: explain
+    md: |
+      Each `print()` shows its message on a **new line**. Lines that start with `#` are
+      **comments**: notes for humans that Python ignores.
+  - type: example
+    code: |
+      # This line is a comment, so nothing happens here
+      print("First line")
+      print("Second line")
+  - type: try-it
+    prompt: Add a second `print()` so the program shows `Line one` and then `Line two`.
+    starter: |
+      print("Line one")
+    solution: |
+      print("Line one")
+      print("Line two")
+    check: |
+      assert _output.splitlines() == ["Line one", "Line two"], "Expected two lines: Line one, then Line two"
+    hints:
+      - Write a new line of code underneath the first one.
+      - 'print("Line two")'
+  - type: exercise
+    ref: ex01-hello
+  - type: exercise
+    ref: ex02-greeting-card
+  - type: quiz
+    question: Which line prints the word Hi?
+    options:
+      - 'print(Hi)'
+      - 'print("Hi")'
+      - 'Print("Hi")'
+    answer: 1
+    explanation: Text needs quotes, and Python cares about capital letters, so it must be lowercase print.

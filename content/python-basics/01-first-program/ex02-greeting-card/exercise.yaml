@@ -1,0 +1,15 @@
+id: py.greeting-card
+title: Greeting card
+difficulty: 1
+prompt: |
+  Print this card exactly. The top line is done for you.
+
+  ```
+  +-----------------+
+  |  Happy coding!  |
+  +-----------------+
+  ```
+hints:
+  - The bottom line is the same as the top line.
+  - The middle line has two spaces on each side of the message.
+  - 'print("|  Happy coding!  |")'
