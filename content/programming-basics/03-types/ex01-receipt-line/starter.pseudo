@@ -1,0 +1,6 @@
+item = "Notebook"
+price = 3
+quantity = 4
+
+line = ""
+OUTPUT line

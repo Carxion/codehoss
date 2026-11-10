@@ -1,0 +1,9 @@
+FUNCTION to_fahrenheit(c)
+    RETURN 0
+END FUNCTION
+
+FUNCTION to_celsius(f)
+    RETURN 0
+END FUNCTION
+
+OUTPUT to_fahrenheit(100)

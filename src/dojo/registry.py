@@ -31,6 +31,12 @@ class LoadedExercise:
     slug: str
     dir: Path
     spec: Exercise
+    language: str = "python"
+
+    @property
+    def ext(self) -> str:
+        """File extension of starters and solutions: .py, or .pseudo for pseudocode."""
+        return ".pseudo" if self.language == "pseudo" else ".py"
 
     @property
     def is_lab(self) -> bool:
@@ -40,11 +46,11 @@ class LoadedExercise:
 
     @property
     def starter_path(self) -> Path:
-        return self.dir / "starter.py"
+        return self.dir / f"starter{self.ext}"
 
     @property
     def solution_path(self) -> Path:
-        return self.dir / "solution.py"
+        return self.dir / f"solution{self.ext}"
 
     @property
     def visible_tests(self) -> Path:
@@ -57,17 +63,20 @@ class LoadedExercise:
     def starter_for(self, level: str) -> Path | None:
         """Starter file for a project level; None means "continue from your own code"."""
         if level == "solo":
-            path = self.dir / "starter.solo.py"
+            path = self.dir / f"starter.solo{self.ext}"
             return path if path.exists() else None
-        if level == "assisted" and (self.dir / "starter.assisted.py").exists():
-            return self.dir / "starter.assisted.py"
+        if level == "assisted" and (self.dir / f"starter.assisted{self.ext}").exists():
+            return self.dir / f"starter.assisted{self.ext}"
         return self.starter_path
 
     @property
     def variant_starters(self) -> list[Path]:
         return [
             p
-            for p in (self.dir / "starter.assisted.py", self.dir / "starter.solo.py")
+            for p in (
+                self.dir / f"starter.assisted{self.ext}",
+                self.dir / f"starter.solo{self.ext}",
+            )
             if p.exists()
         ]
 
@@ -130,7 +139,30 @@ def load_content(root: Path) -> Content:
         module = _load_module(module_dir, content)
         if module is not None:
             content.modules[module.spec.id] = module
+    # Courses are listed in the order they're meant to be taken: those with no
+    # prerequisites first, then each course after everything it builds on.
+    depth = _prerequisite_depths(content.modules)
+    content.modules = dict(sorted(content.modules.items(), key=lambda m: (depth[m[0]], m[0])))
     return content
+
+
+def _prerequisite_depths(modules: dict[str, LoadedModule]) -> dict[str, int]:
+    """Length of each module's longest prerequisite chain (cycles are reported elsewhere)."""
+    depths: dict[str, int] = {}
+
+    def depth(module_id: str, seen: frozenset[str]) -> int:
+        if module_id in depths:
+            return depths[module_id]
+        prereqs = [
+            p for p in modules[module_id].spec.prerequisites if p in modules and p not in seen
+        ]
+        result = 1 + max((depth(p, seen | {module_id}) for p in prereqs), default=-1)
+        depths[module_id] = result
+        return result
+
+    for module_id in modules:
+        depth(module_id, frozenset())
+    return depths
 
 
 def _load_module(module_dir: Path, content: Content) -> LoadedModule | None:
@@ -156,7 +188,7 @@ def _load_module(module_dir: Path, content: Content) -> LoadedModule | None:
                 Problem("error", where, f"lesson '{slug}' has no {slug}/lesson.yaml")
             )
             continue
-        lesson = _load_lesson(spec.id, lesson_dir, content)
+        lesson = _load_lesson(spec.id, lesson_dir, content, spec.language)
         if lesson is not None:
             module.lessons.append(lesson)
 
@@ -168,7 +200,9 @@ def _load_module(module_dir: Path, content: Content) -> LoadedModule | None:
     return module
 
 
-def _load_lesson(module_id: str, lesson_dir: Path, content: Content) -> LoadedLesson | None:
+def _load_lesson(
+    module_id: str, lesson_dir: Path, content: Content, language: str
+) -> LoadedLesson | None:
     spec = _parse(Lesson, lesson_dir / "lesson.yaml", content)
     if spec is None:
         return None
@@ -177,7 +211,9 @@ def _load_lesson(module_id: str, lesson_dir: Path, content: Content) -> LoadedLe
         ex_spec = _parse(Exercise, ex_dir / "exercise.yaml", content)
         if ex_spec is None:
             continue
-        exercise = LoadedExercise(module_id, lesson_dir.name, ex_dir.name, ex_dir, ex_spec)
+        exercise = LoadedExercise(
+            module_id, lesson_dir.name, ex_dir.name, ex_dir, ex_spec, language
+        )
         for path in exercise.required_files:
             if not path.exists():
                 content.problems.append(

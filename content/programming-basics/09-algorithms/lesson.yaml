@@ -1,0 +1,102 @@
+title: Solving problems with algorithms
+summary: Plan a solution in steps before you code it.
+steps:
+- type: explain
+  md: 'An **algorithm** is a precise, step-by-step plan for solving a problem. It
+
+    doesn''t belong to any language: the same algorithm can be written in pseudocode, Python or
+
+    C++. Programmers spend most of their time *thinking* about algorithms, and much less typing.
+
+
+    A dependable way to tackle any problem:
+
+
+    1. **Understand it.** What goes in? What should come out? Work a small example by hand.
+
+    2. **Break it down** (decomposition) into smaller steps you already know how to do.
+
+    3. **Write the steps in plain words**, then turn them into pseudocode.
+
+    4. **Test it** with normal examples *and* awkward ones (an empty list, negatives, a tie).
+
+
+    **Example: find the biggest number in a list.**
+
+    By hand, you''d look along the list remembering the biggest so far. In words: *remember the
+
+    first number; look at each number; if it''s bigger than the one you remember, remember it
+
+    instead; at the end, the one you remember is the biggest.*'
+- type: example
+  code: "FUNCTION biggest(numbers)\n    best = numbers[0]\n    FOR EACH n IN numbers DO\n        IF n\
+    \ > best THEN\n            best = n\n        END IF\n    END FOR\n    RETURN best\nEND FUNCTION\n\n\
+    OUTPUT biggest([4, 17, 9, 23, 8])\n"
+  md: The plan in words became this function line for line. Step through and watch `best` change.
+- type: try-it
+  prompt: Write `smallest(numbers)`, the same algorithm but for the smallest number.
+  starter: "FUNCTION smallest(numbers)\n    RETURN 0\nEND FUNCTION\n"
+  solution: "FUNCTION smallest(numbers)\n    best = numbers[0]\n    FOR EACH n IN numbers DO\n       \
+    \ IF n < best THEN\n            best = n\n        END IF\n    END FOR\n    RETURN best\nEND FUNCTION\n"
+  check: 'smallest = globals().get("smallest")
+
+    assert callable(smallest), "Keep the FUNCTION called smallest"
+
+    assert smallest([5, 3, 9]) == 3, f"smallest([5, 3, 9]) gave {smallest([5, 3, 9])}"
+
+    assert smallest([-2, -8, 4]) == -8, "Check negative numbers: smallest([-2, -8, 4]) should be -8"
+
+    assert smallest([7]) == 7
+
+    '
+  hints:
+  - 'Start with best = numbers[0] (not 0: what if every number is bigger than 0?).'
+  - Same as biggest, but with n < best.
+- type: showcase
+  algorithm: linear-search
+  md: '**Searching** is another classic algorithm: look at each item in turn until you find the
+
+    one you want. Watch it check items one by one.'
+- type: explain
+  md: '**Building blocks**
+
+
+    Most programs are made of a handful of patterns you now know:
+
+
+    | Pattern | Idea |
+
+    |---|---|
+
+    | count | `count = count + 1` when something matches |
+
+    | total | `total = total + value` |
+
+    | best so far | remember the biggest/smallest/first that matches |
+
+    | search | look at each item until you find it |
+
+    | filter | build a new list of the items that match |
+
+
+    When a problem feels big, ask which of these patterns it''s made of.'
+- type: quiz
+  question: What should you do first when you get a new problem?
+  options:
+  - Start typing code straight away
+  - Understand the inputs, the outputs and a small example
+  - Choose a programming language
+  answer: 1
+- type: exercise
+  ref: ex01-linear-search
+- type: exercise
+  ref: ex02-is-sorted
+- type: showcase
+  algorithm: bubble-sort
+  md: '**Sorting** is one of the most studied problems in computing. This is *bubble sort*:
+
+    keep swapping neighbours that are in the wrong order. Its idea is the same check as
+
+    `is_sorted`, repeated until nothing needs swapping. The Data Structures & Algorithms course
+
+    compares it with much faster ones.'

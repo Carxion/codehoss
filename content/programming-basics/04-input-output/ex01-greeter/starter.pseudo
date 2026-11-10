@@ -1,0 +1,2 @@
+name = INPUT("What is your name? ")
+# ask for the age, then show the greeting

@@ -1,0 +1,5 @@
+minutes = 135
+
+hours = minutes DIV 60
+leftover = minutes MOD 60
+OUTPUT minutes, "minutes is", hours, "hours and", leftover, "minutes"

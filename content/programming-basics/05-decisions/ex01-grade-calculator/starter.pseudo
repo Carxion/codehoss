@@ -1,0 +1,6 @@
+score = TO_NUMBER(INPUT("Score: "))
+grade = "?"
+
+# choose the grade with IF / ELSE IF / ELSE
+
+OUTPUT "Grade:", grade

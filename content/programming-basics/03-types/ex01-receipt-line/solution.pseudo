@@ -1,0 +1,6 @@
+item = "Notebook"
+price = 3
+quantity = 4
+
+line = item + " x" + TO_TEXT(quantity) + " = " + TO_TEXT(price * quantity)
+OUTPUT line

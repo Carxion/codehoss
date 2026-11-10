@@ -32,6 +32,8 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 // --- types -------------------------------------------------------------------
 
 export type Level = "guided" | "assisted" | "solo";
+/** What learners write in a module: Python, or Dojo pseudocode (Programming Basics). */
+export type Language = "python" | "pseudo";
 
 export interface LessonSummary {
   slug: string;
@@ -48,6 +50,7 @@ export interface ModuleSummary {
   description: string;
   level: string;
   view: "editor" | "notebook" | "lab";
+  language: Language;
   ai: boolean;
   prerequisites: string[];
   lessons: LessonSummary[];
@@ -77,7 +80,15 @@ export interface LabState {
 
 export type Step =
   | { index: number; type: "explain"; md: string }
-  | { index: number; type: "example"; md: string; code: string; runnable: boolean }
+  | {
+      index: number;
+      type: "example";
+      md: string;
+      code: string;
+      runnable: boolean;
+      /** Set when shown in another language than the module's (read-only, in the lesson). */
+      language: string | null;
+    }
   | { index: number; type: "try-it"; prompt: string; starter: string; hint_count: number }
   | { index: number; type: "exercise"; exercise: Exercise }
   | { index: number; type: "quiz"; question: string; options: string[] }
@@ -96,6 +107,7 @@ export interface Lesson {
   title: string;
   summary: string;
   view: "editor" | "notebook" | "lab";
+  language: Language;
   ai: boolean;
   project: { brief: string; uses: string[]; level: Level } | null;
   previous: string | null;
@@ -109,6 +121,27 @@ export interface Explanation {
   message: string;
   line: number | null;
   raw: string;
+}
+
+export interface TraceFrame {
+  name: string;
+  /** Variable -> value as shown (text in quotes). */
+  vars: Record<string, string>;
+}
+
+export interface TraceStep {
+  /** The line about to run; 0 once the program has finished. */
+  line: number;
+  frames: TraceFrame[];
+  /** How much of Trace.output had been shown by this step. */
+  out: number;
+}
+
+export interface Trace {
+  steps: TraceStep[];
+  output: string;
+  error: { line: number | null; message: string } | null;
+  truncated: boolean;
 }
 
 export interface TestResult {
@@ -197,6 +230,8 @@ export const api = {
     ),
   labReset: (sessionId: string, exerciseId: string, engine: boolean) =>
     request<LabState>("POST", `/sessions/${sessionId}/lab/${exerciseId}/reset`, { engine }),
+  trace: (sessionId: string, code: string, inputs: string[]) =>
+    request<Trace>("POST", `/sessions/${sessionId}/trace`, { code, inputs }),
   tryIt: (sessionId: string, lesson: string, step: number, code: string) =>
     request<{ passed: boolean; message: string }>("POST", `/sessions/${sessionId}/try-it`, {
       lesson,

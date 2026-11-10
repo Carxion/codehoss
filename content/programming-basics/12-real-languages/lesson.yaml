@@ -1,0 +1,98 @@
+title: From pseudocode to real languages
+summary: The same ideas in Python, JavaScript, R, C++ and C#, and a final project.
+steps:
+- type: explain
+  md: 'You now know the ideas at the heart of **every** programming language:
+
+    sequence, variables, types, input and output, decisions, loops, lists, functions, maps,
+
+    algorithms, debugging and testing.
+
+
+    Real languages are those same ideas with different **syntax**. Here''s one small program,
+
+    "count the passing scores", in pseudocode and five real languages. Look for the variables,
+
+    the loop and the IF in each one.'
+- type: example
+  code: "scores = [72, 95, 58]\npassed = 0\nFOR EACH score IN scores DO\n    IF score >= 60 THEN\n   \
+    \     passed = passed + 1\n    END IF\nEND FOR\nOUTPUT \"Passed:\", passed\n"
+  md: 'Our pseudocode version. Run it: it shows `Passed: 2`.'
+- type: example
+  language: python
+  code: "scores = [72, 95, 58]\npassed = 0\nfor score in scores:\n    if score >= 60:\n        passed\
+    \ = passed + 1\nprint(\"Passed:\", passed)\n"
+  md: '**Python**: almost the same words. Blocks are marked by **indentation** and a colon
+
+    `:` instead of `END IF`/`END FOR`, so the spaces really matter. Great for data science, AI,
+
+    automation, and beginners; it''s DataDojo''s main track.'
+- type: example
+  language: javascript
+  code: "const scores = [72, 95, 58];\nlet passed = 0;\nfor (const score of scores) {\n  if (score >=\
+    \ 60) {\n    passed = passed + 1;\n  }\n}\nconsole.log(\"Passed:\", passed);\n"
+  md: '**JavaScript**: the language of web pages. Blocks use curly braces `{ }`, lines end
+
+    with `;`, and new variables are introduced with `let` (or `const` if they never change).'
+- type: example
+  language: r
+  code: "scores <- c(72, 95, 58)\npassed <- 0\nfor (score in scores) {\n  if (score >= 60) {\n    passed\
+    \ <- passed + 1\n  }\n}\ncat(\"Passed:\", passed, \"\\n\")\n"
+  md: '**R**: built for statistics and charts. Values are stored with `<-`, a list of numbers
+
+    is made with `c(...)`, and positions **start at 1**, not 0.'
+- type: example
+  language: cpp
+  code: "#include <iostream>\n#include <vector>\n\nint main() {\n    std::vector<int> scores = {72, 95,\
+    \ 58};\n    int passed = 0;\n    for (int score : scores) {\n        if (score >= 60) {\n        \
+    \    passed = passed + 1;\n        }\n    }\n    std::cout << \"Passed: \" << passed << \"\\n\";\n\
+    \    return 0;\n}\n"
+  md: '**C++**: fast and close to the hardware (games, browsers, robots). Every variable
+
+    declares its **type** (`int` is a whole number), the program starts in `main`, and it must
+
+    be **compiled** (translated to machine code) before it can run.'
+- type: example
+  language: csharp
+  code: "using System;\nusing System.Collections.Generic;\n\nvar scores = new List<int> { 72, 95, 58 };\n\
+    int passed = 0;\nforeach (int score in scores)\n{\n    if (score >= 60)\n    {\n        passed = passed\
+    \ + 1;\n    }\n}\nConsole.WriteLine($\"Passed: {passed}\");\n"
+  md: '**C#**: used for business apps and for games with Unity. Like C++ it declares types
+
+    (`int`, `List<int>`) and is compiled; braces sit on their own lines by convention.'
+- type: explain
+  md: "**The same idea, five spellings**\n\n| Idea | Pseudocode | Python | JavaScript | R | C++ | C# |\n\
+    |---|---|---|---|---|---|---|\n| show | `OUTPUT x` | `print(x)` | `console.log(x)` | `print(x)` |\
+    \ `std::cout << x` | `Console.WriteLine(x)` |\n| store | `x = 5` | `x = 5` | `let x = 5` | `x <- 5`\
+    \ | `int x = 5` | `int x = 5` |\n| decide | `IF ... THEN ... END IF` | `if ...:` + indent | `if (...)\
+    \ { }` | `if (...) { }` | `if (...) { }` | `if (...) { }` |\n| count 1..10 | `FOR i FROM 1 TO 10`\
+    \ | `for i in range(1, 11)` | `for (let i = 1; i <= 10; i++)` | `for (i in 1:10)` | `for (int i =\
+    \ 1; i <= 10; i++)` | `for (int i = 1; i <= 10; i++)` |\n| list | `[1, 2, 3]` | `[1, 2, 3]` | `[1,\
+    \ 2, 3]` | `c(1, 2, 3)` | `std::vector<int>{1, 2, 3}` | `new List<int> {1, 2, 3}` |\n| first item\
+    \ | `x[0]` | `x[0]` | `x[0]` | `x[1]` | `x[0]` | `x[0]` |\n| map | `{\"a\": 1}` | `{\"a\": 1}` | `{a:\
+    \ 1}` | `list(a = 1)` | `std::map` | `Dictionary` |\n| function | `FUNCTION f(x)` | `def f(x):` |\
+    \ `function f(x) { }` | `f <- function(x) { }` | `int f(int x) { }` | `int F(int x) { }` |\n\nTwo\
+    \ big differences to watch for:\n- **Typed or not**: Python, JavaScript and R work out types as they\
+    \ run. C++ and C# make you\n  declare them, and check them before the program ever runs.\n- **Interpreted\
+    \ or compiled**: Python, JavaScript and R run your code directly. C++ and C#\n  are compiled first.\n\
+    \n**Where next?** Python Basics is the natural next step here: it leads on to Data Science,\nAI, algorithms\
+    \ and projects. Courses for JavaScript, R, C++ and C# are planned, each\nbuilding real projects."
+- type: quiz
+  question: In which of these languages is the first item of a list at position 1?
+  options:
+  - Python
+  - JavaScript
+  - R
+  - C#
+  answer: 2
+- type: quiz
+  question: Which two languages make you declare each variable's type?
+  options:
+  - Python and R
+  - C++ and C#
+  - JavaScript and Python
+  answer: 1
+- type: exercise
+  ref: ex01-grade-book
+- type: exercise
+  ref: ex02-guessing-game

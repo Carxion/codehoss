@@ -2,17 +2,23 @@ import Editor, { type OnMount } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { PythonLanguageClient, SingleModelMapping } from "../lsp";
+import { PSEUDO, registerPseudo } from "../pseudo";
 import { registerSnippets } from "../snippets";
 import { useRunner } from "../useRunner";
 import type { WorkspaceHandle, WorkspaceProps } from "../workspace";
 import Console from "./Console";
 import { insertAtCursor, prefersDark } from "./editorUtils";
+import TracePanel from "./TracePanel";
 
-/** One file, one Run button, and an interactive console (Python Basics). */
+/** One file, one Run button, and an interactive console (Python Basics). Pseudocode
+ * (Programming Basics) also gets a step-through view instead of the language server. */
 const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function EditorWorkspace(
-  { sessionId, glossary, onChange, onBusyChange, onReady },
+  { sessionId, language = "python", glossary, onChange, onBusyChange, onReady },
   ref,
 ) {
+  const pseudo = language === "pseudo";
+  const [tracing, setTracing] = useState<string | null>(null);
+  const traceLine = useRef<Monaco.editor.IEditorDecorationsCollection | null>(null);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
   const lspRef = useRef<PythonLanguageClient | null>(null);
@@ -25,7 +31,7 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
   useEffect(() => onBusyChange(runner.running), [runner.running, onBusyChange]);
 
   useEffect(() => {
-    if (!sessionId || !editorReady || !monacoRef.current || !editorRef.current) return;
+    if (pseudo || !sessionId || !editorReady || !monacoRef.current || !editorRef.current) return;
     const client = new PythonLanguageClient(
       sessionId,
       monacoRef.current,
@@ -38,7 +44,7 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
       client.dispose();
       lspRef.current = null;
     };
-  }, [sessionId, editorReady, glossary]);
+  }, [pseudo, sessionId, editorReady, glossary]);
 
   useEffect(() => () => stopAnimation(), []);
 
@@ -54,8 +60,42 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
   }
 
   const run = () => {
+    if (tracing !== null) closeTrace();
     if (!runner.running && editorRef.current) runner.run(editorRef.current.getValue());
   };
+
+  function stepThrough() {
+    const editor = editorRef.current;
+    if (!editor || !sessionId) return;
+    editor.updateOptions({ readOnly: true });
+    setTracing(editor.getValue());
+  }
+
+  function closeTrace() {
+    setTracing(null);
+    editorRef.current?.updateOptions({ readOnly: false });
+  }
+
+  function showTraceLine(line: number | null, error: boolean) {
+    const editor = editorRef.current;
+    if (!editor) return;
+    traceLine.current ??= editor.createDecorationsCollection();
+    if (line === null) {
+      traceLine.current.clear();
+      return;
+    }
+    traceLine.current.set([
+      {
+        range: { startLineNumber: line, startColumn: 1, endLineNumber: line, endColumn: 1 },
+        options: {
+          isWholeLine: true,
+          className: error ? "trace-line error" : "trace-line",
+          glyphMarginClassName: error ? "trace-glyph error" : "trace-glyph",
+        },
+      },
+    ]);
+    editor.revealLineInCenterIfOutsideViewport(line);
+  }
   const runRef = useRef(run);
   runRef.current = run;
 
@@ -64,7 +104,10 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
     setCode: (code) => {
       if (code !== editorRef.current?.getValue()) setValue(code);
     },
-    reset: () => runner.clear(),
+    reset: () => {
+      runner.clear();
+      if (tracing !== null) closeTrace();
+    },
     run: () => runRef.current(),
     insert: (text, importModule) => {
       if (editorRef.current) insertAtCursor(editorRef.current, text, importModule);
@@ -86,8 +129,10 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
         if (shown >= solution.length) stopAnimation();
       }, 20);
     },
+    stepThrough,
     restore: (code) => {
       stopAnimation();
+      setTracing(null);
       editorRef.current?.updateOptions({ readOnly: false });
       setValue(code);
     },
@@ -96,8 +141,12 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
   const onMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
-    const snippets = registerSnippets(monaco);
-    editor.onDidDispose(() => snippets.dispose());
+    if (pseudo) {
+      registerPseudo(monaco);
+    } else {
+      const snippets = registerSnippets(monaco);
+      editor.onDidDispose(() => snippets.dispose());
+    }
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runRef.current());
     setEditorReady(true);
     onReady();
@@ -115,8 +164,8 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
     <>
       <div className="editor-wrap">
         <Editor
-          path="file:///work/main.py"
-          defaultLanguage="python"
+          path={pseudo ? "file:///work/main.pseudo" : "file:///work/main.py"}
+          defaultLanguage={pseudo ? PSEUDO : "python"}
           theme={prefersDark() ? "vs-dark" : "vs"}
           onMount={onMount}
           onChange={(value) => {
@@ -134,9 +183,13 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
             parameterHints: { enabled: true },
             wordBasedSuggestions: "off",
             fixedOverflowWidgets: true,
+            glyphMargin: pseudo,
           }}
         />
       </div>
+      {tracing !== null && sessionId ? (
+        <TracePanel sessionId={sessionId} code={tracing} onLine={showTraceLine} onClose={closeTrace} />
+      ) : (
       <Console
         output={runner.output}
         running={runner.running}
@@ -145,6 +198,7 @@ const EditorWorkspace = forwardRef<WorkspaceHandle, WorkspaceProps>(function Edi
         onStop={runner.stop}
         onGoToLine={goToLine}
       />
+      )}
     </>
   );
 });

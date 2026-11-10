@@ -6,6 +6,8 @@ prerequisites. Each module declares its own sandbox image and libraries, which i
 drives IntelliSense and the Library Explorer.
 
 ```
+Programming Basics (any language) ──► Python Basics ──► ...   (JavaScript, R, C++, C#: planned)
+
 Python Basics ──► Data Science ──► AI
       │                │            │
       ├────────────────┴────────────┴──► Projects (build plans)
@@ -14,6 +16,27 @@ Python Basics ──► Data Science ──► AI
 ```
 
 ## Starter modules
+
+### 0. Programming Basics — `programming-basics`
+Audience: never coded before, and not tied to one language. `language: pseudo`: learners
+write Dojo pseudocode, which runs and can be stepped through line by line (👣 Step through).
+Image: `dojo-python` (the interpreter is pure Python). No prerequisites; it doesn't gate
+Python Basics, so learners can start with either.
+
+| # | Lesson | Exercises |
+|---|---|---|
+| 1 | What is a program? — sequence, OUTPUT, comments | countdown, fix the order |
+| 2 | Variables — storing, reading, changing; DIV and MOD | shopping total, minutes to hours |
+| 3 | Types — number, text, TRUE/FALSE, converting, order of operations | receipt line, average of three |
+| 4 | Input and output — INPUT, input-process-output | birthday greeter, tip calculator |
+| 5 | Decisions — IF / ELSE IF / ELSE, AND, OR, NOT | grade calculator, leap year |
+| 6 | Loops — WHILE, FOR, REPEAT; counters and totals | times table, FizzBuzz |
+| 7 | Lists — positions from 0, LENGTH, APPEND, looping | shopping list, warm days |
+| 8 | Functions — parameters, RETURN vs OUTPUT, local variables | temperature converter, password checker |
+| 9 | Algorithms — plan, decompose, building-block patterns | find it (linear search), is it sorted? |
+| 10 | Debugging and testing — three kinds of bug, a method, edge cases | fix the discount, a safe average |
+| 11 | Maps and records — keys, lists of records, counting | phone book, vote counter |
+| 12 | From pseudocode to real languages — Python, JavaScript, R, C++, C# side by side | final projects: grade book, guessing game |
 
 ### 1. Python Basics — `python-basics`
 Audience: never coded before. Image: `dojo-python` (stdlib + pytest + rich).
@@ -177,6 +200,10 @@ Coming next: namespaces, volumes, Jobs and CronJobs, Ingress, Helm, debugging.
 | Module | Highlights | Needs |
 |---|---|---|
 | MLOps | serve a model, containerize, deploy to k8s, GitLab CI, monitoring | lab capability (M7) |
+| JavaScript Basics + projects | the Programming Basics ideas in JS, async, a web page, a REST API | multi-language platform (M9) |
+| R Basics + projects | vectors, data frames, tidyverse, ggplot2, reports | M9 platform, R notebook kernel (M10) |
+| C++ Basics + projects | compiling, pointers and memory, STL, performance | M9 platform, compile step (M11) |
+| C# Basics + projects | classes, LINQ, xUnit, minimal APIs | M9 platform (M12) |
 
 ## Module format
 
@@ -188,7 +215,7 @@ content/
       lesson.yaml          # ordered guided steps (see below)
       ex01-hello/
         exercise.yaml
-        starter.py
+        starter.py         # .pseudo in a `language: pseudo` module
         solution.py        # reference — never sent to the browser
         tests/
           test_visible.py  # learner can run these

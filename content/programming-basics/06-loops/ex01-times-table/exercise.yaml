@@ -1,0 +1,22 @@
+id: pb.times-table
+title: Times table
+difficulty: 2
+prompt: 'Ask which times table to show, then show it from 1 to 10:
+
+
+  ```
+
+  Which table? 7
+
+  7 x 1 = 7
+
+  7 x 2 = 14
+
+  ...
+
+  7 x 10 = 70
+
+  ```'
+hints:
+- Use FOR i FROM 1 TO 10.
+- 'Inside: OUTPUT n, "x", i, "=", n * i'

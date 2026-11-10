@@ -6,6 +6,7 @@ Every function takes an executor, so the same grading logic works locally
 
 from __future__ import annotations
 
+import json
 import threading
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -19,8 +20,30 @@ PACKAGE_DIR = Path(__file__).parent
 # pytest itself takes a moment to start; don't count that against the learner.
 STARTUP_GRACE_S = 10.0
 RUN_TIMEOUT_S = 10.0
+TRACE_TIMEOUT_S = 10.0
 
 LOCAL = LocalExecutor()
+
+# Pseudocode runs through a small main.py, so everything built around main.py (pytest's
+# run_program fixture, try-it checks, interactive runs) works unchanged, and tests can
+# read the program's variables and call its functions.
+PSEUDO_MAIN = b"""import sys
+import dojo_pseudo
+
+sys.excepthook = dojo_pseudo.excepthook
+globals().update(dojo_pseudo.run_file("main.pseudo"))
+"""
+
+
+def program_files(code: str, language: str = "python") -> dict[str, bytes]:
+    """The files that make up a learner's program, ready to run as `python main.py`."""
+    if language == "pseudo":
+        return {
+            "main.py": PSEUDO_MAIN,
+            "main.pseudo": code.encode("utf-8"),
+            "dojo_pseudo.py": (PACKAGE_DIR / "_dojo_pseudo.py").read_bytes(),
+        }
+    return {"main.py": code.encode("utf-8")}
 
 
 @dataclass
@@ -67,6 +90,7 @@ def run_program(
     on_output: OutputCallback | None = None,
     cpu_seconds: int | None = None,
     cancel: threading.Event | None = None,
+    language: str = "python",
 ) -> ExecResult:
     """Run learner code as a script.
 
@@ -75,7 +99,7 @@ def run_program(
     """
     stdin = inputs if isinstance(inputs, StdinFeed) else "".join(f"{x}\n" for x in inputs or [])
     return executor.execute(
-        {"main.py": code.encode("utf-8")},
+        program_files(code, language),
         [executor.python, "-u", "main.py"],
         timeout=timeout,
         stdin=stdin,
@@ -91,14 +115,25 @@ def grade(
     tests = [exercise.visible_tests]
     if hidden:
         tests.append(exercise.hidden_tests)
-    return run_tests(code, tests, timeout=exercise.spec.time_limit_s, executor=executor)
+    return run_tests(
+        code,
+        tests,
+        timeout=exercise.spec.time_limit_s,
+        executor=executor,
+        language=exercise.language,
+    )
 
 
 def run_tests(
-    code: str, test_files: list[Path], *, timeout: float, executor: Executor = LOCAL
+    code: str,
+    test_files: list[Path],
+    *,
+    timeout: float,
+    executor: Executor = LOCAL,
+    language: str = "python",
 ) -> GradeResult:
     files = {
-        "main.py": code.encode("utf-8"),
+        **program_files(code, language),
         "pytest.ini": b"[pytest]\n",
         "conftest.py": (PACKAGE_DIR / "_grader_conftest.py").read_bytes(),
         "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
@@ -164,10 +199,15 @@ def grade_lab(exercise: LoadedExercise, lab_dir: str, *, executor: Executor) -> 
 
 
 def run_snippet(
-    code: str, check: str, *, timeout: float = 5.0, executor: Executor = LOCAL
+    code: str,
+    check: str,
+    *,
+    timeout: float = 5.0,
+    executor: Executor = LOCAL,
+    language: str = "python",
 ) -> SnippetResult:
     files = {
-        "main.py": code.encode("utf-8"),
+        **program_files(code, language),
         "check.py": check.encode("utf-8"),
         "_tryit_runner.py": (PACKAGE_DIR / "_tryit_runner.py").read_bytes(),
         "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
@@ -180,6 +220,28 @@ def run_snippet(
         return SnippetResult(True)
     lines = result.stderr.strip().splitlines()
     return SnippetResult(False, _clean_message(lines[-1] if lines else "check failed"))
+
+
+def trace_program(code: str, inputs: list[str], *, executor: Executor = LOCAL) -> dict:
+    """Step-by-step trace of a pseudocode program (see dojo._dojo_pseudo.trace_source)."""
+    files = {
+        "main.pseudo": code.encode("utf-8"),
+        "dojo_pseudo.py": (PACKAGE_DIR / "_dojo_pseudo.py").read_bytes(),
+    }
+    result = executor.execute(
+        files,
+        [executor.python, "dojo_pseudo.py", "--trace", "main.pseudo"],
+        timeout=TRACE_TIMEOUT_S,
+        stdin="".join(f"{line}\n" for line in inputs),
+    )
+    failed = {"steps": [], "output": "", "truncated": False}
+    if result.timed_out:
+        return {**failed, "error": {"line": None, "message": "The trace took too long to make."}}
+    try:
+        return json.loads(result.stdout)
+    except ValueError:
+        detail = (result.stderr or result.stdout).strip()[-300:]
+        return {**failed, "error": {"line": None, "message": f"The trace failed: {detail}"}}
 
 
 def _parse_junit(report: bytes) -> list[TestResult]:

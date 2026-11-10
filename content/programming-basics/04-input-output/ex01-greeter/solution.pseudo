@@ -1,0 +1,3 @@
+name = INPUT("What is your name? ")
+age = TO_NUMBER(INPUT("How old are you? "))
+OUTPUT "Hello, " + name + "! Next year you will be " + TO_TEXT(age + 1) + "."

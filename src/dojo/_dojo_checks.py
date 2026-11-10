@@ -297,3 +297,56 @@ def assert_rolled_out(name, namespace="default", timeout=90):
         f"deployment {name} isn't ready: {(proc.stderr or proc.stdout).strip()}. "
         f"Look at kubectl get pods and kubectl describe pod for why."
     )
+
+
+# --- pseudocode (Programming Basics) ---------------------------------------------
+
+
+def pseudo_source():
+    """The learner's pseudocode program."""
+    from pathlib import Path
+
+    return Path("main.pseudo").read_text(encoding="utf-8")
+
+
+def run_pseudo(source=None, inputs=(), replace=None):
+    """Run pseudocode and return (output, variables). With `replace` ({old line: new}),
+    runs the learner's program with those lines changed, e.g. a different starting value,
+    to check it works things out rather than printing a fixed answer."""
+    import builtins
+    import contextlib
+    import io
+
+    import dojo_pseudo
+
+    source = pseudo_source() if source is None else source
+    for old, new in (replace or {}).items():
+        assert old in source, f"Keep the line `{old}` from the starter: the tests change it."
+        source = source.replace(old, new, 1)
+    feed = iter(inputs)
+
+    def fake_input(prompt=""):
+        try:
+            value = next(feed)
+        except StopIteration:
+            raise AssertionError("Your program asked for more input than the test gave.") from None
+        print(f"{prompt}{value}")
+        return value
+
+    buffer = io.StringIO()
+    real_input = builtins.input
+    builtins.input = fake_input
+    try:
+        with contextlib.redirect_stdout(buffer):
+            variables = dojo_pseudo.run_source(source)
+    finally:
+        builtins.input = real_input
+    return buffer.getvalue(), variables
+
+
+def uses_keyword(word):
+    """Is this keyword used in the program (outside comments and text)?"""
+    import re
+
+    code = re.sub(r'"[^"\n]*"|\'[^\'\n]*\'|(#|//)[^\n]*', "", pseudo_source())
+    return re.search(rf"\b{word}\b", code) is not None

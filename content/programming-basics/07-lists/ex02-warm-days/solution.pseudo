@@ -1,0 +1,9 @@
+temperatures = [18, 22, 19, 25, 21, 20]
+warm_days = []
+
+FOR EACH t IN temperatures DO
+    IF t > 20 THEN
+        APPEND(warm_days, t)
+    END IF
+END FOR
+OUTPUT LENGTH(warm_days), "warm days:", warm_days

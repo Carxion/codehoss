@@ -1,0 +1,19 @@
+id: pb.linear-search
+title: Find it
+difficulty: 2
+prompt: 'Write `find(items, target)`: it returns the **position** of the first item
+
+  equal to `target`, or `-1` if it isn''t in the list.
+
+
+  ```
+
+  find(["cat", "dog", "fox"], "dog")  →  1
+
+  find(["cat", "dog", "fox"], "owl")  →  -1
+
+  ```'
+hints:
+- You need positions, so count with FOR i FROM 0 TO LENGTH(items) - 1.
+- IF items[i] == target THEN RETURN i END IF
+- After the loop has checked everything, RETURN -1.

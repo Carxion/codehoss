@@ -1,0 +1,28 @@
+id: programming-basics
+title: Programming Basics
+description: 'How programming works, before any one language: instructions, variables, decisions, loops,
+  lists, functions and problem solving, written in plain pseudocode that really runs. Step through every
+  program line by line and watch the computer think.
+
+  '
+level: beginner
+prerequisites: []
+language: pseudo
+sandbox:
+  image: dojo-python
+  packages: []
+  network: none
+default_view: editor
+lessons:
+- 01-what-is-a-program
+- 02-variables
+- 03-types
+- 04-input-output
+- 05-decisions
+- 06-loops
+- 07-lists
+- 08-functions
+- 09-algorithms
+- 10-debugging
+- 11-maps
+- 12-real-languages

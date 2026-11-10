@@ -1,0 +1,5 @@
+bill = TO_NUMBER(INPUT("Bill: "))
+percent = TO_NUMBER(INPUT("Tip %: "))
+tip = ROUND(bill * percent / 100, 2)
+OUTPUT "Tip:", tip
+OUTPUT "Total:", ROUND(bill + tip, 2)

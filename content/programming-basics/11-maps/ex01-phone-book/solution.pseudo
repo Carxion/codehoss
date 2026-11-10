@@ -1,0 +1,8 @@
+phone_book = {"Ada": "555-0101", "Grace": "555-0199", "Alan": "555-0123"}
+name = INPUT("Who? ")
+
+IF CONTAINS(phone_book, name) THEN
+    OUTPUT name + ": " + phone_book[name]
+ELSE
+    OUTPUT "Sorry, no number for " + name
+END IF

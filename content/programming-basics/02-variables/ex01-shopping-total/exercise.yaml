@@ -1,0 +1,19 @@
+id: pb.shopping-total
+title: Shopping total
+difficulty: 1
+prompt: 'The starter stores a `price` and a `quantity`. Make a variable `total`
+
+  that holds the price times the quantity, then show it:
+
+
+  ```
+
+  Total: 12
+
+  ```
+
+
+  Work it out from the variables: the tests change `price` and `quantity` to check.'
+hints:
+- total = price * quantity
+- 'OUTPUT can show text and a variable: OUTPUT "Total:", total'

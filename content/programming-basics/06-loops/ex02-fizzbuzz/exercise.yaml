@@ -1,0 +1,41 @@
+id: pb.fizzbuzz
+title: FizzBuzz
+difficulty: 3
+prompt: 'A classic! Ask how far to count, then show every number from 1 up to it, but:
+
+
+  - for multiples of 3 show `Fizz` instead of the number
+
+  - for multiples of 5 show `Buzz`
+
+  - for multiples of both 3 and 5 show `FizzBuzz`
+
+
+  ```
+
+  How far? 15
+
+  1
+
+  2
+
+  Fizz
+
+  4
+
+  Buzz
+
+  Fizz
+
+  ...
+
+  14
+
+  FizzBuzz
+
+  ```'
+hints:
+- '"Multiple of 3" means i MOD 3 == 0.'
+- 'Check for both 3 AND 5 first: otherwise 15 would stop at Fizz.'
+- IF i MOD 3 == 0 AND i MOD 5 == 0 THEN ... ELSE IF i MOD 3 == 0 THEN ... ELSE IF i MOD 5 == 0 THEN ...
+  ELSE OUTPUT i

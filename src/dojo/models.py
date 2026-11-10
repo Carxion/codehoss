@@ -38,6 +38,12 @@ class Sandbox(_Strict):
     lab_images: list[str] = []
 
 
+# What learners write: Python, or Dojo pseudocode (dojo._dojo_pseudo, Programming Basics).
+LANGUAGES = Literal["python", "pseudo"]
+# Languages an example can be shown in (read-only unless it's the module's language).
+EXAMPLE_LANGUAGES = Literal["python", "pseudo", "javascript", "r", "cpp", "csharp"]
+
+
 class LibraryExplorer(_Strict):
     featured: list[str] = []  # pinned at the top of the explorer
     modules: list[str] = []  # also indexed, listed below the featured ones
@@ -49,6 +55,7 @@ class Module(_Strict):
     description: str = ""
     level: str
     prerequisites: list[str] = []
+    language: LANGUAGES = "python"
     sandbox: Sandbox
     default_view: Literal["editor", "notebook", "lab"] = "editor"
     library_explorer: LibraryExplorer = LibraryExplorer()
@@ -68,6 +75,14 @@ class ExampleStep(_Strict):
     code: str
     md: str = ""
     runnable: bool = True
+    # Shown in another language (e.g. the same program in JavaScript); never runnable.
+    language: EXAMPLE_LANGUAGES | None = None
+
+    @model_validator(mode="after")
+    def _foreign_examples_dont_run(self) -> ExampleStep:
+        if self.language is not None:
+            self.runnable = False
+        return self
 
 
 class TryItStep(_Strict):

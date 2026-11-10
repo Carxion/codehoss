@@ -1,0 +1,12 @@
+secret = RANDOM(1, 100)
+guesses = 0
+REPEAT
+    guess = TO_NUMBER(INPUT("Guess: "))
+    guesses = guesses + 1
+    IF guess < secret THEN
+        OUTPUT "Too low"
+    ELSE IF guess > secret THEN
+        OUTPUT "Too high"
+    END IF
+UNTIL guess == secret
+OUTPUT "Correct! Number of guesses:", guesses

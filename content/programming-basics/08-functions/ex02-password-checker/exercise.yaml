@@ -1,0 +1,30 @@
+id: pb.password-checker
+title: Password checker
+difficulty: 3
+prompt: 'Write two functions that return TRUE or FALSE:
+
+
+  - `has_digit(text)`: TRUE if the text contains at least one digit (0 to 9)
+
+  - `strong(password)`: TRUE if the password is at least 8 characters long **and** has a digit
+
+
+  ```
+
+  strong("sunshine")   →  FALSE  (no digit)
+
+  strong("sun5")       →  FALSE  (too short)
+
+  strong("sunshine7")  →  TRUE
+
+  ```
+
+
+  Hint: FOR EACH works on text too (letter by letter), and `CONTAINS("0123456789", ch)` asks
+
+  whether `ch` is a digit. One function can call another.'
+hints:
+- In has_digit, loop through the letters; RETURN TRUE as soon as you find a digit, and RETURN FALSE after
+  the loop.
+- IF CONTAINS("0123456789", ch) THEN RETURN TRUE END IF
+- RETURN LENGTH(password) >= 8 AND has_digit(password)

@@ -1,0 +1,26 @@
+id: pb.tip-calculator
+title: Tip calculator
+difficulty: 2
+prompt: 'Ask for the bill and the tip percentage, then show the tip and the total,
+
+  each rounded to 2 decimal places:
+
+
+  ```
+
+  Bill: 40
+
+  Tip %: 15
+
+  Tip: 6
+
+  Total: 46
+
+  ```
+
+
+  The tip is the bill times the percentage, divided by 100.'
+hints:
+- Convert both answers with TO_NUMBER.
+- tip = ROUND(bill * percent / 100, 2)
+- OUTPUT "Tip:", tip then OUTPUT "Total:", ROUND(bill + tip, 2)

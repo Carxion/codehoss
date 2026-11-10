@@ -190,6 +190,9 @@ def create_app(
             raise HTTPException(status.HTTP_404_NOT_FOUND, "session not found")
         return session
 
+    def language_of(session: Session) -> str:
+        return content.modules[session.module_id].spec.language
+
     # -- auth --
 
     def _login_response(response: Response, user: User) -> dict:
@@ -296,6 +299,7 @@ def create_app(
                     "description": m.spec.description,
                     "level": m.spec.level,
                     "view": m.spec.default_view,
+                    "language": m.spec.language,
                     "ai": m.spec.sandbox.ai,
                     "prerequisites": m.spec.prerequisites,
                     "lessons": [
@@ -347,6 +351,7 @@ def create_app(
             "title": lesson.spec.title,
             "summary": lesson.spec.summary,
             "view": (project and project.view) or module.spec.default_view,
+            "language": module.spec.language,
             "ai": bool(project and project.ai) or module.spec.sandbox.ai,
             "project": {
                 "brief": project.brief,
@@ -528,7 +533,9 @@ def create_app(
     @api.post("/sessions/{session_id}/run")
     def run(session_id: str, body: RunRequest, user: UserDep) -> dict:
         session = own_session(session_id, user)
-        result = grader.run_program(body.code, body.inputs, executor=session.executor)
+        result = grader.run_program(
+            body.code, body.inputs, executor=session.executor, language=language_of(session)
+        )
         explanation = explain_traceback(result.stderr, body.code)
         return {
             "stdout": result.stdout,
@@ -537,6 +544,14 @@ def create_app(
             "timed_out": result.timed_out,
             "explanation": asdict(explanation) if explanation else None,
         }
+
+    @api.post("/sessions/{session_id}/trace")
+    def trace(session_id: str, body: RunRequest, user: UserDep) -> dict:
+        """Step-by-step trace of a pseudocode program, for the step-through view."""
+        session = own_session(session_id, user)
+        if language_of(session) != "pseudo":
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "only pseudocode can be traced")
+        return grader.trace_program(body.code, body.inputs, executor=session.executor)
 
     @api.post("/sessions/{session_id}/check")
     def check(session_id: str, body: CheckRequest, user: UserDep) -> dict:
@@ -579,7 +594,9 @@ def create_app(
         step = step_or_404(lesson, body.step)
         if not isinstance(step, TryItStep):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "that step is not a try-it")
-        result = grader.run_snippet(body.code, step.check, executor=session.executor)
+        result = grader.run_snippet(
+            body.code, step.check, executor=session.executor, language=language_of(session)
+        )
         db.record(
             user, session.module_id, f"{body.lesson}/{body.step}", attempt=True, done=result.passed
         )
@@ -735,6 +752,7 @@ def create_app(
                 cpu_seconds=INTERACTIVE_CPU_S,
                 cancel=cancel,
                 on_output=lambda text: loop.call_soon_threadsafe(outputs.put_nowait, text),
+                language=language_of(session),
             ),
         )
 
@@ -891,7 +909,13 @@ def _public_step(lesson: LoadedLesson, index: int, step: Step) -> dict:
         case ExplainStep():
             return {**base, "md": step.md}
         case ExampleStep():
-            return {**base, "md": step.md, "code": step.code, "runnable": step.runnable}
+            return {
+                **base,
+                "md": step.md,
+                "code": step.code,
+                "runnable": step.runnable,
+                "language": step.language,
+            }
         case TryItStep():
             return {
                 **base,

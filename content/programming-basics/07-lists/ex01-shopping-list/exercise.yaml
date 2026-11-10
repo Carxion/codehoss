@@ -1,0 +1,25 @@
+id: pb.shopping-list
+title: Shopping list
+difficulty: 2
+prompt: 'Keep asking for items until the user types `done`, then show the list:
+
+
+  ```
+
+  Item (or done): milk
+
+  Item (or done): eggs
+
+  Item (or done): done
+
+  You need 2 items:
+
+  - milk
+
+  - eggs
+
+  ```'
+hints:
+- Start with items = [] and APPEND each answer.
+- 'Ask once before a WHILE loop, then ask again at the end of each round: WHILE item != "done" DO'
+- 'At the end: OUTPUT "You need", LENGTH(items), "items:" and a FOR EACH that shows "- " + thing'

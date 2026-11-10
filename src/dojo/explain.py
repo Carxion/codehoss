@@ -15,7 +15,8 @@ from dataclasses import dataclass
 EXCEPTION_LINE = re.compile(
     r"^(?P<type>[A-Za-z_][\w.]*(?:Error|Exception|Exit|Interrupt)): ?(?P<msg>.*)$"
 )
-MAIN_LINE = re.compile(r'File "(?:.*/)?main\.py", line (?P<line>\d+)')
+MAIN_LINE = re.compile(r'File "(?:.*/)?main\.(?:py|pseudo)", line (?P<line>\d+)')
+PSEUDO_LINE = re.compile(r"^Line \d+: ")
 IDENTIFIER = re.compile(r"\b[A-Za-z_]\w*\b")
 SOURCE_LOCATION = re.compile(r"\s*\((?:<[^>]+>|[\w./\\-]+\.py), line \d+\)")
 BUILTIN_NAMES = [n for n in dir(builtins) if not n.startswith("_")]
@@ -52,6 +53,9 @@ def explain_message(raw: str, code: str = "") -> str:
 
 def explain(error_type: str, msg: str, code: str = "") -> tuple[str, str]:
     error_type = error_type.rsplit(".", 1)[-1]
+    if error_type == "PseudoError":
+        # Already written for beginners; the line number is shown separately.
+        return "Your program stopped", PSEUDO_LINE.sub("", msg)
     # "(<ipython-input-4-ab12>, line 1)" / "(main.py, line 3)" means nothing to a learner;
     # the line number is shown separately.
     msg = SOURCE_LOCATION.sub("", msg)

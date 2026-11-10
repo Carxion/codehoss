@@ -1,0 +1,22 @@
+id: pb.fix-the-discount
+title: Fix the discount
+difficulty: 2
+prompt: '`sale_price(price, percent)` should return the price after `percent`% off,
+
+  but the shop never allows more than 50% off: any bigger discount counts as 50%.
+
+
+  ```
+
+  sale_price(80, 25)   →  60
+
+  sale_price(100, 70)  →  50   (capped at 50% off)
+
+  ```
+
+
+  It has **two** bugs. Run it, step through it, find them and fix them.'
+hints:
+- 'Step through sale_price(80, 25): what is discount? It should be 20 (25% of 80).'
+- percent% of price is price * percent / 100.
+- 'Look at the IF: what should percent become when it''s over 50?'

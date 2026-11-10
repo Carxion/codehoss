@@ -1,0 +1,19 @@
+FUNCTION winner(votes)
+    counts = {}
+    FOR EACH name IN votes DO
+        IF CONTAINS(counts, name) THEN
+            counts[name] = counts[name] + 1
+        ELSE
+            counts[name] = 1
+        END IF
+    END FOR
+    best = votes[0]
+    FOR EACH name IN KEYS(counts) DO
+        IF counts[name] > counts[best] THEN
+            best = name
+        END IF
+    END FOR
+    RETURN best
+END FUNCTION
+
+OUTPUT winner(["Ada", "Alan", "Ada", "Grace"])

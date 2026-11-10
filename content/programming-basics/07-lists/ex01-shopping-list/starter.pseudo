@@ -1,0 +1,4 @@
+items = []
+item = INPUT("Item (or done): ")
+
+# keep adding and asking until the answer is "done", then show the list

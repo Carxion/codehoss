@@ -1,0 +1,20 @@
+id: pb.warm-days
+title: Warm days
+difficulty: 2
+prompt: 'Build a new list `warm_days` holding just the temperatures **above** 20, in
+
+  their original order, then show how many there were and the list:
+
+
+  ```
+
+  3 warm days: [22, 25, 21]
+
+  ```
+
+
+  The tests change the temperatures.'
+hints:
+- Start with warm_days = [] and APPEND the ones you want.
+- FOR EACH t IN temperatures DO, IF t > 20 THEN APPEND(warm_days, t)
+- OUTPUT LENGTH(warm_days), "warm days:", warm_days

@@ -1,0 +1,23 @@
+id: pb.vote-counter
+title: Vote counter
+difficulty: 3
+prompt: 'Write `winner(votes)`: given a list of names, one per vote, return the name with
+
+  the most votes.
+
+
+  ```
+
+  winner(["Ada", "Alan", "Ada", "Grace"])  →  "Ada"
+
+  ```
+
+
+  If there''s a tie, the name that **got its first vote earliest** wins. Plan it as two
+
+  patterns you know: **count** with a map, then find the **best so far**.'
+hints:
+- First build counts, a map from name to number of votes (like the fruit counter).
+- Then go through KEYS(counts) remembering the best name; only replace it when a count is strictly bigger
+  (that keeps the earliest on a tie).
+- best = votes[0], then IF counts[name] > counts[best] THEN best = name

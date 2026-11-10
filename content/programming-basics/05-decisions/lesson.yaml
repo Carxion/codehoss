@@ -1,0 +1,87 @@
+title: Making decisions
+summary: IF, ELSE IF and ELSE let a program choose what to do.
+steps:
+- type: explain
+  md: "Programs choose what to do with **IF**:\n\n```\nIF temperature > 25 THEN\n    OUTPUT \"Wear shorts\"\
+    \nEND IF\n```\n\nThe lines between `THEN` and `END IF` run **only when** the condition is `TRUE`.\
+    \ The\ncondition must be something that gives TRUE or FALSE, usually a comparison.\n\nIndent the lines\
+    \ inside (4 spaces). Our pseudocode doesn't require it, but it shows\nat a glance what belongs to\
+    \ the IF, and Python insists on it."
+- type: example
+  code: "temperature = 18\nIF temperature > 25 THEN\n    OUTPUT \"Hot: wear shorts\"\nELSE IF temperature\
+    \ > 12 THEN\n    OUTPUT \"Mild: bring a jumper\"\nELSE\n    OUTPUT \"Cold: wear a coat\"\nEND IF\n\
+    OUTPUT \"Have a nice day\"\n"
+  md: '`ELSE IF` checks another condition when the ones above were FALSE, and
+
+    `ELSE` catches everything left. **Only the first TRUE branch runs.** Step through, then
+
+    change the temperature to 30 and 5 and step through again.'
+- type: try-it
+  prompt: Set `label` to `"even"` or `"odd"`. A number is even when `number MOD 2` is 0.
+  starter: 'number = 7
+
+    label = ""
+
+    '
+  solution: "number = 7\nIF number MOD 2 == 0 THEN\n    label = \"even\"\nELSE\n    label = \"odd\"\n\
+    END IF\n"
+  check: 'assert globals().get("label") == "odd", f"label is {globals().get(''label'')!r}, but 7 is odd"
+
+    assert "IF" in open("main.pseudo").read(), "Use IF ... ELSE ... END IF to choose"
+
+    '
+  hints:
+  - 7 MOD 2 is 1 (the remainder after dividing by 2).
+  - IF number MOD 2 == 0 THEN label = "even" ELSE label = "odd" END IF (each on its own line)
+- type: explain
+  md: "**Combining conditions**\n\n| | TRUE when |\n|---|---|\n| `a AND b` | both are TRUE |\n| `a OR\
+    \ b` | at least one is TRUE |\n| `NOT a` | a is FALSE |\n\n```\nIF age >= 13 AND age <= 19 THEN\n\
+    \    OUTPUT \"Teenager\"\nEND IF\n```\n\nWrite each comparison in full: `age >= 13 AND age <= 19`,\
+    \ never `13 <= age <= 19`."
+- type: try-it
+  prompt: A ride needs riders to be at least 120 cm tall **and** at least 8 years old. Make `can_ride`
+    hold whether this rider can ride.
+  starter: 'height = 130
+
+    age = 7
+
+    can_ride = TRUE
+
+    '
+  solution: 'height = 130
+
+    age = 7
+
+    can_ride = height >= 120 AND age >= 8
+
+    '
+  check: 'assert globals().get("can_ride") is False, "This rider is tall enough but too young, so can_ride
+    should be FALSE"
+
+    assert "AND" in open("main.pseudo").read(), "Combine the two rules with AND"
+
+    '
+  hints:
+  - Both rules must be TRUE, so join them with AND.
+  - can_ride = height >= 120 AND age >= 8
+- type: quiz
+  question: "`score` is 95. What does this show?\n\n```\nIF score >= 50 THEN\n    OUTPUT \"Pass\"\nELSE\
+    \ IF score >= 90 THEN\n    OUTPUT \"Excellent\"\nEND IF\n```"
+  options:
+  - Pass
+  - Excellent
+  - Pass and Excellent
+  answer: 0
+  explanation: Only the first TRUE branch runs, and score >= 50 is checked first. Put the strictest condition
+    first.
+- type: exercise
+  ref: ex01-grade-calculator
+- type: exercise
+  ref: ex02-leap-year
+- type: quiz
+  question: What's the difference between `=` and `==`?
+  options:
+  - None
+  - = stores a value; == compares two values
+  - == stores a value; = compares two values
+  answer: 1

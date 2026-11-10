@@ -1,0 +1,7 @@
+year = TO_NUMBER(INPUT("Year: "))
+
+IF year MOD 4 == 0 AND (year MOD 100 != 0 OR year MOD 400 == 0) THEN
+    OUTPUT year, "is a leap year"
+ELSE
+    OUTPUT year, "is not a leap year"
+END IF

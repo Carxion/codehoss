@@ -1,0 +1,12 @@
+FUNCTION average(numbers)
+    IF LENGTH(numbers) == 0 THEN
+        RETURN 0
+    END IF
+    total = 0
+    FOR i FROM 0 TO LENGTH(numbers) - 1 DO
+        total = total + numbers[i]
+    END FOR
+    RETURN ROUND(total / LENGTH(numbers), 2)
+END FUNCTION
+
+OUTPUT average([4, 8])

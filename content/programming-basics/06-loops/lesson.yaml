@@ -1,0 +1,87 @@
+title: Loops
+summary: Repeat instructions with WHILE, FOR and REPEAT.
+steps:
+- type: explain
+  md: "Computers are brilliant at doing the same thing over and over. A **loop**\nrepeats a block of instructions.\n\
+    \n```\nWHILE condition DO\n    ...\nEND WHILE\n```\n\n`WHILE` checks its condition **before every\
+    \ round**. If it's TRUE, the block runs and\nthen it checks again. When it's FALSE, the program carries\
+    \ on after `END WHILE`.\n\nSomething inside the loop must eventually make the condition FALSE. If\
+    \ nothing does, the\nloop runs forever: an **infinite loop**, one of the most common bugs."
+- type: example
+  code: "count = 3\nWHILE count > 0 DO\n    OUTPUT count\n    count = count - 1\nEND WHILE\nOUTPUT \"\
+    Lift off!\"\n"
+  md: 'Step through it and watch `count` and the WHILE line: the condition is checked again every time
+    round.'
+- type: try-it
+  prompt: Start with `amount = 1` and keep doubling it while it is at most 1000. Count the doublings in
+    `steps`. (You should end with amount 1024 and 10 steps.)
+  starter: 'amount = 1
+
+    steps = 0
+
+    # WHILE amount <= 1000 DO ... END WHILE
+
+    '
+  solution: "amount = 1\nsteps = 0\nWHILE amount <= 1000 DO\n    amount = amount * 2\n    steps = steps\
+    \ + 1\nEND WHILE\n"
+  check: 'assert globals().get("amount") == 1024, f"amount is {globals().get(''amount'')}, should end
+    at 1024"
+
+    assert globals().get("steps") == 10, f"steps is {globals().get(''steps'')}, should be 10"
+
+    '
+  hints:
+  - 'Inside the loop: double amount and add 1 to steps.'
+  - amount = amount * 2 and steps = steps + 1, between WHILE and END WHILE
+- type: explain
+  md: "**Counting loops: FOR**\n\nWhen you know how many times to repeat, `FOR` counts for you:\n\n```\n\
+    FOR i FROM 1 TO 5 DO\n    OUTPUT i\nEND FOR\n```\n\n`i` takes the values 1, 2, 3, 4, 5 (**both ends\
+    \ included**), one per round. `STEP`\nchanges how it counts: `FOR i FROM 10 TO 0 STEP -2` gives 10,\
+    \ 8, 6, 4, 2, 0.\n\nTwo patterns appear everywhere:\n- **counter**: `count = count + 1` inside a loop\
+    \ counts how many times something happened\n- **total** (accumulator): `total = total + value` adds\
+    \ things up"
+- type: example
+  code: "n = 7\nFOR i FROM 1 TO 10 DO\n    OUTPUT n, \"x\", i, \"=\", n * i\nEND FOR\n"
+- type: try-it
+  prompt: Use a FOR loop to add up every number from 1 to 100 into `total` (it should be 5050).
+  starter: 'total = 0
+
+    '
+  solution: "total = 0\nFOR i FROM 1 TO 100 DO\n    total = total + i\nEND FOR\n"
+  check: 'assert globals().get("total") == 5050, f"total is {globals().get(''total'')}, should be 5050"
+
+    from dojo_checks import uses_keyword
+
+    assert uses_keyword("FOR"), "Use a FOR loop to add the numbers up"
+
+    '
+  hints:
+  - Each round, add i to total.
+  - FOR i FROM 1 TO 100 DO, then total = total + i, then END FOR
+- type: explain
+  md: "**REPEAT ... UNTIL**\n\n`REPEAT` runs its block first and checks afterwards, so it always runs\
+    \ **at least once**,\nand it stops when the condition becomes TRUE. That's perfect for \"keep asking\
+    \ until the\nanswer is OK\":\n\n```\nREPEAT\n    guess = TO_NUMBER(INPUT(\"Pick 1 to 10: \"))\nUNTIL\
+    \ guess >= 1 AND guess <= 10\n```"
+- type: quiz
+  question: "How many times does the block run?\n\n```\nFOR i FROM 2 TO 5 DO\n    OUTPUT i\nEND FOR\n\
+    ```"
+  options:
+  - '3'
+  - '4'
+  - '5'
+  answer: 1
+  explanation: '2, 3, 4 and 5: both ends are included, so 4 times.'
+- type: exercise
+  ref: ex01-times-table
+- type: exercise
+  ref: ex02-fizzbuzz
+- type: quiz
+  question: "Why does this loop never stop?\n\n```\nx = 1\nWHILE x < 10 DO\n    OUTPUT x\nEND WHILE\n\
+    ```"
+  options:
+  - x never changes, so x < 10 stays TRUE
+  - WHILE loops always run forever
+  - OUTPUT stops loops
+  answer: 0
+  explanation: Nothing inside changes x. Adding x = x + 1 inside the loop fixes it.

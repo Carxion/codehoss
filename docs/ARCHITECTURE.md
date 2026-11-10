@@ -108,6 +108,25 @@ no way out regardless). The engine runs with `--insecure-registry docker:5000` a
 delete the learner's namespaces and objects. The session gets a kubeconfig pointing at
 `https://k3s:6443`; `kubectl` is the k3s multi-call binary.
 
+## Pseudocode and step-through
+
+A module with `language: pseudo` (Programming Basics) is written in Dojo pseudocode,
+run by `src/dojo/_dojo_pseudo.py`: a tokenizer, a recursive-descent parser and a
+tree-walking interpreter in one standard-library file. It's copied into each run as
+`dojo_pseudo.py` next to the learner's `main.pseudo` and a two-line `main.py` that runs it
+and copies its variables into `main.py`'s globals. Everything built for Python (interactive
+runs, the pytest `run_program` fixture, try-it checks) works unchanged: tests read
+variables and call pseudocode functions as Python callables. Mistakes raise `PseudoError`
+(message already written for beginners, plus a line number); an excepthook prints it in
+traceback shape so the explainer and "Go to line" work.
+
+`POST /sessions/{id}/trace` runs `dojo_pseudo.py --trace` in the sandbox. The interpreter
+records a step before each statement and each loop check: the line, every active
+function's variables (rendered as shown values), and how much output existed. The output
+is sent once, not per step. Traces stop at 1,000 steps so an endless loop still returns.
+`TracePanel` plays it back, highlights the line in Monaco with a decoration, and marks
+changed variables; the editor is read-only while stepping.
+
 ## Showcases and speed grading
 
 A `showcase` step names an algorithm and optional input; the API passes it through and the

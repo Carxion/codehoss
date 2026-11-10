@@ -1,0 +1,22 @@
+id: pb.greeter
+title: Birthday greeter
+difficulty: 1
+prompt: 'Ask for a name and an age, then greet them:
+
+
+  ```
+
+  What is your name? Ada
+
+  How old are you? 36
+
+  Hello, Ada! Next year you will be 37.
+
+  ```
+
+
+  Use these exact questions (with the space after the `?`).'
+hints:
+- You need two INPUTs. Convert the age with TO_NUMBER.
+- 'Build the greeting by joining text: "Hello, " + name + "! Next year you will be " + TO_TEXT(age + 1)
+  + "."'

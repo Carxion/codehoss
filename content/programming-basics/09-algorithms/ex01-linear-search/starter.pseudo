@@ -1,0 +1,5 @@
+FUNCTION find(items, target)
+    RETURN -1
+END FUNCTION
+
+OUTPUT find(["cat", "dog", "fox"], "dog")

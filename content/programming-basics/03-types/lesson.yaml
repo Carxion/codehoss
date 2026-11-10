@@ -1,0 +1,167 @@
+title: Types of values
+summary: 'Numbers, text and TRUE/FALSE: what each can do, and converting between them.'
+steps:
+- type: explain
+  md: 'Every value has a **type**, and the type decides what you can do with it:
+
+
+    | Type | Examples | What it''s for |
+
+    |---|---|---|
+
+    | number | `42`, `3.5`, `-7` | counting and maths |
+
+    | text | `"hello"`, `"42"`, `""` | words, names, messages |
+
+    | TRUE/FALSE | `TRUE`, `FALSE` | answers to yes/no questions |
+
+
+    `5` and `"5"` look alike but are different types: one is a number, the other is text that
+
+    happens to contain the digit 5. Real languages have the same split, under names like
+
+    *integer*, *float*, *string* and *boolean*.'
+- type: example
+  code: 'OUTPUT 5 + 5
+
+    OUTPUT "5" + "5"
+
+    OUTPUT "Ada" + " " + "Lovelace"
+
+    '
+  md: '`+` adds numbers but **joins** text. So `"5" + "5"` is `"55"`, not `10`.'
+- type: example
+  code: 'age = 36
+
+    OUTPUT "Age: " + age
+
+    '
+  md: 'Mixing types with `+` is an error: should it add or join? Run this
+
+    and read the message. (Some languages, like JavaScript, quietly guess and give `"Age: 36"`;
+
+    it''s a famous source of bugs, so our pseudocode makes you say what you mean.)'
+- type: explain
+  md: '**Converting between types**
+
+
+    - `TO_TEXT(36)` gives the text `"36"`, which can be joined onto other text.
+
+    - `TO_NUMBER("36")` gives the number `36`, which you can do maths with.
+
+
+    Think of them as saying "I know this is a number, treat it as text" or the other way round.'
+- type: try-it
+  prompt: 'Fix the line so `message` holds the text `Score: 10`. Keep using `+`.'
+  starter: 'score = 10
+
+    message = "Score: " + score
+
+    '
+  solution: 'score = 10
+
+    message = "Score: " + TO_TEXT(score)
+
+    '
+  check: 'assert globals().get("message") == "Score: 10", f"message is {globals().get(''message'')!r}"
+
+    '
+  hints:
+  - score is a number; turn it into text before joining.
+  - 'message = "Score: " + TO_TEXT(score)'
+- type: try-it
+  prompt: '`typed` holds the text `"42"`, as if someone typed it. Make `answer` hold that number plus
+    8, as a **number** (50).'
+  starter: 'typed = "42"
+
+    answer = 0
+
+    '
+  solution: 'typed = "42"
+
+    answer = TO_NUMBER(typed) + 8
+
+    '
+  check: 'value = globals().get("answer")
+
+    assert value == 50 and not isinstance(value, str), f"answer is {value!r}, but should be the number
+    50"
+
+    '
+  hints:
+  - TO_NUMBER("42") gives 42.
+  - answer = TO_NUMBER(typed) + 8
+- type: explain
+  md: '**TRUE and FALSE**
+
+
+    Comparisons ask a yes/no question and give back `TRUE` or `FALSE`:
+
+
+    | Comparison | Means |
+
+    |---|---|
+
+    | `a == b` | equal (two `=`: one `=` stores a value) |
+
+    | `a != b` | not equal |
+
+    | `a > b`, `a >= b` | greater than, greater than or equal |
+
+    | `a < b`, `a <= b` | less than, less than or equal |
+
+
+    You can store the answer like any value: `is_adult = age >= 18`.'
+- type: try-it
+  prompt: Make `is_hot` hold whether `temperature` is more than 30. Use a comparison, not the word TRUE.
+  starter: 'temperature = 31
+
+    is_hot = FALSE
+
+    '
+  solution: 'temperature = 31
+
+    is_hot = temperature > 30
+
+    '
+  check: 'assert globals().get("is_hot") is True, "is_hot should be TRUE when temperature is 31"
+
+    assert "is_hot = temperature" in open("main.pseudo").read().replace("  ", " "), "Store the comparison
+    itself: is_hot = temperature > 30"
+
+    '
+  hints:
+  - The comparison temperature > 30 gives TRUE or FALSE by itself.
+  - is_hot = temperature > 30
+- type: explain
+  md: '**Order of operations**
+
+
+    Like in maths, `*` and `/` happen before `+` and `-`: `2 + 3 * 4` is `14`. Use brackets
+
+    to choose the order: `(2 + 3) * 4` is `20`. When in doubt, add brackets; they make your
+
+    intention clear to readers too.
+
+
+    `ROUND(number, places)` rounds: `ROUND(8.3333, 1)` is `8.3`.'
+- type: quiz
+  question: What type is `"3.14"`?
+  options:
+  - number
+  - text
+  - TRUE/FALSE
+  answer: 1
+  explanation: It's in quotes, so it's text. TO_NUMBER("3.14") would turn it into the number 3.14.
+- type: exercise
+  ref: ex01-receipt-line
+- type: exercise
+  ref: ex02-average
+- type: quiz
+  question: What is `10 - 2 * 3`?
+  options:
+  - '24'
+  - '4'
+  - '6'
+  answer: 1
+  explanation: 'Multiplication first: 2 * 3 is 6, then 10 - 6 is 4.'

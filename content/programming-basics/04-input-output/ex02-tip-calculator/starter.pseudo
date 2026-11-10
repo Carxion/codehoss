@@ -1,0 +1,2 @@
+bill = TO_NUMBER(INPUT("Bill: "))
+# ask for the tip %, then show the tip and the total

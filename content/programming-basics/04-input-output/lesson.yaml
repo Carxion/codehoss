@@ -1,0 +1,96 @@
+title: Input and output
+summary: Ask the user questions and use their answers.
+steps:
+- type: explain
+  md: 'So far every program did the same thing each time. Real programs **ask**.
+
+
+    `INPUT("question")` shows the question, **waits** for the user to type an answer and press
+
+    Enter, and gives back what they typed:
+
+
+    ```
+
+    name = INPUT("What is your name? ")
+
+    ```
+
+
+    Whatever is typed is always **text**, even if it''s digits. To do maths with it, convert it:
+
+
+    ```
+
+    age = TO_NUMBER(INPUT("How old are you? "))
+
+    ```'
+- type: example
+  code: 'name = INPUT("What is your name? ")
+
+    age = TO_NUMBER(INPUT("How old are you? "))
+
+    OUTPUT "Hello,", name
+
+    OUTPUT "In 10 years you will be", age + 10
+
+    '
+  md: 'Press **▶ Run** and type your answers in the console below the code.
+
+    **👣 Step through** asks for the answers up front, one per line.'
+- type: explain
+  md: '**Input, process, output**
+
+
+    Almost every program, from a calculator to a banking app, has the same shape:
+
+
+    1. **Input**: get data in (typed, from a file, from the internet...)
+
+    2. **Process**: work something out
+
+    3. **Output**: show or save the result
+
+
+    When you plan a program, start by asking: what goes in, and what should come out?'
+- type: try-it
+  prompt: Pretend `answer` was typed by a user. Make `doubled` hold that number times two, as a number.
+  starter: 'answer = "7"
+
+    doubled = answer * 2
+
+    '
+  solution: 'answer = "7"
+
+    doubled = TO_NUMBER(answer) * 2
+
+    '
+  check: 'value = globals().get("doubled")
+
+    assert value == 14 and not isinstance(value, str), f"doubled is {value!r}, but should be the number
+    14"
+
+    '
+  hints:
+  - You can't multiply text. Convert it first.
+  - doubled = TO_NUMBER(answer) * 2
+- type: quiz
+  question: A user types `25` into `INPUT`. What do you get back?
+  options:
+  - The number 25
+  - The text "25"
+  - Nothing until you convert it
+  answer: 1
+  explanation: INPUT always gives back text. Use TO_NUMBER to turn it into a number.
+- type: exercise
+  ref: ex01-greeter
+- type: exercise
+  ref: ex02-tip-calculator
+- type: quiz
+  question: Which line asks for a number you can do maths with?
+  options:
+  - n = INPUT("Number? ")
+  - n = TO_NUMBER(INPUT("Number? "))
+  - n = TO_TEXT(INPUT("Number? "))
+  answer: 1
+  explanation: INPUT gives text; TO_NUMBER around it converts the answer to a number.

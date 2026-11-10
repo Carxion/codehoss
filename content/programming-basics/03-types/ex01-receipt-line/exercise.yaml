@@ -1,0 +1,22 @@
+id: pb.receipt-line
+title: Receipt line
+difficulty: 2
+prompt: 'Build one line of a receipt as text, store it in `line`, and show it.
+
+  With the starter''s values:
+
+
+  ```
+
+  Notebook x4 = 12
+
+  ```
+
+
+  That''s the item, then ` x` and the quantity, then ` = ` and the cost (price times quantity).
+
+  Join the pieces with `+`. The tests change the values.'
+hints:
+- 'Numbers must be turned into text before joining: TO_TEXT(quantity).'
+- 'Build it piece by piece: item + " x" + TO_TEXT(quantity) + " = " + ...'
+- line = item + " x" + TO_TEXT(quantity) + " = " + TO_TEXT(price * quantity)

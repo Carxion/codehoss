@@ -1,0 +1,11 @@
+items = []
+item = INPUT("Item (or done): ")
+WHILE item != "done" DO
+    APPEND(items, item)
+    item = INPUT("Item (or done): ")
+END WHILE
+
+OUTPUT "You need", LENGTH(items), "items:"
+FOR EACH thing IN items DO
+    OUTPUT "- " + thing
+END FOR

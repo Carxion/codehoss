@@ -1,0 +1,18 @@
+id: pb.minutes-to-hours
+title: Minutes to hours
+difficulty: 2
+prompt: 'Turn a number of minutes into hours and minutes. With `minutes = 135` it shows:
+
+
+  ```
+
+  135 minutes is 2 hours and 15 minutes
+
+  ```
+
+
+  Use `DIV` for the whole hours and `MOD` for the minutes left over. The tests try other numbers.'
+hints:
+- There are 60 minutes in an hour.
+- hours = minutes DIV 60, and leftover = minutes MOD 60
+- OUTPUT minutes, "minutes is", hours, "hours and", leftover, "minutes"

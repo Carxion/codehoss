@@ -1,0 +1,33 @@
+id: pb.guessing-game
+title: 'Final project: guessing game'
+difficulty: 3
+prompt: 'The computer picks a secret number from 1 to 100 with `RANDOM(1, 100)`. Keep
+
+  asking for guesses, saying `Too low` or `Too high`, until the player gets it, then say how
+
+  many guesses it took:
+
+
+  ```
+
+  Guess: 50
+
+  Too high
+
+  Guess: 25
+
+  Too low
+
+  Guess: 37
+
+  Correct! Number of guesses: 3
+
+  ```
+
+
+  (The tests make RANDOM pick a number they know.)'
+hints:
+- 'A loop that always runs at least once and stops when the guess is right: REPEAT ... UNTIL guess ==
+  secret.'
+- Count the guesses with a counter inside the loop.
+- 'After the loop: OUTPUT "Correct! Number of guesses:", guesses'

@@ -1,0 +1,30 @@
+id: pb.leap-year
+title: Leap year
+difficulty: 3
+prompt: 'Ask for a year and say whether it''s a leap year:
+
+
+  ```
+
+  Year: 2024
+
+  2024 is a leap year
+
+  ```
+
+  ```
+
+  Year: 1900
+
+  1900 is not a leap year
+
+  ```
+
+
+  The rule: a year is a leap year if it divides by 4, **except** years that divide by 100,
+
+  which are only leap years if they also divide by 400. (So 2000 was a leap year, 1900 wasn''t.)'
+hints:
+- '"Divides by 4" means year MOD 4 == 0.'
+- 'Leap if: divides by 4 AND (does not divide by 100 OR divides by 400).'
+- IF year MOD 4 == 0 AND (year MOD 100 != 0 OR year MOD 400 == 0) THEN

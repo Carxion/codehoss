@@ -1,0 +1,71 @@
+title: Functions
+summary: Name a group of instructions, give it inputs, and get an answer back.
+steps:
+- type: explain
+  md: "A **function** is a named group of instructions you can use again and again.\n\n```\nFUNCTION area(width,\
+    \ height)\n    RETURN width * height\nEND FUNCTION\n\nOUTPUT area(3, 4)\n```\n\n- `width` and `height`\
+    \ are **parameters**: the values the function needs.\n- `area(3, 4)` **calls** it, passing 3 and 4\
+    \ in.\n- `RETURN` hands an answer back to wherever it was called, and the function stops there.\n\n\
+    You've used functions already: `LENGTH`, `ROUND` and `INPUT` are built in. Now you can\nmake your\
+    \ own. Functions let you name an idea once, reuse it, and test it on its own."
+- type: example
+  code: "FUNCTION area(width, height)\n    RETURN width * height\nEND FUNCTION\n\nkitchen = area(3, 4)\n\
+    hall = area(1, 6)\nOUTPUT \"Total floor:\", kitchen + hall\n"
+  md: 'Step through: when `area` is called, it gets its own box of variables (shown indented), which disappears
+    when it returns.'
+- type: try-it
+  prompt: Finish the function `double` so it returns its number times two (`double(21)` should give 42).
+  starter: "FUNCTION double(n)\n    RETURN 0\nEND FUNCTION\n"
+  solution: "FUNCTION double(n)\n    RETURN n * 2\nEND FUNCTION\n"
+  check: 'double = globals().get("double")
+
+    assert callable(double), "Keep the FUNCTION called double"
+
+    assert double(21) == 42 and double(0) == 0, f"double(21) gave {double(21)}"
+
+    '
+  hints:
+  - Return the parameter n, multiplied by 2.
+  - RETURN n * 2
+- type: explain
+  md: '**RETURN or OUTPUT?**
+
+
+    `OUTPUT` shows something to the *person*. `RETURN` gives a value back to the *program*,
+
+    which can store it, use it in a calculation, or pass it to another function. Functions that
+
+    return their answer are far more useful, so prefer `RETURN` and let the caller decide
+
+    what to show.
+
+
+    **Local variables**: variables created inside a function belong to it and vanish when it
+
+    returns. That''s why two functions can both use a variable called `total` without clashing.'
+- type: try-it
+  prompt: Write the body of `is_even` so it returns TRUE for even numbers and FALSE for odd ones.
+  starter: "FUNCTION is_even(n)\n    RETURN FALSE\nEND FUNCTION\n"
+  solution: "FUNCTION is_even(n)\n    RETURN n MOD 2 == 0\nEND FUNCTION\n"
+  check: 'is_even = globals().get("is_even")
+
+    assert callable(is_even), "Keep the FUNCTION called is_even"
+
+    assert is_even(4) is True and is_even(7) is False and is_even(0) is True, "is_even(4) should be TRUE
+    and is_even(7) FALSE"
+
+    '
+  hints:
+  - A comparison already gives TRUE or FALSE, so you can return it directly.
+  - RETURN n MOD 2 == 0
+- type: quiz
+  question: What's the main difference between RETURN and OUTPUT?
+  options:
+  - There is none
+  - RETURN gives a value back to the program; OUTPUT shows it to the person
+  - OUTPUT can only be used in functions
+  answer: 1
+- type: exercise
+  ref: ex01-temperature-converter
+- type: exercise
+  ref: ex02-password-checker

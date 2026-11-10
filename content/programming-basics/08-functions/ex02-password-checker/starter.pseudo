@@ -1,0 +1,10 @@
+FUNCTION has_digit(text)
+    # look at each letter of text
+    RETURN FALSE
+END FUNCTION
+
+FUNCTION strong(password)
+    RETURN LENGTH(password) >= 8
+END FUNCTION
+
+OUTPUT strong("sunshine7")

@@ -1,0 +1,26 @@
+id: pb.safe-average
+title: A safe average
+difficulty: 3
+prompt: '`average(numbers)` should return the average of a list, rounded to 2 decimal
+
+  places, and `0` for an empty list (instead of crashing).
+
+
+  ```
+
+  average([4, 8])     →  6
+
+  average([1, 2, 2])  →  1.67
+
+  average([])         →  0
+
+  ```
+
+
+  The starter has more than one bug. Test it with the examples above (step through
+
+  `average([4, 8])`), and think about the edge cases.'
+hints:
+- 'Step through average([4, 8]): which numbers get added to total?'
+- Positions start at 0, so the loop should go FOR i FROM 0 TO ...
+- 'Before dividing, check: IF LENGTH(numbers) == 0 THEN RETURN 0 END IF'

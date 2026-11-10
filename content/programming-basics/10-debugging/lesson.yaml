@@ -1,0 +1,104 @@
+title: Debugging and testing
+summary: Find and fix mistakes calmly, and test that code really works.
+steps:
+- type: explain
+  md: 'Every programmer writes bugs every day. Debugging isn''t a sign you''re bad at
+
+    this; it *is* programming. Bugs come in three kinds:
+
+
+    | Kind | What happens | Example |
+
+    |---|---|---|
+
+    | **Syntax error** | the program can''t be read at all | `IF` without `END IF` |
+
+    | **Runtime error** | it stops partway with a message | asking for position 3 of a 3-item list |
+
+    | **Logic error** | it runs fine but gives the wrong answer | dividing by 2 instead of the count |
+
+
+    Logic errors are the sneakiest, because nothing tells you about them. That''s what testing
+
+    is for.'
+- type: example
+  code: "scores = [10, 20, 30]\ntotal = 0\nFOR i FROM 0 TO LENGTH(scores) DO\n    total = total + scores[i]\n\
+    END FOR\nOUTPUT total\n"
+  md: 'Run this and read the error: it names the **line** and says what went
+
+    wrong. Then step through and watch `i`. This is an **off-by-one** error, probably the most
+
+    common bug of all.'
+- type: try-it
+  prompt: Fix the off-by-one bug so `total` ends up 60.
+  starter: "scores = [10, 20, 30]\ntotal = 0\nFOR i FROM 0 TO LENGTH(scores) DO\n    total = total + scores[i]\n\
+    END FOR\n"
+  solution: "scores = [10, 20, 30]\ntotal = 0\nFOR i FROM 0 TO LENGTH(scores) - 1 DO\n    total = total\
+    \ + scores[i]\nEND FOR\n"
+  check: 'assert globals().get("total") == 60, f"total is {globals().get(''total'')}, should be 60"
+
+    '
+  hints:
+  - Positions go from 0 to LENGTH - 1.
+  - FOR i FROM 0 TO LENGTH(scores) - 1 DO
+- type: explain
+  md: "**A debugging method that works**\n\n1. **Reproduce it**: find an input that shows the bug every\
+    \ time.\n2. **Read the message**: which line? What did it expect?\n3. **Look inside**: step through,\
+    \ or add temporary `OUTPUT` lines to show variables.\n4. **Guess the cause**, then **change one thing**\
+    \ and run again.\n5. Stuck? Explain the code out loud, line by line, to someone (or a rubber duck).\
+    \ You'll\n   often hear the bug as you say it."
+- type: try-it
+  prompt: 'This program has a **logic** error: it runs, but the average is wrong (it should be 7). Find
+    it and fix it so it works for any length of list.'
+  starter: "numbers = [6, 7, 8]\ntotal = 0\nFOR EACH n IN numbers DO\n    total = total + n\nEND FOR\n\
+    average = total / 2\n"
+  solution: "numbers = [6, 7, 8]\ntotal = 0\nFOR EACH n IN numbers DO\n    total = total + n\nEND FOR\n\
+    average = total / LENGTH(numbers)\n"
+  check: 'assert globals().get("average") == 7, f"average is {globals().get(''average'')}, should be 7"
+
+    assert "LENGTH" in open("main.pseudo").read(), "Divide by how many numbers there are: LENGTH(numbers)"
+
+    '
+  hints:
+  - How many numbers are there? Is it always 2?
+  - average = total / LENGTH(numbers)
+- type: explain
+  md: '**Testing**
+
+
+    A test runs your code with an input you chose and checks the answer against one you
+
+    worked out **beforehand**. That''s exactly what the ✓ Check button does.
+
+
+    Good tests cover:
+
+    - **normal cases**: typical inputs
+
+    - **edge cases**: the smallest and biggest inputs, empty lists, zero, negatives, ties
+
+    - **bad input**: what should happen if someone types nonsense?
+
+
+    Professional programmers write tests for almost everything, so they know their code still
+
+    works after every change.'
+- type: quiz
+  question: Your program runs without any error, but shows the wrong total. What kind of bug is it?
+  options:
+  - Syntax error
+  - Runtime error
+  - Logic error
+  answer: 2
+- type: exercise
+  ref: ex01-fix-the-discount
+- type: exercise
+  ref: ex02-safe-average
+- type: quiz
+  question: Which is the best set of tests for a function that finds the biggest number in a list?
+  options:
+  - '[1, 2, 3] only'
+  - '[1, 2, 3], [3, 2, 1], [-5, -2], [7] and an empty list'
+  - Lots of random big lists
+  answer: 1
+  explanation: Different orders, negatives, one item and empty are the edge cases where bugs hide.

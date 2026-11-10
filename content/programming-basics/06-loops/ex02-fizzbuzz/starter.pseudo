@@ -1,0 +1,5 @@
+limit = TO_NUMBER(INPUT("How far? "))
+
+FOR i FROM 1 TO limit DO
+    OUTPUT i
+END FOR

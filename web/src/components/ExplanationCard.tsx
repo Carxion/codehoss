@@ -22,7 +22,7 @@ export default function ExplanationCard({
       </div>
       <Markdown>{explanation.message}</Markdown>
       <button className="link small" onClick={() => setShowRaw(!showRaw)}>
-        {showRaw ? "Hide" : "Show"} Python's original message
+        {showRaw ? "Hide" : "Show"} the original message
       </button>
       {showRaw && <pre className="raw">{explanation.raw}</pre>}
     </div>

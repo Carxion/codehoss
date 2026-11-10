@@ -1,0 +1,117 @@
+title: What is a program?
+summary: Instructions a computer follows exactly, one at a time, in order.
+steps:
+- type: explain
+  md: 'A **program** is a list of instructions for a computer. The computer follows
+
+    them **exactly**, **one at a time**, **in order**, from the top down. It never guesses what
+
+    you meant, so a program is like a recipe written for a very fast, very literal cook.
+
+
+    Every programming language (Python, JavaScript, R, C++, C# and hundreds more) works this
+
+    way. They differ in spelling and punctuation, which programmers call **syntax**. The ideas
+
+    underneath are the same everywhere.
+
+
+    In this course you''ll write **pseudocode**: instructions in plain, English-like words that
+
+    programmers use to plan before they write real code. So you learn the ideas without
+
+    fighting one language''s punctuation. Unlike pseudocode on paper, **ours really runs**.'
+- type: example
+  code: 'OUTPUT "Hello, world!"
+
+    OUTPUT "I am learning to program."
+
+    '
+  md: '`OUTPUT` shows something on the screen. Press **▶ Run** to run the
+
+    program, then press **👣 Step through** to watch it run one line at a time: the highlighted
+
+    line is the one about to run.'
+- type: explain
+  md: 'A few rules so far:
+
+
+    - Each instruction goes on **its own line**.
+
+    - **Text** goes inside quotes: `"Hello"`. The quotes aren''t shown; they mark where the text starts
+    and ends.
+
+    - **Numbers** don''t need quotes, and the computer can do maths with them: `OUTPUT 2 + 3` shows `5`.
+
+    - `OUTPUT` can show several things separated by commas; they''re shown with spaces between: `OUTPUT
+    "Total:", 5` shows `Total: 5`.
+
+    - Lines starting with `#` or `//` are **comments**: notes for people, which the computer skips.
+
+    - Keywords like `OUTPUT` are written in CAPITALS.'
+- type: try-it
+  prompt: Change the program so it shows exactly `Hello, Dojo!`
+  starter: 'OUTPUT "Hello"
+
+    '
+  solution: 'OUTPUT "Hello, Dojo!"
+
+    '
+  check: 'assert _output == "Hello, Dojo!\n", f"It showed {_output!r}. Check the comma, the capital D
+    and the !"
+
+    '
+  hints:
+  - Change the text between the quotes.
+  - OUTPUT "Hello, Dojo!"
+- type: example
+  code: 'OUTPUT 2 + 3
+
+    OUTPUT "2 + 3"
+
+    OUTPUT "Minutes in a day:", 24 * 60
+
+    '
+  md: 'Spot the difference: without quotes `2 + 3` is a **calculation**; with quotes
+
+    it''s just **text** that happens to contain a plus sign. `*` means multiply and `/` means divide.'
+- type: try-it
+  prompt: 'Make the program show the result of 12 times 7. Let the computer work it out: don''t type the
+    answer yourself.'
+  starter: '# show 12 times 7 here
+
+    '
+  solution: 'OUTPUT 12 * 7
+
+    '
+  check: 'assert _output.strip() == "84", f"It showed {_output.strip()!r}, but 12 times 7 is 84"
+
+    assert "84" not in open("main.pseudo").read(), "Let the computer do the maths: write the calculation
+    12 * 7, not the answer."
+
+    '
+  hints:
+  - '`*` means multiply.'
+  - OUTPUT 12 * 7
+- type: quiz
+  question: Two instructions are in the wrong order. What does the computer do?
+  options:
+  - Works out the right order and runs them that way
+  - Runs them in the order they're written, even if the result is wrong
+  - Refuses to run anything
+  answer: 1
+  explanation: Computers follow instructions exactly as written, top to bottom. Getting the order right
+    is your job.
+- type: exercise
+  ref: ex01-countdown
+- type: exercise
+  ref: ex02-fix-the-order
+- type: quiz
+  question: Which line does the computer skip?
+  options:
+  - OUTPUT "# not a comment"
+  - '# OUTPUT "hello"'
+  - OUTPUT 1 + 1
+  answer: 1
+  explanation: 'A line starting with # is a comment. The first one shows text that just contains a #,
+    because it''s inside quotes.'

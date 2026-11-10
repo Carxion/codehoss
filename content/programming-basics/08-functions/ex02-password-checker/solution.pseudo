@@ -1,0 +1,14 @@
+FUNCTION has_digit(text)
+    FOR EACH ch IN text DO
+        IF CONTAINS("0123456789", ch) THEN
+            RETURN TRUE
+        END IF
+    END FOR
+    RETURN FALSE
+END FUNCTION
+
+FUNCTION strong(password)
+    RETURN LENGTH(password) >= 8 AND has_digit(password)
+END FUNCTION
+
+OUTPUT strong("sunshine7")

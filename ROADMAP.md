@@ -13,6 +13,7 @@ Guiding rules:
 
 | Module | Who it's for | Milestone |
 |---|---|---|
+| **Programming Basics** | complete beginners, before any one language | M6.5 |
 | **Python Basics** | complete beginners | M2 |
 | **Data Science** | after Python Basics | M3 |
 | **AI** | after Python Basics (Data Science recommended) | M4 |
@@ -216,6 +217,30 @@ Original plan:
 
 **Exit:** DSA module with a showcase for every core algorithm and speed-graded exercises.
 
+## M6.5 — Programming Basics (concepts before code) ✅ (2026-11-10)
+A language-agnostic first course: what a program is, variables, types, input and output,
+decisions, loops, lists, functions, algorithms and problem solving, debugging and testing,
+maps and records, and a closing lesson that shows one program in Python, JavaScript, R, C++
+and C# side by side, with two final projects (grade book, guessing game). 12 lessons, 24
+exercises.
+
+Learners write **Dojo pseudocode**: textbook-style pseudocode (`IF ... THEN ... END IF`,
+`FOR i FROM 1 TO 10`, `FUNCTION`, `OUTPUT`, `INPUT`) that really runs. It's a small
+interpreter (`src/dojo/_dojo_pseudo.py`, standard library only) that is deliberately strict
+(no mixing text and numbers, conditions must be TRUE/FALSE, 0-based positions) and explains
+every mistake in plain words with the line number. Platform additions:
+- `language: pseudo` on a module: `.pseudo` starters and solutions, a pseudocode editor mode
+  (colours, auto-indent, completions and hover notes for built-ins), no language server.
+- **👣 Step through**: the interpreter records each step (line about to run, every active
+  function's variables, output so far); the browser highlights the line and shows a
+  variables table that marks what changed, with Back/Next/Play. Programs that use INPUT
+  take their answers up front.
+- Grading reuses everything built for Python: pseudocode runs through a two-line `main.py`,
+  so pytest tests read its variables and call its functions directly; `dojo_checks.run_pseudo`
+  re-runs a learner's program with values changed to catch hard-coded answers.
+- Example steps can show code in another language (read-only), for the comparison lesson.
+- The catalog lists courses in prerequisite order, so the two beginner courses come first.
+
 ## M7 — Infrastructure modules (Docker, Kubernetes, MLOps) — in progress
 Part 1 ✅ (2026-11-09): the **lab capability** and the **Docker** module, lessons 1–6.
 A lab session is the usual locked-down session container plus a private `docker:dind`
@@ -269,6 +294,48 @@ Original plan:
 - Module authoring tool (live preview + validation) so new modules are easy to add
 - Helm chart for self-hosting
 
+## M9–M12 — More languages, building real projects
+Each language gets a **Basics** module that maps the Programming Basics concepts onto its
+syntax (so learners who did Programming Basics move fast), then a set of **Projects** in
+that language at Guided / Assisted / Solo level, collected in the portfolio. Order is by
+demand and cost (image size, tooling).
+
+### M9 — Multi-language platform + JavaScript
+Platform (done once, used by every later language):
+- `language` grows beyond `python`/`pseudo`: each language declares a sandbox image, a run
+  command (plus a compile step where needed), a Monaco mode and a language server.
+- Language-neutral grading: pytest still drives every exercise. I/O tests (run with inputs,
+  check output) work in any language; function-level tests go through a small per-language
+  harness that calls a learner's function with JSON arguments and returns JSON.
+- The friendly error explainer gets a rule set per language (compiler and runtime errors).
+- Step-through for real languages where a debugger protocol makes it cheap (Node inspector,
+  Python's `sys.settrace`), reusing the pseudocode trace view.
+
+JavaScript Basics (image `dojo-node`, Node 22, `typescript-language-server`): values and
+`let`/`const`, strings and template literals, decisions and loops, arrays and objects,
+functions and arrow functions, callbacks, modules, errors, classes, async/`await`, testing.
+Projects: command-line to-do list (JSON file), quiz game, a web page with live preview
+(needs a preview pane), a small REST API (local only, no internet).
+
+### M10 — R
+R Basics (image `dojo-r`, `r-base` plus tidyverse, `languageserver`, notebook view through
+IRkernel): vectors (1-based!), data frames, functions, apply and the pipe, factors, dplyr,
+ggplot2, simple statistics and models. Projects: survey analysis report, A/B test analysis,
+a reproducible notebook report exported to HTML.
+
+### M11 — C++
+C++ Basics (image `dojo-cpp`, gcc and `clangd`): compiling and the compile-run cycle (with a
+compiler-error explainer), types, control flow, functions, `std::vector` and `std::string`,
+references and pointers, memory and RAII, classes, the STL and algorithms, a first look at
+performance. Projects: text adventure, bank account simulator, a speed race against the
+Python versions of the DSA exercises.
+
+### M12 — C#
+C# Basics (image `dojo-dotnet`, .NET SDK, `csharp-ls`): types, control flow, methods,
+`List`/`Dictionary`, classes and interfaces, LINQ, exceptions, async, unit tests with xUnit.
+Projects: inventory manager, console game, a small web API with ASP.NET Core minimal APIs.
+The .NET SDK image is large (~800 MB); see the disk budget.
+
 ## Later / maybe
 - Classrooms (instructor dashboard, cohorts)
 - Pyodide offline mode for Python Basics (no backend)
@@ -277,4 +344,5 @@ Original plan:
 ## Disk budget (this machine)
 C: has ~100 GB free. Keep per-module images lean (AI/DL image is the big one — CPU
 PyTorch only), use one Docker runtime, and have `dojo clean` prune images.
-Target: whole dev setup < 15 GB.
+Target: whole dev setup < 15 GB. The language milestones add roughly: Node ~180 MB,
+R with tidyverse ~1.2 GB, gcc ~400 MB, .NET SDK ~800 MB.

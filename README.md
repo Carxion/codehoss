@@ -11,8 +11,10 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > with step-through algorithm animations, and its tests fail code that is too slow. AI work
 > runs on a local model (Ollama) or Claude with your own key. M7 adds hands-on labs with a
 > real terminal in the browser: a 12-lesson **Docker** module (a private Docker engine per
-> learner) and **Kubernetes** (a private k3s cluster plus registry). Next: more Kubernetes,
-> then the MLOps capstone. See
+> learner) and **Kubernetes** (a private k3s cluster plus registry). New: **Programming
+> Basics**, a first course that isn't tied to any language: learners write pseudocode that
+> really runs and step through it line by line, watching every variable change. Next: more
+> Kubernetes, the MLOps capstone, then JavaScript, R, C++ and C# courses with projects. See
 > [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
@@ -54,7 +56,8 @@ sandbox.
 
 ## What it is
 
-- **Modular courses** — self-contained modules that plug in. v1 ships **Python Basics**,
+- **Modular courses** — self-contained modules that plug in. v1 ships **Programming
+  Basics** (language-agnostic, in runnable pseudocode), **Python Basics**,
   **Data Science**, **AI**, **Data Structures & Algorithms** and **Projects** (guided build
   plans), plus hands-on **Docker** and **Kubernetes** labs; MLOps is next. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
 - **Hand-holding** — bite-sized guided steps, escalating hints, a friendly error explainer,

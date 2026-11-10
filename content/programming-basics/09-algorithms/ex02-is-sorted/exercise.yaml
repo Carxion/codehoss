@@ -1,0 +1,24 @@
+id: pb.is-sorted
+title: Is it sorted?
+difficulty: 3
+prompt: 'Write `is_sorted(numbers)`: TRUE if every number is less than or equal to the
+
+  one after it, otherwise FALSE.
+
+
+  ```
+
+  is_sorted([1, 3, 3, 7])  →  TRUE
+
+  is_sorted([1, 5, 2])     →  FALSE
+
+  is_sorted([])            →  TRUE   (nothing is out of order)
+
+  ```
+
+
+  Plan first: which pairs do you need to compare? Careful with the last position.'
+hints:
+- 'Compare each number with its neighbour: numbers[i] and numbers[i + 1].'
+- The last pair starts at position LENGTH(numbers) - 2, so loop FOR i FROM 0 TO LENGTH(numbers) - 2.
+- As soon as a pair is out of order, RETURN FALSE. After the loop, RETURN TRUE.

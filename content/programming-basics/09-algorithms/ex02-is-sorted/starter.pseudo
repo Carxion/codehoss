@@ -1,0 +1,5 @@
+FUNCTION is_sorted(numbers)
+    RETURN TRUE
+END FUNCTION
+
+OUTPUT is_sorted([1, 5, 2])

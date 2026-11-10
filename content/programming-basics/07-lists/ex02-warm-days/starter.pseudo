@@ -1,0 +1,4 @@
+temperatures = [18, 22, 19, 25, 21, 20]
+warm_days = []
+
+# fill warm_days, then show them

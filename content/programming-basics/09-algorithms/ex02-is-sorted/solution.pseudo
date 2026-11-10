@@ -1,0 +1,10 @@
+FUNCTION is_sorted(numbers)
+    FOR i FROM 0 TO LENGTH(numbers) - 2 DO
+        IF numbers[i] > numbers[i + 1] THEN
+            RETURN FALSE
+        END IF
+    END FOR
+    RETURN TRUE
+END FUNCTION
+
+OUTPUT is_sorted([1, 5, 2])

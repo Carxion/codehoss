@@ -1,0 +1,32 @@
+id: pb.grade-calculator
+title: Grade calculator
+difficulty: 2
+prompt: 'Ask for a score (0 to 100) and show the letter grade:
+
+
+  | Score | Grade |
+
+  |---|---|
+
+  | 90 and above | A |
+
+  | 80 to 89 | B |
+
+  | 70 to 79 | C |
+
+  | 60 to 69 | D |
+
+  | below 60 | F |
+
+
+  ```
+
+  Score: 85
+
+  Grade: B
+
+  ```'
+hints:
+- Check the highest grade first, then work down with ELSE IF.
+- IF score >= 90 THEN grade = "A", ELSE IF score >= 80 THEN grade = "B", and so on.
+- ELSE catches everything below 60.

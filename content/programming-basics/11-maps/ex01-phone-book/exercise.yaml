@@ -1,0 +1,25 @@
+id: pb.phone-book
+title: Phone book
+difficulty: 2
+prompt: 'Ask for a name and look it up in `phone_book`:
+
+
+  ```
+
+  Who? Grace
+
+  Grace: 555-0199
+
+  ```
+
+  ```
+
+  Who? Bob
+
+  Sorry, no number for Bob
+
+  ```'
+hints:
+- 'Check the key exists before you read it: CONTAINS(phone_book, name).'
+- 'IF CONTAINS(phone_book, name) THEN OUTPUT name + ": " + phone_book[name] ELSE OUTPUT "Sorry, no number
+  for " + name END IF'

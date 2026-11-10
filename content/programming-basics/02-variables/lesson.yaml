@@ -1,0 +1,140 @@
+title: Variables
+summary: Store values under a name, read them back, and change them.
+steps:
+- type: explain
+  md: 'A **variable** is a name for a value, like a labelled box the computer keeps a
+
+    value in.
+
+
+    ```
+
+    score = 10
+
+    ```
+
+
+    reads as "**store 10 in `score`**". It is *not* maths'' equals sign: it''s an instruction
+
+    that puts a value in the box. Afterwards, writing `score` anywhere means "whatever is in the
+
+    box right now".'
+- type: example
+  code: 'name = "Ada"
+
+    age = 36
+
+    OUTPUT name, "is", age
+
+    age = age + 1
+
+    OUTPUT name, "is now", age
+
+    '
+  md: 'Press **👣 Step through** and watch the **Variables** table. Line 4,
+
+    `age = age + 1`, works out the right-hand side first (36 + 1) and *then* stores the answer
+
+    back in `age`.'
+- type: try-it
+  prompt: '`apples` starts at 5. Add a line that adds 3 more apples to it, using `apples = apples + ...`,
+    so it ends up holding 8.'
+  starter: 'apples = 5
+
+    '
+  solution: 'apples = 5
+
+    apples = apples + 3
+
+    '
+  check: 'assert globals().get("apples") == 8, f"apples is {globals().get(''apples'')}, but should be
+    8"
+
+    assert "apples + 3" in open("main.pseudo").read(), "Use apples = apples + 3 to change the value that
+    is already there"
+
+    '
+  hints:
+  - Read the current value, add 3, store it back.
+  - apples = apples + 3
+- type: explain
+  md: '**Naming variables**
+
+
+    - Use letters, digits and underscores, starting with a letter: `total`, `score2`, `max_speed`.
+
+    - No spaces: `first name` is two names. Write `first_name` instead.
+
+    - Names are **case-sensitive**: `Score` and `score` are different boxes.
+
+    - Choose names that say what''s inside. `price` beats `p`; future you will thank you.
+
+
+    **Maths operators**: `+` add, `-` subtract, `*` multiply, `/` divide.
+
+    Two more are handy for whole numbers: `DIV` divides and drops the remainder
+
+    (`17 DIV 5` is `3`) and `MOD` gives just the remainder (`17 MOD 5` is `2`).'
+- type: quiz
+  question: 'After these lines, what is in `b`?
+
+
+    ```
+
+    a = 3
+
+    b = a
+
+    a = 10
+
+    ```'
+  options:
+  - '3'
+  - '10'
+  - a
+  answer: 0
+  explanation: b = a copies the value that was in a at that moment (3). Changing a later doesn't change
+    b.
+- type: try-it
+  prompt: Swap the values of `a` and `b`, so `a` ends up 2 and `b` ends up 1. You'll need a third variable,
+    `temp`, to hold one value while you move the other. (Don't just type the numbers.)
+  starter: 'a = 1
+
+    b = 2
+
+    # swap them here
+
+    '
+  solution: 'a = 1
+
+    b = 2
+
+    temp = a
+
+    a = b
+
+    b = temp
+
+    '
+  check: 'assert (globals().get("a"), globals().get("b")) == (2, 1), f"a is {globals().get(''a'')} and
+    b is {globals().get(''b'')}"
+
+    assert globals().get("temp") == 1, "Use temp to remember a''s first value: temp = a"
+
+    '
+  hints:
+  - If you do a = b first, a's old value is lost. Save it first.
+  - temp = a, then a = b, then b = temp
+- type: exercise
+  ref: ex01-shopping-total
+- type: exercise
+  ref: ex02-minutes-to-hours
+- type: quiz
+  question: What does `count = count + 1` do?
+  options:
+  - 'Nothing: count can''t equal count + 1'
+  - Adds 1 to the value stored in count
+  - Makes a new variable called count + 1
+  answer: 1
+  explanation: The right side is worked out first using the current value, then the result is stored back.
+    It's the most common line in programming.

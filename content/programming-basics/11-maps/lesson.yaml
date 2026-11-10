@@ -1,0 +1,91 @@
+title: Maps and records
+summary: Look values up by name, and keep related facts together.
+steps:
+- type: explain
+  md: 'A list finds things by **position**. A **map** finds them by **name**, called a
+
+    **key**:
+
+
+    ```
+
+    person = {"name": "Ada", "age": 36}
+
+    OUTPUT person["name"]
+
+    ```
+
+
+    - `person["age"] = 37` changes a value; using a new key adds an entry: `person["city"] = "London"`.
+
+    - `CONTAINS(person, "city")` asks whether a key exists. Asking for a missing key is an error.
+
+    - `KEYS(person)` gives a list of the keys, so `FOR EACH key IN person` loops through them.
+
+
+    Maps are everywhere in programming, under different names: a *dictionary* in Python and C#,
+
+    an *object* or *Map* in JavaScript, a *named list* in R, a `std::map` in C++.'
+- type: example
+  code: "person = {\"name\": \"Ada\", \"age\": 36}\nOUTPUT person[\"name\"], \"is\", person[\"age\"]\n\
+    person[\"age\"] = person[\"age\"] + 1\nperson[\"city\"] = \"London\"\nOUTPUT person\nFOR EACH key\
+    \ IN person DO\n    OUTPUT key, \"->\", person[key]\nEND FOR\n"
+- type: try-it
+  prompt: Add an `"email"` entry to `person`, holding `"ada@example.com"`.
+  starter: 'person = {"name": "Ada", "age": 36}
+
+    '
+  solution: 'person = {"name": "Ada", "age": 36}
+
+    person["email"] = "ada@example.com"
+
+    '
+  check: 'p = globals().get("person") or {}
+
+    assert p.get("email") == "ada@example.com", f"person is {p}"
+
+    assert p.get("name") == "Ada", "Keep the name and age"
+
+    '
+  hints:
+  - Setting a key that doesn't exist yet adds it.
+  - person["email"] = "ada@example.com"
+- type: explain
+  md: "**Records: a list of maps**\n\nPut maps in a list and you have a table, like rows in a spreadsheet.\
+    \ Each map is one\n**record**, and every record has the same keys:\n\n```\nstudents = [\n    {\"name\"\
+    : \"Ada\", \"score\": 95},\n    {\"name\": \"Alan\", \"score\": 58}\n]\n```\n\n(In our pseudocode\
+    \ each list or map goes on one line; real languages let you spread them out.)"
+- type: example
+  code: "students = [{\"name\": \"Ada\", \"score\": 95}, {\"name\": \"Alan\", \"score\": 58}, {\"name\"\
+    : \"Grace\", \"score\": 72}]\nFOR EACH student IN students DO\n    IF student[\"score\"] >= 60 THEN\n\
+    \        OUTPUT student[\"name\"], \"passed\"\n    END IF\nEND FOR\n"
+- type: try-it
+  prompt: 'Count how many times each fruit appears, in the map `counts`. It should end up as `{"apple":
+    2, "pear": 1, "fig": 1}`.'
+  starter: 'fruits = ["apple", "pear", "apple", "fig"]
+
+    counts = {}
+
+    '
+  solution: "fruits = [\"apple\", \"pear\", \"apple\", \"fig\"]\ncounts = {}\nFOR EACH fruit IN fruits\
+    \ DO\n    IF CONTAINS(counts, fruit) THEN\n        counts[fruit] = counts[fruit] + 1\n    ELSE\n \
+    \       counts[fruit] = 1\n    END IF\nEND FOR\n"
+  check: 'got = globals().get("counts")
+
+    assert got == {"apple": 2, "pear": 1, "fig": 1}, f"counts is {got}"
+
+    '
+  hints:
+  - 'For each fruit: if it''s already a key, add 1 to its count; otherwise start it at 1.'
+  - IF CONTAINS(counts, fruit) THEN counts[fruit] = counts[fruit] + 1 ELSE counts[fruit] = 1 END IF
+- type: quiz
+  question: When is a map a better choice than a list?
+  options:
+  - When you look things up by a name, like a phone number by person
+  - When the order of items is all that matters
+  - 'Never: lists can do everything'
+  answer: 0
+- type: exercise
+  ref: ex01-phone-book
+- type: exercise
+  ref: ex02-vote-counter

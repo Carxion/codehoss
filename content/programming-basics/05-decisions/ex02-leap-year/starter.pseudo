@@ -1,0 +1,3 @@
+year = TO_NUMBER(INPUT("Year: "))
+
+# decide, then show "<year> is a leap year" or "<year> is not a leap year"

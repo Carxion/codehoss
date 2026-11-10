@@ -1,0 +1,32 @@
+FUNCTION grade(score)
+    IF score >= 90 THEN
+        RETURN "A"
+    ELSE IF score >= 80 THEN
+        RETURN "B"
+    ELSE IF score >= 70 THEN
+        RETURN "C"
+    ELSE IF score >= 60 THEN
+        RETURN "D"
+    END IF
+    RETURN "F"
+END FUNCTION
+
+count = TO_NUMBER(INPUT("How many students? "))
+students = []
+FOR i FROM 1 TO count DO
+    name = INPUT("Name: ")
+    score = TO_NUMBER(INPUT("Score: "))
+    APPEND(students, {"name": name, "score": score})
+END FOR
+
+total = 0
+top = students[0]
+FOR EACH student IN students DO
+    OUTPUT student["name"] + ": " + grade(student["score"])
+    total = total + student["score"]
+    IF student["score"] > top["score"] THEN
+        top = student
+    END IF
+END FOR
+OUTPUT "Class average:", ROUND(total / count, 1)
+OUTPUT "Top student:", top["name"]

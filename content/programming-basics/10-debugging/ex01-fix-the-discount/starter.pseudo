@@ -1,0 +1,9 @@
+FUNCTION sale_price(price, percent)
+    IF percent > 50 THEN
+        percent = 5
+    END IF
+    discount = price - percent
+    RETURN price - discount
+END FUNCTION
+
+OUTPUT sale_price(80, 25)

@@ -22,6 +22,14 @@ type Feedback =
   | { kind: "results"; passed: boolean; timedOut: boolean; results: TestResult[] };
 
 const PLAYGROUND = "# Your playground: try things out here, then press Run.\n";
+const LANGUAGE_NAMES: Record<string, string> = {
+  python: "Python",
+  pseudo: "Pseudocode",
+  javascript: "JavaScript",
+  r: "R",
+  cpp: "C++",
+  csharp: "C#",
+};
 const BLANK_PROGRESS: StepProgress = { done: false, attempts: 0, hints_used: 0, showed_solution: false };
 
 export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
@@ -67,6 +75,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const progress = (i: number) => lesson?.progress[String(i)] ?? BLANK_PROGRESS;
   const notebook = lesson?.view === "notebook";
   const isLab = lesson?.view === "lab";
+  const pseudo = lesson?.language === "pseudo";
 
   // --- loading -----------------------------------------------------------------
 
@@ -280,7 +289,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           <p className="step-kind">
             Step {index + 1} of {lesson.steps.length} · {lesson.project && step.type === "exercise" ? "Checkpoint" : STEP_LABEL[step.type]}
           </p>
-          <StepContent step={step} notebook={notebook} feedback={feedback[index]} onAnswer={answer} />
+          <StepContent step={step} notebook={notebook} pseudo={pseudo} feedback={feedback[index]} onAnswer={answer} />
 
           {lesson.project && step.type === "exercise" && (
             <div className="level-note small">
@@ -329,6 +338,15 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
               ▶ {notebook ? "Run all" : "Run"}
             </button>
           )}
+          {pseudo && (
+            <button
+              onClick={() => workspace.current?.stepThrough?.()}
+              disabled={!sessionId || running || showingSolution}
+              title="Run it one line at a time and watch every variable change"
+            >
+              👣 Step through
+            </button>
+          )}
           {checkable && (
             <button className="success" onClick={check} disabled={!sessionId || checking || showingSolution}>
               {checking ? "Checking…" : "✓ Check"}
@@ -339,17 +357,24 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
               {hintsShown < hintCount ? `💡 Hint (${hintsShown}/${hintCount})` : "👀 Show me"}
             </button>
           )}
-          {isLab ? (
+          {isLab || pseudo ? (
             <>
-              {step.type === "exercise" && (
+              {pseudo && (
+                <button onClick={resetCode} disabled={showingSolution} title="Go back to the starting code">
+                  ↺ Reset
+                </button>
+              )}
+              {isLab && step.type === "exercise" && (
                 <button onClick={() => resetLab(false)} disabled={!sessionId} title="Put the starter files back">
                   ↺ Reset files
                 </button>
               )}
               <span className="spacer" />
-              <button onClick={() => resetLab(true)} disabled={!sessionId || step.type !== "exercise"} title="Remove your containers, networks, volumes and Kubernetes objects">
-                🧹 Clean up lab
-              </button>
+              {isLab && (
+                <button onClick={() => resetLab(true)} disabled={!sessionId || step.type !== "exercise"} title="Remove your containers, networks, volumes and Kubernetes objects">
+                  🧹 Clean up lab
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -407,6 +432,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             key={notebook ? "notebook" : "editor"}
             ref={workspace}
             sessionId={sessionId}
+            language={lesson.language}
             glossary={glossary}
             onChange={onCodeChange}
             onBusyChange={setRunning}
@@ -496,11 +522,13 @@ const STEP_LABEL: Record<Step["type"], string> = {
 function StepContent({
   step,
   notebook,
+  pseudo,
   feedback,
   onAnswer,
 }: {
   step: Step;
   notebook: boolean;
+  pseudo: boolean;
   feedback: Feedback | undefined;
   onAnswer: (option: number) => void;
 }) {
@@ -516,11 +544,25 @@ function StepContent({
         </>
       );
     case "example":
+      if (step.language) {
+        return (
+          <>
+            {step.md && <Markdown>{step.md}</Markdown>}
+            <div className="foreign-example">
+              <span className="small muted">{LANGUAGE_NAMES[step.language] ?? step.language}</span>
+              <pre>
+                <code>{step.code}</code>
+              </pre>
+            </div>
+          </>
+        );
+      }
       return (
         <>
           {step.md && <Markdown>{step.md}</Markdown>}
           <p className="muted small">
-            The example is in the {where}. {notebook ? "Run each cell" : "Press Run"} to see what it does, then change it and run it again.
+            The example is in the {where}. {notebook ? "Run each cell" : "Press Run"} to see what it does
+            {pseudo ? ", or 👣 Step through it one line at a time" : ""}, then change it and run it again.
           </p>
         </>
       );
@@ -598,7 +640,7 @@ function FeedbackView({ feedback }: { feedback: Feedback }) {
 function defaultCode(step: Step): string | null {
   switch (step.type) {
     case "example":
-      return step.code;
+      return step.language ? null : step.code;
     case "try-it":
       return step.starter;
     case "exercise":

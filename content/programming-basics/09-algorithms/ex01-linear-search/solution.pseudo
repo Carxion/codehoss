@@ -1,0 +1,10 @@
+FUNCTION find(items, target)
+    FOR i FROM 0 TO LENGTH(items) - 1 DO
+        IF items[i] == target THEN
+            RETURN i
+        END IF
+    END FOR
+    RETURN -1
+END FUNCTION
+
+OUTPUT find(["cat", "dog", "fox"], "dog")

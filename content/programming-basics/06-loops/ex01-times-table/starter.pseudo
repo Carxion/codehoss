@@ -1,0 +1,3 @@
+n = TO_NUMBER(INPUT("Which table? "))
+
+# show n x 1 up to n x 10

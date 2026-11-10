@@ -1,0 +1,19 @@
+id: pb.average
+title: Average of three
+difficulty: 2
+prompt: 'Work out the average of three numbers `a`, `b` and `c` (add them up, then
+
+  divide by 3), rounded to 1 decimal place. Store it in `average` and show:
+
+
+  ```
+
+  Average: 8.3
+
+  ```
+
+
+  Watch the order of operations! The tests try other numbers.'
+hints:
+- a + b + c / 3 only divides c. Use brackets.
+- average = ROUND((a + b + c) / 3, 1)

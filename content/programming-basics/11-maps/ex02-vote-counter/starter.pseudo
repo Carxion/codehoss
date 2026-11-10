@@ -1,0 +1,8 @@
+FUNCTION winner(votes)
+    counts = {}
+    # 1. count the votes for each name
+    # 2. find the name with the most votes
+    RETURN votes[0]
+END FUNCTION
+
+OUTPUT winner(["Ada", "Alan", "Ada", "Grace"])

@@ -1,0 +1,4 @@
+secret = RANDOM(1, 100)
+guess = TO_NUMBER(INPUT("Guess: "))
+
+# keep going until the guess is right, saying Too low or Too high

@@ -1,0 +1,4 @@
+phone_book = {"Ada": "555-0101", "Grace": "555-0199", "Alan": "555-0123"}
+name = INPUT("Who? ")
+
+# show the number, or say sorry

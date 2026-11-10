@@ -1,0 +1,23 @@
+id: pb.countdown
+title: Countdown
+difficulty: 1
+prompt: 'Write a program that shows a rocket countdown, one thing per line:
+
+
+  ```
+
+  3
+
+  2
+
+  1
+
+  Lift off!
+
+  ```
+
+  '
+hints:
+- You need four OUTPUT lines.
+- Numbers don't need quotes, text does.
+- OUTPUT 3, then OUTPUT 2, OUTPUT 1, then OUTPUT "Lift off!"

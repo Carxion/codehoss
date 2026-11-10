@@ -1,0 +1,13 @@
+limit = TO_NUMBER(INPUT("How far? "))
+
+FOR i FROM 1 TO limit DO
+    IF i MOD 3 == 0 AND i MOD 5 == 0 THEN
+        OUTPUT "FizzBuzz"
+    ELSE IF i MOD 3 == 0 THEN
+        OUTPUT "Fizz"
+    ELSE IF i MOD 5 == 0 THEN
+        OUTPUT "Buzz"
+    ELSE
+        OUTPUT i
+    END IF
+END FOR

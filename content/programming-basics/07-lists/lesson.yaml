@@ -1,0 +1,106 @@
+title: Lists
+summary: Keep many values in order under one name, and loop through them.
+steps:
+- type: explain
+  md: 'A **list** holds many values, in order, under one name:
+
+
+    ```
+
+    scores = [72, 95, 58]
+
+    ```
+
+
+    Each item has a **position** (also called an *index*), and positions **start at 0**:
+
+    `scores[0]` is `72`, `scores[1]` is `95`, `scores[2]` is `58`.
+
+
+    - `LENGTH(scores)` is how many items there are (3), so the last position is `LENGTH(scores) - 1`.
+
+    - `scores[1] = 100` changes an item.
+
+    - `APPEND(scores, 80)` adds an item to the end.
+
+
+    Other languages call lists *arrays* (JavaScript, C++, C#) or *vectors* (R, which counts
+
+    positions from 1 instead of 0).'
+- type: example
+  code: 'colours = ["red", "green", "blue"]
+
+    OUTPUT colours[0]
+
+    OUTPUT "There are", LENGTH(colours), "colours"
+
+    colours[1] = "yellow"
+
+    APPEND(colours, "purple")
+
+    OUTPUT colours
+
+    '
+  md: Step through and watch the list change in the Variables table.
+- type: try-it
+  prompt: Make `last` hold the last colour in the list. Use `LENGTH`, so it would still work if the list
+    got longer.
+  starter: 'colours = ["red", "green", "blue"]
+
+    last = ""
+
+    '
+  solution: 'colours = ["red", "green", "blue"]
+
+    last = colours[LENGTH(colours) - 1]
+
+    '
+  check: 'assert globals().get("last") == "blue", f"last is {globals().get(''last'')!r}"
+
+    assert "LENGTH" in open("main.pseudo").read(), "Work out the last position with LENGTH(colours) -
+    1"
+
+    '
+  hints:
+  - Positions start at 0, so with 3 items the last one is at position 2.
+  - last = colours[LENGTH(colours) - 1]
+- type: explain
+  md: "**Looping through a list**\n\n`FOR EACH` gives you every item in turn:\n\n```\nFOR EACH score IN\
+    \ scores DO\n    OUTPUT score\nEND FOR\n```\n\nWhen you need the **position** too, count with FOR\
+    \ instead:\n\n```\nFOR i FROM 0 TO LENGTH(scores) - 1 DO\n    OUTPUT \"Position\", i, \"holds\", scores[i]\n\
+    END FOR\n```"
+- type: try-it
+  prompt: Count how many scores are 50 or more and store the count in `passed` (it should be 3).
+  starter: 'scores = [72, 45, 95, 58, 31]
+
+    passed = 0
+
+    '
+  solution: "scores = [72, 45, 95, 58, 31]\npassed = 0\nFOR EACH score IN scores DO\n    IF score >= 50\
+    \ THEN\n        passed = passed + 1\n    END IF\nEND FOR\n"
+  check: 'assert globals().get("passed") == 3, f"passed is {globals().get(''passed'')}, but 72, 95 and
+    58 passed"
+
+    from dojo_checks import uses_keyword
+
+    assert uses_keyword("FOR"), "Loop through the scores with FOR EACH"
+
+    '
+  hints:
+  - Loop through the scores and use a counter.
+  - FOR EACH score IN scores DO, then IF score >= 50 THEN passed = passed + 1 END IF, then END FOR
+- type: example
+  code: "squares = []\nFOR n FROM 1 TO 5 DO\n    APPEND(squares, n * n)\nEND FOR\nOUTPUT squares\n"
+  md: 'Building a list: start empty, then APPEND inside a loop.'
+- type: quiz
+  question: A list has 5 items. What are its positions?
+  options:
+  - 1 to 5
+  - 0 to 4
+  - 0 to 5
+  answer: 1
+  explanation: Positions start at 0, so the last one is LENGTH - 1 = 4. Asking for position 5 is an error.
+- type: exercise
+  ref: ex01-shopping-list
+- type: exercise
+  ref: ex02-warm-days

@@ -1,0 +1,48 @@
+id: pb.grade-book
+title: 'Final project: grade book'
+difficulty: 3
+prompt: 'Put everything together. The starter already reads the students into a list of
+
+  records. Finish the program so it shows each student''s grade, the class average (rounded to
+
+  1 decimal place) and the top student:
+
+
+  ```
+
+  How many students? 3
+
+  Name: Ada
+
+  Score: 95
+
+  Name: Grace
+
+  Score: 72
+
+  Name: Alan
+
+  Score: 58
+
+  Ada: A
+
+  Grace: C
+
+  Alan: F
+
+  Class average: 75
+
+  Top student: Ada
+
+  ```
+
+
+  Grades: 90+ A, 80+ B, 70+ C, 60+ D, otherwise F. On a tie for top student, the one entered
+
+  first wins. Plan it first: which patterns do you need?'
+hints:
+- 'Finish grade(score) first: it''s the grade calculator from lesson 5, but with RETURN.'
+- 'One FOR EACH over students can do three jobs: show the grade line, add to a total, and track the best
+  so far.'
+- 'Start with total = 0 and top = students[0]; inside: IF student["score"] > top["score"] THEN top = student'
+- 'At the end: OUTPUT "Class average:", ROUND(total / count, 1) and OUTPUT "Top student:", top["name"]'

@@ -1,0 +1,27 @@
+id: pb.fix-the-order
+title: Fix the order
+difficulty: 1
+prompt: 'This program is meant to explain how to make a cup of tea, but its
+
+  instructions are jumbled. Put the lines in a sensible order so it shows:
+
+
+  ```
+
+  1. Boil the water
+
+  2. Put a tea bag in the cup
+
+  3. Pour the water into the cup
+
+  4. Wait 3 minutes
+
+  5. Take out the tea bag
+
+  ```
+
+
+  Don''t change the text: only move whole lines.'
+hints:
+- 'Read the numbers at the start of each line: they tell you where it goes.'
+- You can cut a line (Ctrl+X) and paste it (Ctrl+V) somewhere else.

@@ -132,7 +132,10 @@ def _check_execution(content: Content, executors: dict[str, Executor] | None) ->
             for i, step in enumerate(lesson.spec.steps):
                 if isinstance(step, TryItStep):
                     where = f"{module.spec.id}/{lesson.slug}/lesson.yaml [steps.{i}]"
-                    jobs.append(lambda s=step, w=where, x=executor: _run_try_it(s, w, x))
+                    language = module.spec.language
+                    jobs.append(
+                        lambda s=step, w=where, x=executor, la=language: _run_try_it(s, w, x, la)
+                    )
             for ex in lesson.exercises.values():
                 if all(p.exists() for p in ex.required_files) and not ex.is_lab:
                     jobs.append(lambda e=ex, x=executor: _run_exercise(e, x))
@@ -150,12 +153,14 @@ def _check_execution(content: Content, executors: dict[str, Executor] | None) ->
         return [problem for result in pool.map(lambda job: job(), jobs) for problem in result]
 
 
-def _run_try_it(step: TryItStep, where: str, executor: Executor) -> list[Problem]:
+def _run_try_it(
+    step: TryItStep, where: str, executor: Executor, language: str = "python"
+) -> list[Problem]:
     problems = []
-    solved = run_snippet(step.solution, step.check, executor=executor)
+    solved = run_snippet(step.solution, step.check, executor=executor, language=language)
     if not solved.passed:
         problems.append(Problem("error", where, f"solution fails its check: {solved.message}"))
-    if run_snippet(step.starter, step.check, executor=executor).passed:
+    if run_snippet(step.starter, step.check, executor=executor, language=language).passed:
         problems.append(Problem("error", where, "starter already passes the check"))
     return problems
 
