@@ -28,8 +28,9 @@ test:
 # Sandbox + API tests need a Docker daemon; the plain `test` job skips them.
 test-sandbox:
   stage: test
-  image: docker:27
-  services: [docker:27-dind]
+  image: docker:29
+  # Privileged runner: lab modules start their own docker:dind inside this one.
+  services: [docker:29-dind]
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
@@ -40,7 +41,7 @@ test-sandbox:
   script:
     - uv run dojo build-images
     - uv run pytest -m docker
-    - uv run dojo validate --sandbox   # Data Science content only runs in its sandbox
+    - uv run dojo validate --sandbox   # Data Science and lab content only run in sandboxes
 
 web:
   stage: test

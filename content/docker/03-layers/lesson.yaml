@@ -1,0 +1,61 @@
+title: Layers and the build cache
+summary: Order a Dockerfile so rebuilds take seconds, and keep junk out of images.
+steps:
+- type: explain
+  md: 'Every instruction in a Dockerfile makes a **layer**. Docker caches layers: when you
+
+    rebuild, it reuses each one until it reaches an instruction whose inputs changed, and rebuilds
+
+    **everything after that**.
+
+
+    So order matters. Put things that rarely change (installing dependencies) **before** things
+
+    that change all the time (your code):
+
+
+    ```dockerfile
+
+    COPY requirements.txt .
+
+    RUN pip install -r requirements.txt    # cached until requirements.txt changes
+
+    COPY . .                               # your code: changes every build
+
+    ```
+
+
+    Watch it happen: `docker build --progress=plain -t x .` prints `CACHED` for reused steps.
+
+    `docker history IMAGE` lists the layers and their sizes.'
+- type: exercise
+  ref: ex01-cache-order
+- type: explain
+  md: '`COPY . .` copies **everything** in the build context: secrets, logs, caches.
+
+    A `.dockerignore` file lists what to leave out, using the same patterns as `.gitignore`:
+
+
+    ```
+
+    *.log
+
+    .env
+
+    __pycache__/
+
+    ```
+
+
+    Smaller context, smaller images, faster builds, and no leaked passwords.'
+- type: exercise
+  ref: ex02-dockerignore
+- type: quiz
+  question: You change one line of app.py. Which layers rebuild?
+  options:
+  - Only the layer that copies app.py
+  - The layer that copies app.py and every layer after it
+  - All of them
+  answer: 1
+  explanation: The cache breaks at the first changed step; everything after it rebuilds, because it might
+    depend on that change.

@@ -1,0 +1,43 @@
+title: 'Volumes: data that survives'
+summary: Containers are disposable; volumes keep the data.
+steps:
+- type: explain
+  md: 'Anything a container writes to its own filesystem **disappears when the container is
+
+    removed**. That''s great for apps and terrible for databases.
+
+
+    A **volume** is storage managed by Docker that lives on after containers are gone. Mount it with `-v`:
+
+
+    ```bash
+
+    docker volume create counts
+
+    docker run --rm -v counts:/data myimage    # /data inside the container is the volume
+
+    docker volume ls
+
+    docker run --rm -v counts:/data alpine:3.22 ls /data   # any container can mount it
+
+    ```
+
+
+    (You may also see `-v /host/path:/container/path` **bind mounts**, which share a folder from the
+
+    host. In this lab the Docker engine runs on a separate machine called `docker`, so host folders
+
+    from your terminal aren''t visible to it: stick to volumes here.)'
+- type: exercise
+  ref: ex01-counter
+- type: exercise
+  ref: ex02-shared
+- type: quiz
+  question: You `docker rm` a container that had a volume mounted. What happens to the volume's data?
+  options:
+  - It's deleted with the container
+  - It stays until you remove the volume
+  - It moves into the image
+  answer: 1
+  explanation: 'Volumes have their own lifecycle: docker volume rm (or prune) deletes them, not removing
+    a container.'

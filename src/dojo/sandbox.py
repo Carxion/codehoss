@@ -5,6 +5,7 @@ no network, a read-only root filesystem, a small writable tmpfs workspace, a
 non-root user with no capabilities, and CPU / memory / process limits.
 Code runs inside it via `docker exec` (see dojo.executors.DockerSession).
 The language server (dojo.lsp) gets its own container with the same lockdown.
+Lab modules add a private Docker engine on an internal network (see dojo.lab).
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from dojo import lab
 from dojo.executors import DockerSession
 from dojo.registry import Content
 
@@ -44,6 +46,9 @@ class Limits:
     workspace: str = "64m"
 
 
+LAB_WORKSPACE = "256m"
+
+
 DEFAULT_LIMITS = Limits()
 
 
@@ -54,15 +59,16 @@ class Session:
     owner: int | None
     container: str
     executor: DockerSession
+    lab: bool = False
     created: float = field(default_factory=time.monotonic)
     last_used: float = field(default_factory=time.monotonic)
 
 
-def lockdown_flags(limits: Limits) -> list[str]:
+def lockdown_flags(limits: Limits, network: str = "none") -> list[str]:
     """`docker run` flags shared by every sandbox container."""
     return [
         "--init",
-        "--network", "none",
+        "--network", network,
         "--read-only",
         "--tmpfs", f"/work:rw,size={limits.workspace},uid=1000,gid=1000,mode=0700",
         "--tmpfs", "/tmp:rw,size=32m,uid=1000,gid=1000,mode=0700",
@@ -99,7 +105,30 @@ def image_specs(content: Content) -> dict[str, list[str]]:
 DOJO_AI_SOURCE = Path(__file__).parent / "_dojo_ai.py"
 
 
-def dockerfile(packages: list[str]) -> str:
+def lab_images(content: Content) -> dict[str, list[str]]:
+    """Session image -> base images its lab modules preload (only images with labs)."""
+    labs: dict[str, list[str]] = {}
+    for module in content.modules.values():
+        sandbox = module.spec.sandbox
+        if sandbox.lab:
+            images = labs.setdefault(sandbox.image, [])
+            images += [i for i in sandbox.lab_images if i not in images]
+    return labs
+
+
+# Lab sessions drive the lab's engine with the Docker CLI (and compose/buildx plugins)
+# copied from the official image; curl is for poking at the learner's web apps.
+LAB_TOOLS = (
+    f"COPY --from={lab.CLI_IMAGE} /usr/local/bin/docker /usr/local/bin/docker\n"
+    f"COPY --from={lab.CLI_IMAGE} /usr/local/libexec/docker/cli-plugins"
+    " /usr/local/libexec/docker/cli-plugins\n"
+    "RUN apt-get update && apt-get install -y --no-install-recommends curl procps "
+    "&& rm -rf /var/lib/apt/lists/*\n"
+    f"ENV DOCKER_HOST={lab.ENGINE_HOST}\n"
+)
+
+
+def dockerfile(packages: list[str], *, with_lab: bool = False) -> str:
     quoted = " ".join(f"'{p}'" for p in packages)
     # dojo_ai is installed into site-packages so imports, IntelliSense and hover docs
     # all work. Inlined as base64 because images build without a context directory.
@@ -113,7 +142,8 @@ def dockerfile(packages: list[str]) -> str:
         f"FROM {BASE_IMAGE}\n"
         f"RUN pip install --no-cache-dir {quoted}\n"
         f'RUN python -c "{install_dojo_ai}"\n'
-        "RUN useradd --uid 1000 --create-home learner\n"
+        + (LAB_TOOLS if with_lab else "")
+        + "RUN useradd --uid 1000 --create-home learner\n"
         # Agg: charts render to images; there is no display in a sandbox.
         "ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUTF8=1 HOME=/tmp MPLBACKEND=Agg\n"
         # One thread each: BLAS thread pools would count against the pids limit.
@@ -123,7 +153,13 @@ def dockerfile(packages: list[str]) -> str:
     )
 
 
-def build_image(image: str, packages: list[str], on_output: Callable[[str], None] = print) -> None:
+def build_image(
+    image: str,
+    packages: list[str],
+    on_output: Callable[[str], None] = print,
+    *,
+    with_lab: bool = False,
+) -> None:
     proc = subprocess.Popen(
         ["docker", "build", "--progress=plain", "-t", image, "-"],
         stdin=subprocess.PIPE,
@@ -134,7 +170,7 @@ def build_image(image: str, packages: list[str], on_output: Callable[[str], None
         errors="replace",
     )
     assert proc.stdin and proc.stdout
-    proc.stdin.write(dockerfile(packages))
+    proc.stdin.write(dockerfile(packages, with_lab=with_lab))
     proc.stdin.close()
     for line in proc.stdout:
         on_output(line.rstrip())
@@ -199,24 +235,43 @@ class SessionManager:
         # The module decides how much memory its sessions need (pandas needs far more
         # than print statements).
         limits = dataclasses.replace(self.limits, memory=sandbox.memory)
+        labels = ["--label", f"{LABEL}={session_id}", "--label", f"dojo.module={module_id}"]
+        network = "none"
+        if sandbox.lab:
+            limits = dataclasses.replace(limits, workspace=LAB_WORKSPACE)
+            try:
+                network = lab.start_engine(container, labels)
+            except lab.LabError as e:
+                lab.stop_engine(container)
+                raise SandboxError(str(e)) from None
         mounts = []
         if module.data_dir is not None:
             mounts = ["--mount", f"type=bind,source={module.data_dir},target=/data,readonly"]
         cmd = [
             "docker", "run", "--detach",
             "--name", container,
-            "--label", f"{LABEL}={session_id}",
-            "--label", f"dojo.module={module_id}",
-            *lockdown_flags(limits),
+            *labels,
+            *lockdown_flags(limits, network),
             *mounts,
             sandbox.image,
             "sleep", "infinity",
         ]  # fmt: skip
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
+            if sandbox.lab:
+                lab.stop_engine(container)
             raise SandboxError(f"could not start sandbox: {proc.stderr.strip()}")
+        if sandbox.lab:
+            try:
+                lab.wait_and_preload(container, sandbox.lab_images)
+            except lab.LabError as e:
+                subprocess.run(["docker", "rm", "--force", container], capture_output=True)
+                lab.stop_engine(container)
+                raise SandboxError(str(e)) from None
 
-        session = Session(session_id, module_id, owner, container, DockerSession(container))
+        session = Session(
+            session_id, module_id, owner, container, DockerSession(container), lab=bool(sandbox.lab)
+        )
         with self._lock:
             self._sessions[session_id] = session
         return session
@@ -244,6 +299,8 @@ class SessionManager:
             session = self._sessions.pop(session_id, None)
         if session is not None:
             subprocess.run(["docker", "rm", "--force", session.container], capture_output=True)
+            if session.lab:
+                lab.stop_engine(session.container)
 
     def reap_idle(self) -> list[str]:
         cutoff = time.monotonic() - self.idle_timeout_s
@@ -269,5 +326,13 @@ class SessionManager:
         )
         ids = proc.stdout.split()
         if ids:
-            subprocess.run(["docker", "rm", "--force", *ids], capture_output=True)
+            # --volumes: lab engines keep their images in an anonymous volume.
+            subprocess.run(["docker", "rm", "--force", "--volumes", *ids], capture_output=True)
+        networks = subprocess.run(
+            ["docker", "network", "ls", "--quiet", "--filter", f"label={LABEL}"],
+            capture_output=True,
+            text=True,
+        ).stdout.split()
+        if networks:
+            subprocess.run(["docker", "network", "rm", *networks], capture_output=True)
         return len(ids)

@@ -1,0 +1,23 @@
+id: docker.shared
+title: Two containers, one volume
+difficulty: 3
+prompt: 'Volumes can be shared. Start a background container named **`writer`** from `alpine:3.22`
+
+  that writes the time into `/shared/now.txt` every second, using a volume called **`shared`**
+
+  mounted at `/shared`:
+
+
+  ```bash
+
+  sh -c ''while true; do date > /shared/now.txt; sleep 1; done''
+
+  ```
+
+
+  Then read the file from a **different** container that mounts the same volume.'
+hints:
+- docker run -d --name writer -v shared:/shared alpine:3.22 sh -c '...'
+- Docker creates the volume automatically the first time you mount it by name.
+- 'Read it: docker run --rm -v shared:/shared alpine:3.22 cat /shared/now.txt'
+time_limit_s: 60

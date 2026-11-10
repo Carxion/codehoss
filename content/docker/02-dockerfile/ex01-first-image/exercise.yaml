@@ -1,0 +1,21 @@
+id: docker.first-image
+title: Your first image
+difficulty: 2
+prompt: '`app.py` prints a greeting. Finish the **Dockerfile** so the image runs it with Python,
+
+  then build it as **`greeter:1`**:
+
+
+  ```bash
+
+  docker build -t greeter:1 .
+
+  docker run --rm greeter:1
+
+  ```'
+hints:
+- FROM python:3.12-alpine gives you Python. WORKDIR /app picks a folder inside the image.
+- COPY app.py . copies the file in; CMD says what to run.
+- FROM python:3.12-alpine / WORKDIR /app / COPY app.py . / CMD ["python", "app.py"], then docker build
+  -t greeter:1 .
+time_limit_s: 60

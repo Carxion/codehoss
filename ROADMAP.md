@@ -216,7 +216,31 @@ Original plan:
 
 **Exit:** DSA module with a showcase for every core algorithm and speed-graded exercises.
 
-## M7 — Infrastructure modules (Docker, Kubernetes, MLOps)
+## M7 — Infrastructure modules (Docker, Kubernetes, MLOps) — in progress
+Part 1 ✅ (2026-11-09): the **lab capability** and the **Docker** module, lessons 1–6.
+A lab session is the usual locked-down session container plus a private `docker:dind`
+engine on an internal network with no internet; base images are copied in at start
+(about 20 s). The browser gets a lab view: the exercise's files (tabs, autosave) above a
+real bash terminal (xterm.js over a WebSocket, a PTY in the session). Lab exercises have
+`files/`, `solution/` and `solution.sh`; checks inspect real state (`dojo_checks`: files,
+images, containers, volumes, HTTP via `http://docker:PORT`). The validator runs each
+starter (must fail) and solution.sh + solution (must pass) against a reset engine.
+Docker lessons: containers, Dockerfiles, layers/cache and `.dockerignore`, ports and env
+config, volumes, Compose (12 exercises). Verified with an 11-step browser walkthrough.
+
+Next: Docker 7–12 (multi-stage builds, networks, healthchecks, non-root images, a local
+registry, debugging), then Kubernetes (a k3s sidecar per lab) and the MLOps capstone.
+
+Changed from the plan:
+- Rootful `docker:dind` (it needs `--privileged`; set `DOJO_LAB_RUNTIME=sysbox-runc` to run
+  it unprivileged where sysbox is installed). Rootless dind still needs privileges on
+  Docker Desktop, so it buys little here.
+- Moving session orchestration onto Kubernetes is deferred to "Later": it's an operations
+  change with no learner-visible benefit, and Docker Desktop runs everything fine today.
+- Bind mounts aren't taught hands-on: the engine runs beside the session, so the learner's
+  folders aren't on its filesystem (the lesson explains why; volumes are used instead).
+
+Original plan:
 - Lab capability: per-learner rootless Docker-in-Docker and `kind` cluster / k8s namespace
 - Lab graders inspect real state (`kubectl get`, image layers, HTTP checks)
 - MLOps capstone: deploy a Projects-module model to Kubernetes with a GitLab CI pipeline

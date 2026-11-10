@@ -1,0 +1,5 @@
+services:
+  api:
+    # build it from ./api
+  web:
+    # build it from ./web, publish 8090:8000, and set API_URL

@@ -134,3 +134,103 @@ def assert_fast(fn, *args, budget=1.0, size="this input", hint="", **kwargs):
     if time.perf_counter() - started > budget:
         raise AssertionError(message)
     return result
+
+
+# --- labs ---------------------------------------------------------------------------
+# Lab checks look at real state: files in the exercise folder, the lab's Docker
+# engine, and web apps the learner started. Failures should say what to do next.
+
+
+def lab_dir():
+    import os
+    from pathlib import Path
+
+    return Path(os.environ.get("LAB_DIR", "."))
+
+
+def lab_file(name):
+    """Text of a file in the exercise folder, failing helpfully if it's missing."""
+    path = lab_dir() / name
+    assert path.is_file(), f"There's no {name} in {lab_dir()} yet. Create it in the editor."
+    return path.read_text()
+
+
+def sh(command, *, timeout=60, check=False):
+    """Run a shell command in the exercise folder; returns the CompletedProcess."""
+    import subprocess
+
+    proc = subprocess.run(
+        command, shell=True, cwd=lab_dir(), capture_output=True, text=True, timeout=timeout
+    )
+    if check:
+        assert proc.returncode == 0, f"`{command}` failed:\n{(proc.stderr or proc.stdout).strip()}"
+    return proc
+
+
+def docker(*args, timeout=60):
+    """Run a docker command against the lab engine; returns its stdout (stripped).
+    Raises AssertionError with docker's message if it fails."""
+    import shlex
+
+    proc = sh("docker " + " ".join(shlex.quote(str(a)) for a in args), timeout=timeout)
+    assert proc.returncode == 0, (proc.stderr or proc.stdout).strip()
+    return proc.stdout.strip()
+
+
+def image_exists(name):
+    return sh(f"docker image inspect {name}").returncode == 0
+
+
+def assert_image(name):
+    """The image exists, or fail with the build command to try."""
+    assert image_exists(name), (
+        f"No image called {name} yet. Build it in the terminal: docker build -t {name} ."
+    )
+    import json
+
+    return json.loads(docker("image", "inspect", name))[0]
+
+
+def containers(*filters, all=False):
+    """Container info dicts (docker ps --format json), optionally filtered."""
+    import json
+
+    args = ["ps", "--no-trunc", "--format", "{{json .}}"]
+    if all:
+        args.append("--all")
+    for f in filters:
+        args += ["--filter", f]
+    return [json.loads(line) for line in docker(*args).splitlines() if line]
+
+
+def inspect_container(name):
+    import json
+
+    proc = sh(f"docker container inspect {name}")
+    assert proc.returncode == 0, (
+        f"There's no container called {name}. Did you start it with --name {name}?"
+    )
+    return json.loads(proc.stdout)[0]
+
+
+def http_get(url, *, timeout=10, wait=0):
+    """GET a URL and return (status, body). Retries for up to `wait` seconds while
+    the app is starting. Apps published with -p are on the lab engine: http://docker:PORT."""
+    import time
+    import urllib.error
+    import urllib.request
+
+    deadline = time.monotonic() + wait
+    while True:
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as response:
+                return response.status, response.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as e:
+            return e.code, e.read().decode("utf-8", errors="replace")
+        except OSError as e:
+            if time.monotonic() >= deadline:
+                raise AssertionError(
+                    f"Nothing answered at {url} ({e}). Is the container running, "
+                    "with its port published (-p HOST:CONTAINER)?"
+                ) from None
+            time.sleep(0.5)

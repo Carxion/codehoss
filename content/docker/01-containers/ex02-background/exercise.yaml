@@ -1,0 +1,23 @@
+id: docker.background
+title: Containers in the background
+difficulty: 1
+prompt: 'Start a **background** container named `ticker` from `alpine:3.22` that prints the
+
+  time every second, forever:
+
+
+  ```bash
+
+  sh -c ''while true; do date; sleep 1; done''
+
+  ```
+
+
+  Leave it **running**. Check on it with `docker logs ticker` (add `-f` to follow, Ctrl-C to stop
+
+  following).'
+hints:
+- Background means -d. Name it with --name ticker.
+- The command goes after the image name, in single quotes so the shell inside the container runs the loop.
+- docker run -d --name ticker alpine:3.22 sh -c 'while true; do date; sleep 1; done'
+time_limit_s: 60

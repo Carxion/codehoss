@@ -1,0 +1,15 @@
+id: docker.first-container
+title: Hello from a container
+difficulty: 1
+prompt: 'Run a container **named `hello`** from the `alpine:3.22` image that prints
+
+  exactly `Hello from a container`.
+
+
+  Type commands in the **terminal** below the editor. Files you edit are saved to this exercise''s folder,
+  which is where the terminal starts. Made a mistake? Remove it with `docker rm hello` and try again.'
+hints:
+- The pattern is docker run --name NAME IMAGE COMMAND...
+- echo prints its arguments. Quote the message so it stays one argument.
+- docker run --name hello alpine:3.22 echo "Hello from a container"
+time_limit_s: 60

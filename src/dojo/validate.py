@@ -11,8 +11,9 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from importlib import metadata
 
-from dojo.executors import Executor
-from dojo.grader import LOCAL, grade, run_snippet
+from dojo import lab
+from dojo.executors import DockerSession, Executor
+from dojo.grader import LOCAL, grade, grade_lab, run_snippet
 from dojo.models import ExerciseStep, TryItStep
 from dojo.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, Problem
 
@@ -97,7 +98,7 @@ def _check_duplicate_ids(content: Content) -> list[Problem]:
 def _runs_locally(module: LoadedModule) -> bool:
     """Can this module's code run outside its sandbox? Not if it needs /data or packages
     that aren't installed here."""
-    if module.spec.sandbox.data:
+    if module.spec.sandbox.data or module.spec.sandbox.lab:
         return False
     for package in module.spec.sandbox.packages:
         try:
@@ -133,8 +134,16 @@ def _check_execution(content: Content, executors: dict[str, Executor] | None) ->
                     where = f"{module.spec.id}/{lesson.slug}/lesson.yaml [steps.{i}]"
                     jobs.append(lambda s=step, w=where, x=executor: _run_try_it(s, w, x))
             for ex in lesson.exercises.values():
-                if all(p.exists() for p in ex.required_files):
+                if all(p.exists() for p in ex.required_files) and not ex.is_lab:
                     jobs.append(lambda e=ex, x=executor: _run_exercise(e, x))
+        # Lab exercises share the session's Docker engine, so they run one at a time.
+        labs = [
+            ex
+            for ex in module.exercises()
+            if ex.is_lab and all(p.exists() for p in ex.required_files)
+        ]
+        if labs and isinstance(executor, DockerSession):
+            jobs.append(lambda exs=labs, x=executor: _run_labs(exs, x))
 
     workers = SANDBOX_WORKERS if executors else (os.cpu_count() or 4)
     with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -166,6 +175,34 @@ def _run_exercise(ex: LoadedExercise, executor: Executor) -> list[Problem]:
             problems.append(
                 Problem("error", _where(ex), f"{starter.name} already passes all tests")
             )
+    return problems
+
+
+def _run_labs(exercises: list[LoadedExercise], executor: DockerSession) -> list[Problem]:
+    problems = []
+    container = executor.container
+    for ex in exercises:
+        target = lab.lab_dir(ex)
+        lab.reset_engine(container)
+        lab.seed(container, ex, force=True)
+        if grade_lab(ex, target, executor=executor).passed:
+            problems.append(Problem("error", _where(ex), "starter files already pass all tests"))
+
+        lab.reset_engine(container)
+        lab.seed(container, ex, solution=True, force=True)
+        ran = lab.run_solution(container, ex)
+        if ran.returncode != 0:
+            detail = (ran.stderr or ran.stdout).strip()[-300:]
+            problems.append(Problem("error", _where(ex), f"solution.sh failed: {detail}"))
+            continue
+        solved = grade_lab(ex, target, executor=executor)
+        if solved.timed_out:
+            problems.append(Problem("error", _where(ex), "reference solution timed out"))
+        elif not solved.passed:
+            failing = [f"{r.name}: {r.message}" for r in solved.results if r.outcome != "passed"]
+            detail = "; ".join(failing) or solved.output.strip()[-300:]
+            problems.append(Problem("error", _where(ex), f"reference solution fails: {detail}"))
+    lab.reset_engine(container)
     return problems
 
 

@@ -33,6 +33,12 @@ class LoadedExercise:
     spec: Exercise
 
     @property
+    def is_lab(self) -> bool:
+        """Lab exercises have starter files/, a solution/ folder and solution.sh (the
+        commands that reach the solved state) instead of starter.py and solution.py."""
+        return (self.dir / "files").is_dir()
+
+    @property
     def starter_path(self) -> Path:
         return self.dir / "starter.py"
 
@@ -67,6 +73,13 @@ class LoadedExercise:
 
     @property
     def required_files(self) -> list[Path]:
+        if self.is_lab:
+            return [
+                self.dir / "solution",
+                self.dir / "solution.sh",
+                self.visible_tests,
+                self.hidden_tests,
+            ]
         return [self.starter_path, self.solution_path, self.visible_tests, self.hidden_tests]
 
 

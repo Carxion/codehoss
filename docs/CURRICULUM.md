@@ -9,9 +9,8 @@ drives IntelliSense and the Library Explorer.
 Python Basics ──► Data Science ──► AI
       │                │            │
       ├────────────────┴────────────┴──► Projects (build plans)
-      └──► Data Structures & Algorithms
-
-Later: Docker · Kubernetes · MLOps
+      ├──► Data Structures & Algorithms
+      └──► Docker (lab) ──► Kubernetes ──► MLOps   (Kubernetes, MLOps: coming in M7)
 ```
 
 ## Starter modules
@@ -139,11 +138,26 @@ Audience: finished Python Basics. Image: `dojo-python`. Lessons start with **sho
 | 11 | Shortest paths | Dijkstra | distances, cheapest route |
 | 12 | Dynamic programming | coin-change table | fewest coins, ways to make change |
 
+### 6. Docker — `docker` (lab)
+Audience: finished Python Basics. Image: `dojo-lab` plus a private Docker engine per learner.
+Every exercise is done in a real terminal and checked against real state.
+
+| # | Lesson | Exercises |
+|---|---|---|
+| 1 | Your first containers | hello from a container, containers in the background |
+| 2 | Build your own image | first Dockerfile, ENTRYPOINT and CMD |
+| 3 | Layers and the build cache | cache-friendly order, keep secrets out (`.dockerignore`) |
+| 4 | Ports and configuration | publish a web app, configure with environment variables |
+| 5 | Volumes | a counter that remembers, two containers sharing a volume |
+| 6 | Docker Compose | web + API with Compose |
+
+Coming next: multi-stage builds, networks, healthchecks, non-root images, a local
+registry, debugging.
+
 ## Later modules
 
 | Module | Highlights | Needs |
 |---|---|---|
-| Docker | images, Dockerfiles, compose, multi-stage builds | lab capability (M7) |
 | Kubernetes | pods, deployments, services, config, probes, Helm | lab capability (M7) |
 | MLOps | serve a model, containerize, deploy to k8s, GitLab CI, monitoring | lab capability (M7) |
 

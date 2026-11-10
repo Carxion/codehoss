@@ -1,0 +1,64 @@
+title: Build your own image
+summary: Write a Dockerfile, build it, run it.
+steps:
+- type: explain
+  md: 'An image is built from a **Dockerfile**: a recipe, one instruction per line.
+
+
+    ```dockerfile
+
+    FROM python:3.12-alpine      # start from an existing image
+
+    WORKDIR /app                 # cd into /app (created if missing)
+
+    COPY app.py .                # copy a file from your folder into the image
+
+    CMD ["python", "app.py"]     # what runs when a container starts
+
+    ```
+
+
+    Build it with a **tag** (a name), then run it:
+
+
+    ```bash
+
+    docker build -t greeter:1 .   # . = use this folder as the build context
+
+    docker run --rm greeter:1     # --rm deletes the container when it exits
+
+    ```
+
+
+    The **build context** is the folder you send to Docker; `COPY` can only see files inside it.'
+- type: exercise
+  ref: ex01-first-image
+- type: explain
+  md: '`CMD` is only a **default**: anything after the image name replaces it.
+
+    `ENTRYPOINT` is the part that always runs; `CMD` then supplies default **arguments** to it:
+
+
+    ```dockerfile
+
+    ENTRYPOINT ["python", "greet.py"]
+
+    CMD ["world"]
+
+    ```
+
+
+    `docker run greet:2` runs `python greet.py world`; `docker run greet:2 Ada` runs `python greet.py
+    Ada`.'
+- type: exercise
+  ref: ex02-entrypoint
+- type: quiz
+  question: Your Dockerfile has `CMD ["python", "app.py"]`. What runs with `docker run myimage python
+    --version`?
+  options:
+  - python app.py
+  - python --version
+  - python app.py python --version
+  answer: 1
+  explanation: Arguments after the image replace CMD entirely. Only ENTRYPOINT survives (and gets the
+    arguments appended).

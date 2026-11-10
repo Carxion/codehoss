@@ -1,0 +1,56 @@
+title: Ports and configuration
+summary: Run a web app in a container, reach it from outside, and configure it with environment variables.
+steps:
+- type: explain
+  md: 'A container has its own network. A web server listening on port 8000 **inside**
+
+    it can''t be reached from outside until you **publish** the port:
+
+
+    ```bash
+
+    docker run -d --name web -p 8080:8000 myimage
+
+    #                          host:container
+
+    ```
+
+
+    Now requests to port 8080 on the Docker host go to port 8000 in the container. In this lab the
+
+    Docker host is called `docker`, so try `curl http://docker:8080`.
+
+
+    `EXPOSE 8000` in a Dockerfile documents which port the app uses (it doesn''t publish anything
+
+    by itself).'
+- type: exercise
+  ref: ex01-publish
+- type: explain
+  md: 'Good images are **configurable without rebuilding**. Apps read settings from
+
+    environment variables; set defaults with `ENV` in the Dockerfile and override them with `-e`:
+
+
+    ```dockerfile
+
+    ENV PORT=8000
+
+    ```
+
+    ```bash
+
+    docker run -d -e GREETING=Hola -p 8081:8000 myimage
+
+    ```'
+- type: exercise
+  ref: ex02-env
+- type: quiz
+  question: '`docker run -p 9000:80 nginx`: where do you point your browser?'
+  options:
+  - Port 80 on the host
+  - Port 9000 on the host
+  - Port 9000 inside the container
+  answer: 1
+  explanation: 'The left side is the host port, the right side the container port: host 9000 forwards
+    to container 80.'

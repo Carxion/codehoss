@@ -1,0 +1,22 @@
+id: docker.dockerignore
+title: Keep secrets out
+difficulty: 2
+prompt: 'This folder has a `.env` file with a password and a `logs/` folder. The Dockerfile uses
+
+  `COPY . .`, so both end up **inside the image**, where anyone who pulls it can read them.
+
+
+  Create a **`.dockerignore`** that leaves out `.env` and `logs/`, then build **`site:1`**.
+
+  Check with `docker run --rm site:1 ls -a`.'
+hints:
+- Create a new file called .dockerignore in the editor (the + button).
+- 'One pattern per line: .env on one line, logs on another.'
+- '.dockerignore containing:
+
+  .env
+
+  logs
+
+  then docker build -t site:1 .'
+time_limit_s: 60

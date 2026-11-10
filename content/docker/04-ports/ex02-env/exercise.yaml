@@ -1,0 +1,21 @@
+id: docker.env
+title: Configure with environment variables
+difficulty: 2
+prompt: 'The same `server.py` reads `GREETING` and `PORT` from the environment. In the Dockerfile,
+
+  set a default with **`ENV PORT=8000`**. Build **`greeter-web:1`**, then run **two** containers from
+  it:
+
+
+  - `hello` on host port **8081**, with the default greeting
+
+  - `hola` on host port **8082**, with `GREETING=Hola`
+
+
+  Same image, different behaviour, no rebuild.'
+hints:
+- Add ENV PORT=8000 to the Dockerfile; build with docker build -t greeter-web:1 .
+- Pass settings with -e NAME=value on docker run.
+- docker run -d --name hello -p 8081:8000 greeter-web:1 and docker run -d --name hola -e GREETING=Hola
+  -p 8082:8000 greeter-web:1
+time_limit_s: 60

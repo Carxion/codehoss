@@ -81,6 +81,24 @@ stored in `submissions`; a project is finished when every checkpoint has one, an
 `/api/portfolio/.../export` zips the final code with a generated README (notebooks are
 also converted to `.ipynb`).
 
+## Labs
+
+Modules with `sandbox.lab: docker` get a second container per session: `docker:dind`
+(privileged, or `DOJO_LAB_RUNTIME` such as sysbox) on a per-session `--internal` network,
+reachable from the session as `tcp://docker:2375` and from nowhere else. The session
+container keeps its lockdown (read-only root, no capabilities, uid 1000) and gains only that
+network plus the Docker CLI (copied from `docker:cli`). `sandbox.lab_images` are piped in
+with `docker save | docker load` at start, since labs can't pull. The engine's storage is an
+anonymous volume, removed with the session (`docker rm --volumes`); orphans and labelled
+networks are cleaned at server start.
+
+Lab exercises live in `/work/<name>` in the session: seeded from `files/` on first open
+(never over the learner's work; emptied in place on reset so an open shell stays valid),
+edited through `/api/sessions/{id}/lab/{exercise}/files`, and graded by `grade_lab`, which
+runs the tests in the session with `LAB_DIR` set. The terminal is `dojo._term` (a PTY around
+bash, JSON-lines input so resizes travel with keystrokes) bridged to xterm.js by
+`/api/sessions/{id}/terminal`.
+
 ## Showcases and speed grading
 
 A `showcase` step names an algorithm and optional input; the API passes it through and the

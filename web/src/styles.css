@@ -636,3 +636,43 @@ select {
 .sc-node.sc-found circle, .sc-node.sc-found rect { fill: #2f9e5a; }
 .sc-node.sc-active circle, .sc-node.sc-active rect { fill: #7aa5f0; }
 .sc-node.sc-compare text, .sc-node.sc-swap text, .sc-node.sc-done text, .sc-node.sc-found text, .sc-node.sc-active text { fill: #111; }
+
+/* --- labs (files + terminal) --------------------------------------------- */
+
+.lab { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.lab-files { flex: 1 1 50%; min-height: 180px; display: flex; flex-direction: column; border-bottom: 1px solid var(--border); }
+.lab-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px 0;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.lab-tab { display: inline-flex; align-items: center; border: 1px solid transparent; border-bottom: none; border-radius: 6px 6px 0 0; }
+.lab-tab.current { background: var(--surface); border-color: var(--border); }
+.lab-tab button { border: none; background: none; padding: 0.3rem 0.5rem; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82rem; white-space: nowrap; }
+.lab-tab .lab-tab-close { padding: 0.3rem 0.4rem 0.3rem 0; color: var(--muted); opacity: 0; }
+.lab-tab:hover .lab-tab-close, .lab-tab.current .lab-tab-close, .lab-tab-close:focus-visible { opacity: 1; }
+.lab-tab-add { border: none; background: none; font-size: 1.1rem; padding: 0.1rem 0.6rem; }
+.lab-tabs .spacer { flex: 1; }
+.lab-tabs > .small { margin: 0 0 4px 6px; white-space: nowrap; }
+.lab-status { color: var(--muted); }
+.lab-status.error { color: var(--danger, #c62828); }
+.lab-editor { flex: 1; min-height: 0; }
+.lab-terminal { flex: 1 1 45%; min-height: 160px; display: flex; flex-direction: column; background: #ffffff; }
+.lab-terminal-only .lab-terminal { flex: 1; }
+.lab-terminal-head { display: flex; align-items: center; gap: 0.5rem; padding: 4px 10px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.lab-terminal-head .spacer { flex: 1; }
+.lab-terminal-body { flex: 1; min-height: 0; padding: 4px 0 0 8px; overflow: hidden; }
+.lab-waiting { padding: 1rem; }
+.lab-solution pre { max-height: 260px; overflow: auto; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lab-terminal { background: #0d1117; }
+}
+:root[data-theme="dark"] .lab-terminal { background: #0d1117; }
+@media (max-width: 860px) {
+  .lab-files { flex: none; height: 50vh; }
+  .lab-terminal { flex: none; height: 45vh; }
+}

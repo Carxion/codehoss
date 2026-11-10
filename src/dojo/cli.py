@@ -7,6 +7,7 @@ learners), plus authoring and ops commands: validate, build-images, serve.
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Annotated
@@ -19,6 +20,7 @@ from rich.table import Table
 from rich.tree import Tree
 
 from dojo.grader import grade
+from dojo.lab import DIND_IMAGE
 from dojo.registry import Content, LoadedExercise, load_content
 from dojo.sandbox import (
     SandboxError,
@@ -26,6 +28,7 @@ from dojo.sandbox import (
     build_image,
     build_library_index,
     image_specs,
+    lab_images,
 )
 from dojo.validate import validate as validate_content
 
@@ -203,10 +206,22 @@ def build_images() -> None:
     """Build the Docker sandbox image and Library Explorer index for every module."""
     content = _load()
     try:
+        labs = lab_images(content)
         for image, packages in image_specs(content).items():
             console.print(f"[bold]Building {image}[/] with {', '.join(packages)}")
-            build_image(image, packages, on_output=lambda line: console.print(f"[dim]{line}[/]"))
+            build_image(
+                image,
+                packages,
+                on_output=lambda line: console.print(f"[dim]{line}[/]"),
+                with_lab=image in labs,
+            )
             console.print(f"[green]Built {image}[/]")
+        # Labs have no internet, so everything they run must already be on this machine.
+        pulls = {DIND_IMAGE, *(i for images in labs.values() for i in images)} if labs else set()
+        for pull in sorted(pulls):
+            console.print(f"[bold]Pulling {pull}[/] for labs")
+            if subprocess.run(["docker", "pull", "-q", pull]).returncode != 0:
+                raise SandboxError(f"could not pull {pull}")
         for module_id in content.modules:
             path = build_library_index(content, module_id)
             console.print(f"[green]Indexed libraries for {module_id}[/] -> {path}")

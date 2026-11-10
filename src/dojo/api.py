@@ -12,6 +12,7 @@ import contextlib
 import json
 import os
 import threading
+import time
 from collections.abc import AsyncIterator
 from dataclasses import asdict
 from pathlib import Path
@@ -33,7 +34,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from dojo import grader
+from dojo import grader, lab
 from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
 from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
@@ -83,6 +84,15 @@ class RunRequest(BaseModel):
 class CheckRequest(BaseModel):
     exercise_id: str
     code: str = Field(max_length=MAX_CODE)
+
+
+class LabFile(BaseModel):
+    path: str = Field(min_length=1, max_length=200)
+    content: str = Field(max_length=lab.MAX_FILE_BYTES)
+
+
+class LabReset(BaseModel):
+    engine: bool = False  # also remove the learner's containers, networks and volumes
 
 
 class TryItRequest(BaseModel):
@@ -389,10 +399,21 @@ def create_app(
         step = step_or_404(lesson, index)
         if isinstance(step, TryItStep):
             hints, solution = step.hints, step.solution
+            solution_files = None
         elif isinstance(step, ExerciseStep):
             exercise = lesson.exercises[step.ref]
             hints = exercise.spec.hints
-            solution = exercise.solution_path.read_text(encoding="utf-8")
+            if exercise.is_lab:
+                solution = (exercise.dir / "solution.sh").read_text(encoding="utf-8")
+                solution_files = {
+                    p.relative_to(exercise.dir / "solution").as_posix(): p.read_text(
+                        encoding="utf-8"
+                    )
+                    for p in sorted((exercise.dir / "solution").rglob("*"))
+                    if p.is_file()
+                }
+            else:
+                solution = exercise.solution_path.read_text(encoding="utf-8")
         else:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "this step has no hints")
         if not 1 <= level <= len(hints) + 1:
@@ -413,7 +434,10 @@ def create_app(
             db.record(user, module_id, ref, hints_used=level)
             return {"level": level, "of": len(hints), "hint": hints[level - 1]}
         db.record(user, module_id, ref, hints_used=len(hints), showed_solution=True)
-        return {"level": level, "of": len(hints), "solution": solution}
+        shown = {"level": level, "of": len(hints), "solution": solution}
+        if isinstance(step, ExerciseStep) and lesson.exercises[step.ref].is_lab:
+            shown["solution_files"] = solution_files
+        return shown
 
     @api.post("/modules/{module_id}/lessons/{slug}/steps/{index}/answer")
     def answer_quiz(module_id: str, slug: str, index: int, body: QuizAnswer, user: UserDep) -> dict:
@@ -520,11 +544,19 @@ def create_app(
         exercise = exercise_or_404(body.exercise_id)
         if exercise.module_id != session.module_id:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "exercise is from another module")
-        result = grader.grade(exercise, body.code, executor=session.executor)
+        if exercise.is_lab:
+            target = lab.lab_dir(exercise)
+            result = grader.grade_lab(exercise, target, executor=session.executor)
+            submitted = (
+                json.dumps(lab.read_files(session.container, target)) if result.passed else ""
+            )
+        else:
+            result = grader.grade(exercise, body.code, executor=session.executor)
+            submitted = body.code
         if (ref := _exercise_step_ref(content, exercise)) is not None:
             db.record(user, exercise.module_id, ref, attempt=True, done=result.passed)
         if result.passed:
-            db.save_submission(user, exercise.spec.id, body.code)
+            db.save_submission(user, exercise.spec.id, submitted)
         return {
             "passed": result.passed,
             "timed_out": result.timed_out,
@@ -552,6 +584,106 @@ def create_app(
             user, session.module_id, f"{body.lesson}/{body.step}", attempt=True, done=result.passed
         )
         return {"passed": result.passed, "message": explain_message(result.message, body.code)}
+
+    # -- labs --
+
+    def lab_exercise(session: Session, exercise_id: str) -> LoadedExercise:
+        exercise = exercise_or_404(exercise_id)
+        if not session.lab or exercise.module_id != session.module_id or not exercise.is_lab:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "not a lab exercise in this session")
+        return exercise
+
+    def lab_state(session: Session, exercise: LoadedExercise) -> dict:
+        target = lab.lab_dir(exercise)
+        return {"dir": target, "files": lab.read_files(session.container, target)}
+
+    @api.post("/sessions/{session_id}/lab/{exercise_id}/open")
+    def lab_open(session_id: str, exercise_id: str, user: UserDep) -> dict:
+        """Seed the exercise folder (first time only) and return its files."""
+        session = own_session(session_id, user)
+        exercise = lab_exercise(session, exercise_id)
+        lab.seed(session.container, exercise)
+        return lab_state(session, exercise)
+
+    @api.get("/sessions/{session_id}/lab/{exercise_id}/files")
+    def lab_files(session_id: str, exercise_id: str, user: UserDep) -> dict:
+        session = own_session(session_id, user)
+        return lab_state(session, lab_exercise(session, exercise_id))
+
+    @api.put("/sessions/{session_id}/lab/{exercise_id}/files")
+    def lab_write(session_id: str, exercise_id: str, body: LabFile, user: UserDep) -> dict:
+        session = own_session(session_id, user)
+        exercise = lab_exercise(session, exercise_id)
+        try:
+            lab.write_file(session.container, exercise, body.path, body.content)
+        except ValueError as e:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from None
+        return {"saved": lab.safe_path(body.path)}
+
+    @api.delete("/sessions/{session_id}/lab/{exercise_id}/files")
+    def lab_delete(session_id: str, exercise_id: str, path: str, user: UserDep) -> dict:
+        session = own_session(session_id, user)
+        exercise = lab_exercise(session, exercise_id)
+        try:
+            lab.delete_file(session.container, exercise, path)
+        except ValueError as e:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from None
+        return lab_state(session, exercise)
+
+    @api.post("/sessions/{session_id}/lab/{exercise_id}/reset")
+    def lab_reset(session_id: str, exercise_id: str, body: LabReset, user: UserDep) -> dict:
+        """Put the starter files back (and optionally clear the engine)."""
+        session = own_session(session_id, user)
+        exercise = lab_exercise(session, exercise_id)
+        if body.engine:
+            lab.reset_engine(session.container)
+        lab.seed(session.container, exercise, force=True)
+        return lab_state(session, exercise)
+
+    @api.websocket("/sessions/{session_id}/terminal")
+    async def terminal(websocket: WebSocket, session_id: str, dir: str = "/work") -> None:
+        """A bash shell in a lab session. Client: {"i": keys} or {"r": [cols, rows]} as
+        JSON text. Server: raw terminal output as binary frames."""
+        session, _ = await _ws_session(websocket, session_id)
+        if session is None:
+            return
+        if not session.lab:
+            await websocket.close(code=4400, reason="terminals are for lab modules")
+            return
+        start = dir if dir.startswith("/work") and ".." not in dir else "/work"
+        loop = asyncio.get_running_loop()
+        outgoing: asyncio.Queue[bytes | None] = asyncio.Queue()
+
+        def on_output(chunk: bytes) -> None:
+            loop.call_soon_threadsafe(outgoing.put_nowait, chunk)
+
+        shell = await run_in_threadpool(lab.Terminal, session.container, start, on_output)
+
+        async def forward() -> None:
+            while (chunk := await outgoing.get()) is not None:
+                await websocket.send_bytes(chunk)
+
+        async def watch_exit() -> None:
+            while shell.alive:
+                await asyncio.sleep(0.5)
+            await asyncio.sleep(0.2)  # let the last output through
+            with contextlib.suppress(RuntimeError):
+                await websocket.close(code=1000, reason="shell exited")
+
+        sender = asyncio.create_task(forward())
+        watcher = asyncio.create_task(watch_exit())
+        try:
+            while True:
+                message = json.loads(await websocket.receive_text())
+                if isinstance(message, dict):
+                    session.last_used = time.monotonic()
+                    await run_in_threadpool(shell.send, message)
+        except (WebSocketDisconnect, ValueError, RuntimeError):
+            pass
+        finally:
+            sender.cancel()
+            watcher.cancel()
+            await run_in_threadpool(shell.close)
 
     async def _ws_session(
         websocket: WebSocket, session_id: str
@@ -747,8 +879,9 @@ def _public_exercise(ex: LoadedExercise) -> dict:
         "prompt": ex.spec.prompt,
         "difficulty": ex.spec.difficulty,
         "hint_count": len(ex.spec.hints),
-        "starter": ex.starter_path.read_text(encoding="utf-8"),
+        "starter": "" if ex.is_lab else ex.starter_path.read_text(encoding="utf-8"),
         "visible_tests": ex.visible_tests.read_text(encoding="utf-8"),
+        "lab": {"dir": lab.lab_dir(ex)} if ex.is_lab else None,
     }
 
 

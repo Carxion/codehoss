@@ -8,6 +8,7 @@ import EditorWorkspace from "./EditorWorkspace";
 import LibraryExplorer from "./LibraryExplorer";
 import Markdown from "./Markdown";
 import NotebookWorkspace from "./NotebookWorkspace";
+import LabWorkspace, { type LabHandle } from "./LabWorkspace";
 import ShowcaseView from "../showcase/ShowcaseView";
 
 interface Props {
@@ -39,6 +40,8 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const [monacoLoaded, setMonacoLoaded] = useState(false);
 
   const workspace = useRef<WorkspaceHandle | null>(null);
+  const labRef = useRef<LabHandle | null>(null);
+  const [labSolutions, setLabSolutions] = useState<Record<number, { commands: string; files: Record<string, string> }>>({});
   const ai = useAI();
   const savedCode = useRef("");
 
@@ -63,6 +66,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const step: Step | undefined = lesson?.steps[index];
   const progress = (i: number) => lesson?.progress[String(i)] ?? BLANK_PROGRESS;
   const notebook = lesson?.view === "notebook";
+  const isLab = lesson?.view === "lab";
 
   // --- loading -----------------------------------------------------------------
 
@@ -97,14 +101,18 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   // Entering a step: load its code, reset outputs, record that explanations were read.
   useEffect(() => {
     const ws = workspace.current;
-    if (!lesson || !step || !workspaceReady || !ws) return;
-    if (showingSolution) setShowingSolution(false);
-    const fallback = startingCode(step);
-    const code = loadDraft(draftKey(moduleId, lessonSlug, step)) ?? fallback;
-    if (code !== null) ws.restore(code);
-    else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
-    ws.reset();
-    ws.setFocusNames(focusNamesFor(step));
+    if (!lesson || !step) return;
+    // Labs keep their files in the session (LabWorkspace loads them), not in drafts.
+    if (!isLab) {
+      if (!workspaceReady || !ws) return;
+      if (showingSolution) setShowingSolution(false);
+      const fallback = startingCode(step);
+      const code = loadDraft(draftKey(moduleId, lessonSlug, step)) ?? fallback;
+      if (code !== null) ws.restore(code);
+      else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
+      ws.reset();
+      ws.setFocusNames(focusNamesFor(step));
+    }
     if ((step.type === "explain" || step.type === "example" || step.type === "showcase") && !progress(index).done) {
       api.viewed(moduleId, lessonSlug, index).then(() => markDone(index), () => {});
     }
@@ -121,6 +129,18 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const onReady = useCallback(() => setWorkspaceReady(true), []);
 
   // --- actions -----------------------------------------------------------------
+
+  async function resetLab(engine: boolean) {
+    const question = engine
+      ? "Remove every container, network and volume you've made in this lab? (Images stay.) Your files are put back to the starter too."
+      : "Put this exercise's files back to how they started? Your changes will be lost.";
+    if (!window.confirm(question)) return;
+    try {
+      await labRef.current?.reset(engine);
+    } catch (e) {
+      setFeedback((f) => ({ ...f, [index]: { kind: "fail", message: (e as Error).message } }));
+    }
+  }
 
   function resetCode() {
     if (!step || !workspace.current) return;
@@ -145,8 +165,9 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   }
 
   async function check() {
-    if (!step || !sessionId || !workspace.current) return;
-    const code = workspace.current.getCode();
+    if (!step || !sessionId || (!isLab && !workspace.current)) return;
+    if (isLab) await labRef.current?.saveAll();
+    const code = isLab ? "" : workspace.current!.getCode();
     setChecking(true);
     try {
       if (step.type === "try-it") {
@@ -164,7 +185,8 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           ...f,
           [index]: { kind: "results", passed: result.passed, timedOut: result.timed_out, results: result.results },
         }));
-        if (result.passed) {
+        if (result.passed && isLab) markDone(index);
+        else if (result.passed) {
           markDone(index);
           // The next checkpoint can carry this code forward (Solo / "use my code").
           setLesson((l) => l && {
@@ -183,13 +205,16 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   }
 
   async function nextHint() {
-    if (!step || !workspace.current) return;
+    if (!step || (!isLab && !workspace.current)) return;
     const level = (hints[index]?.length ?? 0) + 1;
     try {
       const result = await api.hint(moduleId, lessonSlug, index, level);
       if ("hint" in result) {
         setHints((h) => ({ ...h, [index]: [...(h[index] ?? []), result.hint] }));
-      } else {
+      } else if (isLab) {
+        // A lab's answer is files plus commands: shown beside the lesson, nothing overwritten.
+        setLabSolutions((s) => ({ ...s, [index]: { commands: result.solution, files: result.solution_files ?? {} } }));
+      } else if (workspace.current) {
         savedCode.current = workspace.current.getCode();
         setShowingSolution(true);
         workspace.current.showSolution(result.solution);
@@ -273,6 +298,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
               <Markdown>{hint}</Markdown>
             </div>
           ))}
+          {labSolutions[index] && <LabSolution {...labSolutions[index]} />}
           {feedback[index] && step.type !== "quiz" && <FeedbackView feedback={feedback[index]} />}
         </div>
 
@@ -298,26 +324,44 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
       <section className="workspace">
         <div className="toolbar">
-          <button className="primary" onClick={() => workspace.current?.run()} disabled={!sessionId || running || showingSolution}>
-            ▶ {notebook ? "Run all" : "Run"}
-          </button>
+          {!isLab && (
+            <button className="primary" onClick={() => workspace.current?.run()} disabled={!sessionId || running || showingSolution}>
+              ▶ {notebook ? "Run all" : "Run"}
+            </button>
+          )}
           {checkable && (
             <button className="success" onClick={check} disabled={!sessionId || checking || showingSolution}>
               {checking ? "Checking…" : "✓ Check"}
             </button>
           )}
-          {checkable && level !== "solo" && !(level === "assisted" && hintsShown >= hintCount) && (
+          {checkable && level !== "solo" && !(level === "assisted" && hintsShown >= hintCount) && !labSolutions[index] && (
             <button onClick={nextHint} disabled={showingSolution}>
               {hintsShown < hintCount ? `💡 Hint (${hintsShown}/${hintCount})` : "👀 Show me"}
             </button>
           )}
-          <button onClick={resetCode} disabled={showingSolution} title="Go back to the starting code">
-            ↺ Reset
-          </button>
-          <span className="spacer" />
-          <button onClick={() => setShowLibrary(!showLibrary)} aria-pressed={showLibrary}>
-            📚 Library
-          </button>
+          {isLab ? (
+            <>
+              {step.type === "exercise" && (
+                <button onClick={() => resetLab(false)} disabled={!sessionId} title="Put the starter files back">
+                  ↺ Reset files
+                </button>
+              )}
+              <span className="spacer" />
+              <button onClick={() => resetLab(true)} disabled={!sessionId || step.type !== "exercise"} title="Remove your containers, networks and volumes">
+                🧹 Clean up Docker
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetCode} disabled={showingSolution} title="Go back to the starting code">
+                ↺ Reset
+              </button>
+              <span className="spacer" />
+              <button onClick={() => setShowLibrary(!showLibrary)} aria-pressed={showLibrary}>
+                📚 Library
+              </button>
+            </>
+          )}
         </div>
         {lesson.ai && (
           <div className={`banner ai-banner ${ai.status?.current ? "" : "warn"}`}>
@@ -331,6 +375,11 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             <button className="small" onClick={ai.openSettings}>
               {ai.status?.current ? "Change" : "Set up AI"}
             </button>
+          </div>
+        )}
+        {isLab && !sessionId && !sessionError && (
+          <div className="banner info">
+            <span>Starting your lab: a private Docker engine just for you. This takes about 20 seconds…</span>
           </div>
         )}
         {sessionError && (
@@ -351,7 +400,9 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           <ShowcaseView key={`${lesson.slug}/${index}`} algorithm={step.algorithm} input={step.input} />
         )}
         <div className={step.type === "showcase" ? "workspace-hidden" : "workspace-body"}>
-        {monacoLoaded ? (
+        {monacoLoaded && isLab ? (
+          <LabWorkspace ref={labRef} sessionId={sessionId} exercise={step.type === "exercise" ? step.exercise : null} />
+        ) : monacoLoaded ? (
           <Workspace
             key={notebook ? "notebook" : "editor"}
             ref={workspace}
@@ -375,6 +426,29 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
           onClose={() => setShowLibrary(false)}
         />
       )}
+    </div>
+  );
+}
+
+function LabSolution({ commands, files }: { commands: string; files: Record<string, string> }) {
+  return (
+    <div className="hint lab-solution">
+      <strong>One way to solve it</strong>
+      <p className="small">Compare it with yours, then make the changes yourself: nothing has been overwritten.</p>
+      {Object.entries(files).map(([name, text]) => (
+        <div key={name}>
+          <p className="small">
+            <code>{name}</code>
+          </p>
+          <pre>
+            <code>{text}</code>
+          </pre>
+        </div>
+      ))}
+      <p className="small">Then in the terminal:</p>
+      <pre>
+        <code>{commands}</code>
+      </pre>
     </div>
   );
 }

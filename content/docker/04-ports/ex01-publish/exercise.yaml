@@ -1,0 +1,16 @@
+id: docker.publish
+title: Publish a web app
+difficulty: 2
+prompt: '`server.py` is a tiny web server on port 8000. Write a Dockerfile for it (with
+
+  `EXPOSE 8000`), build **`web:1`**, and run it **in the background** as a container named **`web`**
+
+  with container port 8000 published on host port **8080**.
+
+
+  Test it yourself: `curl http://docker:8080`.'
+hints:
+- 'Dockerfile: FROM python:3.12-alpine, WORKDIR, COPY server.py, EXPOSE 8000, CMD to run it.'
+- Run it with -d --name web -p 8080:8000.
+- docker build -t web:1 . && docker run -d --name web -p 8080:8000 web:1
+time_limit_s: 60

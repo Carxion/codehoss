@@ -1,0 +1,64 @@
+title: Your first containers
+summary: Run programs in containers, look inside them, and clean up.
+steps:
+- type: explain
+  md: 'A **container** is a program running in its own little world: its own files, its
+
+    own processes, its own network. It starts from an **image**, a read-only snapshot of a filesystem
+
+    (an operating system, a language runtime, your app).
+
+
+    This lab has its own private Docker engine, with two images ready to use:
+
+    `alpine:3.22` (a tiny Linux) and `python:3.12-alpine` (Linux plus Python). Try these in the terminal:
+
+
+    ```bash
+
+    docker run alpine:3.22 echo "hi"     # start a container, run one command, exit
+
+    docker ps                            # running containers
+
+    docker ps -a                         # all containers, including stopped ones
+
+    docker images                        # images on this engine
+
+    ```
+
+
+    Each `docker run` creates a **new** container. Stopped containers stay around (that''s what
+
+    `docker ps -a` shows) until you remove them with `docker rm`.'
+- type: exercise
+  ref: ex01-first-container
+- type: explain
+  md: 'Most real containers run **in the background**, like a web server. Use `-d`
+
+    (detached) and give it a name with `--name` so you can refer to it:
+
+
+    ```bash
+
+    docker run -d --name sleeper alpine:3.22 sleep 300
+
+    docker logs sleeper          # what it printed
+
+    docker exec sleeper ls /     # run another command inside it
+
+    docker stop sleeper          # stop it
+
+    docker rm sleeper            # remove it (or docker rm -f to stop and remove)
+
+    ```'
+- type: exercise
+  ref: ex02-background
+- type: quiz
+  question: You run `docker run alpine:3.22 echo hi` three times. How many containers exist afterwards?
+  options:
+  - One, reused each time
+  - Three stopped containers
+  - None, they delete themselves
+  answer: 1
+  explanation: Every docker run creates a new container. They stop when echo finishes but stay until removed.
+    Add --rm to delete them automatically.

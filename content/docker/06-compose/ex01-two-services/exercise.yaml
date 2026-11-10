@@ -1,0 +1,25 @@
+id: docker.two-services
+title: Web + API with Compose
+difficulty: 3
+prompt: 'Two services are ready, each with its own folder and Dockerfile:
+
+
+  - `api/`: returns a list of fruit as JSON on port **5000**
+
+  - `web/`: on port **8000**, fetches from the URL in `API_URL` and shows the fruit
+
+
+  Finish **`compose.yaml`** so that `docker compose up -d --build` starts both, `web` is published
+
+  on host port **8090**, and `web` finds the API by its service name. Don''t publish the API: only
+
+  `web` should talk to it.
+
+
+  Test it: `curl http://docker:8090`.'
+hints:
+- 'Each service needs build: ./folder. Only web gets ports.'
+- 'web''s environment needs API_URL: http://api:5000 (the service name is the hostname).'
+- 'services: api: {build: ./api}; web: {build: ./web, ports: ["8090:8000"], environment: {API_URL: http://api:5000},
+  depends_on: [api]}'
+time_limit_s: 60

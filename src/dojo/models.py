@@ -31,6 +31,11 @@ class Sandbox(_Strict):
     data: str | None = None
     # The module calls AI models (dojo_ai); the UI shows the AI backend picker.
     ai: bool = False
+    # Lab modules get a private Docker engine beside the session (see dojo.lab), a
+    # terminal, and files that live in the session instead of a single main.py.
+    lab: Literal["docker"] | None = None
+    # Images copied into the lab's engine at start (labs have no internet to pull).
+    lab_images: list[str] = []
 
 
 class LibraryExplorer(_Strict):
@@ -45,7 +50,7 @@ class Module(_Strict):
     level: str
     prerequisites: list[str] = []
     sandbox: Sandbox
-    default_view: Literal["editor", "notebook"] = "editor"
+    default_view: Literal["editor", "notebook", "lab"] = "editor"
     library_explorer: LibraryExplorer = LibraryExplorer()
     lessons: list[str] = Field(min_length=1)
 

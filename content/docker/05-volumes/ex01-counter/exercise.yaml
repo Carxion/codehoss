@@ -1,0 +1,19 @@
+id: docker.counter
+title: A counter that remembers
+difficulty: 2
+prompt: '`counter.py` adds a line to `/data/visits.txt` and prints the visit number. Without a
+
+  volume, every new container starts again at 1.
+
+
+  Build **`counter:1`**, create a volume named **`counts`**, and run the counter **three times**
+
+  with the volume mounted at `/data` (use `--rm`, so each run is a brand-new container). The third
+
+  run should say `visit number 3`.'
+hints:
+- 'Dockerfile: FROM python:3.12-alpine, WORKDIR, COPY counter.py, CMD. Build with docker build -t counter:1
+  .'
+- docker volume create counts, then mount it with -v counts:/data.
+- Run docker run --rm -v counts:/data counter:1 three times.
+time_limit_s: 60

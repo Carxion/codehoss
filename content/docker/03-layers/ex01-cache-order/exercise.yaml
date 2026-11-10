@@ -1,0 +1,19 @@
+id: docker.cache-order
+title: Cache-friendly order
+difficulty: 3
+prompt: '`setup.py` is **slow** (3 seconds, standing in for installing packages); it only needs
+
+  `words.txt`. `app.py` is the code you change all the time.
+
+
+  The Dockerfile works, but copies everything first, so **every** code change reruns the slow setup.
+
+  Reorder it so that editing `app.py` reuses the cached setup layer. Build it as **`words:1`**.
+
+
+  The check edits a copy of `app.py`, rebuilds, and looks for `CACHED` on the setup step.'
+hints:
+- Copy only what setup.py needs (setup.py and words.txt), then RUN it.
+- COPY app.py after the RUN step, so changing it doesn't break the cache for the RUN.
+- COPY setup.py words.txt ./ / RUN python setup.py / COPY app.py ./
+time_limit_s: 60

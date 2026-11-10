@@ -1,0 +1,18 @@
+id: docker.entrypoint
+title: ENTRYPOINT and CMD
+difficulty: 2
+prompt: '`greet.py` greets whoever you name on the command line. Write a Dockerfile so that:
+
+
+  - `docker run --rm greet:2` prints `Hello, world`
+
+  - `docker run --rm greet:2 Ada` prints `Hello, Ada`
+
+
+  Build it as **`greet:2`**. Use `ENTRYPOINT` for the part that always runs and `CMD` for the default
+  name.'
+hints:
+- ENTRYPOINT ["python", "greet.py"] always runs the script.
+- CMD ["world"] is the default argument; anything after the image name replaces it.
+- FROM python:3.12-alpine / WORKDIR /app / COPY greet.py . / ENTRYPOINT ["python", "greet.py"] / CMD ["world"]
+time_limit_s: 60

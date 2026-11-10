@@ -1,0 +1,23 @@
+id: docker
+title: Docker
+description: 'Run, build and ship containers in a real lab: your own Docker engine, a terminal, and checks
+  that inspect what you built.'
+level: intermediate
+prerequisites:
+- python-basics
+sandbox:
+  image: dojo-lab
+  packages: []
+  memory: 512m
+  lab: docker
+  lab_images:
+  - alpine:3.22
+  - python:3.12-alpine
+default_view: lab
+lessons:
+- 01-containers
+- 02-dockerfile
+- 03-layers
+- 04-ports
+- 05-volumes
+- 06-compose

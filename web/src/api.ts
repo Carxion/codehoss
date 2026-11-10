@@ -47,7 +47,7 @@ export interface ModuleSummary {
   title: string;
   description: string;
   level: string;
-  view: "editor" | "notebook";
+  view: "editor" | "notebook" | "lab";
   ai: boolean;
   prerequisites: string[];
   lessons: LessonSummary[];
@@ -66,6 +66,13 @@ export interface Exercise {
   starters?: Record<Level, string | null>;
   /** Projects only: the learner's latest passing code for this checkpoint. */
   submission?: string | null;
+  /** Lab exercises: files live in this folder in the session, not in `starter`. */
+  lab?: { dir: string } | null;
+}
+
+export interface LabState {
+  dir: string;
+  files: Record<string, string>;
 }
 
 export type Step =
@@ -88,7 +95,7 @@ export interface Lesson {
   slug: string;
   title: string;
   summary: string;
-  view: "editor" | "notebook";
+  view: "editor" | "notebook" | "lab";
   ai: boolean;
   project: { brief: string; uses: string[]; level: Level } | null;
   previous: string | null;
@@ -120,7 +127,7 @@ export interface CheckResult {
 
 export type HintResult =
   | { level: number; of: number; hint: string }
-  | { level: number; of: number; solution: string };
+  | { level: number; of: number; solution: string; solution_files?: Record<string, string> };
 
 export interface LibraryMember {
   name: string;
@@ -177,6 +184,19 @@ export const api = {
     request<{ session_id: string }>("POST", "/sessions", { module_id: moduleId }),
   check: (sessionId: string, exerciseId: string, code: string) =>
     request<CheckResult>("POST", `/sessions/${sessionId}/check`, { exercise_id: exerciseId, code }),
+  labOpen: (sessionId: string, exerciseId: string) =>
+    request<LabState>("POST", `/sessions/${sessionId}/lab/${exerciseId}/open`),
+  labFiles: (sessionId: string, exerciseId: string) =>
+    request<LabState>("GET", `/sessions/${sessionId}/lab/${exerciseId}/files`),
+  labWrite: (sessionId: string, exerciseId: string, path: string, content: string) =>
+    request<{ saved: string }>("PUT", `/sessions/${sessionId}/lab/${exerciseId}/files`, { path, content }),
+  labDelete: (sessionId: string, exerciseId: string, path: string) =>
+    request<LabState>(
+      "DELETE",
+      `/sessions/${sessionId}/lab/${exerciseId}/files?path=${encodeURIComponent(path)}`,
+    ),
+  labReset: (sessionId: string, exerciseId: string, engine: boolean) =>
+    request<LabState>("POST", `/sessions/${sessionId}/lab/${exerciseId}/reset`, { engine }),
   tryIt: (sessionId: string, lesson: string, step: number, code: string) =>
     request<{ passed: boolean; message: string }>("POST", `/sessions/${sessionId}/try-it`, {
       lesson,
@@ -230,7 +250,7 @@ export interface PortfolioItem {
   brief: string;
   uses: string[];
   level: Level;
-  view: "editor" | "notebook";
+  view: "editor" | "notebook" | "lab";
   checkpoints: string[];
   code: string;
   completed_at: number;

@@ -1,0 +1,24 @@
+title: Docker Compose
+summary: Describe a multi-container app in one file and start it with one command.
+steps:
+- type: explain
+  md: "Real apps are several containers: a web frontend, an API, a database. Starting them\nby hand with\
+    \ the right ports, networks and settings gets old fast. **Compose** describes them all in\n`compose.yaml`:\n\
+    \n```yaml\nservices:\n  api:\n    build: ./api          # build from ./api/Dockerfile\n  web:\n  \
+    \  build: ./web\n    ports:\n      - \"8090:8000\"       # publish only what users need\n    environment:\n\
+    \      API_URL: http://api:5000\n    depends_on:\n      - api\n```\n\nCompose puts the services on\
+    \ one network where **each service's name is its hostname**: `web`\nreaches the API at `http://api:5000`.\
+    \ Then:\n\n```bash\ndocker compose up -d --build   # build and start everything\ndocker compose ps\
+    \              # what's running\ndocker compose logs web        # logs for one service\ndocker compose\
+    \ down            # stop and remove it all\n```"
+- type: exercise
+  ref: ex01-two-services
+- type: quiz
+  question: In a Compose app, how does the `web` service reach the `api` service?
+  options:
+  - http://localhost:5000
+  - By the hostname api, e.g. http://api:5000
+  - Only through a published port on the host
+  answer: 1
+  explanation: Compose creates a network where service names resolve as hostnames. localhost inside web
+    is web itself.

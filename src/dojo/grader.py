@@ -127,6 +127,42 @@ def run_tests(
     )
 
 
+def grade_lab(exercise: LoadedExercise, lab_dir: str, *, executor: Executor) -> GradeResult:
+    """Run a lab exercise's tests against the state of the learner's session (files in
+    `lab_dir`, the lab's Docker engine). There is no code to upload, only tests."""
+    files = {
+        "pytest.ini": b"[pytest]\n",
+        "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
+        **{t.name: t.read_bytes() for t in (exercise.visible_tests, exercise.hidden_tests)},
+    }
+    argv = [
+        "env",
+        f"LAB_DIR={lab_dir}",
+        executor.python,
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--junitxml=report.xml",
+        exercise.visible_tests.name,
+        exercise.hidden_tests.name,
+    ]
+    result = executor.execute(
+        files,
+        argv,
+        timeout=exercise.spec.time_limit_s + STARTUP_GRACE_S,
+        collect=("report.xml",),
+    )
+    if result.timed_out:
+        return GradeResult(timed_out=True)
+    report = result.files.get("report.xml")
+    return GradeResult(
+        results=_parse_junit(report) if report else [],
+        output=result.stdout + result.stderr,
+    )
+
+
 def run_snippet(
     code: str, check: str, *, timeout: float = 5.0, executor: Executor = LOCAL
 ) -> SnippetResult:
