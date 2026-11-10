@@ -1,0 +1,14 @@
+id: kubernetes.nodeport
+title: Open it to the outside
+difficulty: 2
+prompt: 'Same `web` deployment. Write **`public.yaml`**: a **NodePort** Service called **`web-public`**
+
+  that exposes the pods on node port **30080** (Service port 80, container port 8000). Apply both files.
+
+
+  Then `curl http://k3s:30080` from the terminal.'
+hints:
+- 'type: NodePort under spec.'
+- 'In the port entry, add nodePort: 30080 next to port and targetPort.'
+- kubectl apply -f deployment.yaml -f public.yaml && curl http://k3s:30080
+time_limit_s: 150

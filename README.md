@@ -9,9 +9,10 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > (12 lessons and 24 exercises each) plus **Projects**: six multi-checkpoint builds at
 > Guided / Assisted / Solo level, collected in a downloadable portfolio. DSA lessons open
 > with step-through algorithm animations, and its tests fail code that is too slow. AI work
-> runs on a local model (Ollama) or Claude with your own key. M7 has begun: a 12-lesson
-> **Docker** lab where each learner gets a private Docker engine and a real terminal in the
-> browser. Next: Kubernetes and MLOps labs. See
+> runs on a local model (Ollama) or Claude with your own key. M7 adds hands-on labs with a
+> real terminal in the browser: a 12-lesson **Docker** module (a private Docker engine per
+> learner) and **Kubernetes** (a private k3s cluster plus registry). Next: more Kubernetes,
+> then the MLOps capstone. See
 > [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
@@ -55,7 +56,7 @@ sandbox.
 
 - **Modular courses** — self-contained modules that plug in. v1 ships **Python Basics**,
   **Data Science**, **AI**, **Data Structures & Algorithms** and **Projects** (guided build
-  plans), plus a hands-on **Docker** lab; Kubernetes and MLOps labs are next. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
+  plans), plus hands-on **Docker** and **Kubernetes** labs; MLOps is next. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
 - **Hand-holding** — bite-sized guided steps, escalating hints, a friendly error explainer,
   and scaffolding that fades as you improve. See
   [docs/LEARNING-EXPERIENCE.md](docs/LEARNING-EXPERIENCE.md).

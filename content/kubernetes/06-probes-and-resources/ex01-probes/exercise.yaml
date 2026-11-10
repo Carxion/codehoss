@@ -1,0 +1,19 @@
+id: kubernetes.probes
+title: Readiness and liveness
+difficulty: 3
+prompt: 'The `slow` app takes about 6 seconds to start, then serves `/ready`. Add to its container in
+
+  **`deployment.yaml`**:
+
+
+  - a **readinessProbe**: HTTP GET `/ready` on port 8000, every 2 seconds
+
+  - a **livenessProbe**: TCP check on port 8000, starting after 15 seconds
+
+
+  Apply it and watch the pods become ready.'
+hints:
+- Both probes go inside the container, at the same level as image and ports.
+- 'readinessProbe: {httpGet: {path: /ready, port: 8000}, periodSeconds: 2}'
+- 'livenessProbe: {tcpSocket: {port: 8000}, initialDelaySeconds: 15}'
+time_limit_s: 150

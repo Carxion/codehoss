@@ -139,3 +139,40 @@ def test_terminal_runs_commands(lab_session):
 def test_closing_a_lab_removes_engine_and_network():
     # Unit-level: engine names are derived from the session container name.
     assert lab.engine_names("dojo-abc") == ("dojo-abc-docker", "dojo-abc-net")
+
+
+def test_images_to_pull():
+    assert lab.images_to_pull(set(), ["alpine:3.22"]) == []
+    docker_only = lab.images_to_pull({"docker"}, ["alpine:3.22"])
+    assert lab.DIND_IMAGE in docker_only and lab.K3S_IMAGE not in docker_only
+    with_k8s = lab.images_to_pull({"docker", "kubernetes"}, [])
+    assert {lab.K3S_IMAGE, lab.REGISTRY_IMAGE, *lab.K3S_SYSTEM_IMAGES} <= set(with_k8s)
+
+
+needs_cluster = pytest.mark.skipif(
+    not (docker_available() and image_exists("dojo-lab") and image_exists(lab.K3S_IMAGE)),
+    reason="needs Docker, dojo-lab and the k3s images (run `dojo build-images`)",
+)
+
+
+@pytest.fixture(scope="module")
+def cluster_session(content):
+    manager = SessionManager(content)
+    session = manager.create("kubernetes")
+    yield session
+    manager.close(session.id)
+
+
+@pytest.mark.docker
+@needs_cluster
+def test_cluster_ready_and_reset(cluster_session):
+    def sh(script):
+        return cluster_session.executor.execute({}, ["sh", "-c", script], timeout=90).stdout
+
+    assert " Ready " in sh("kubectl get nodes")
+    sh("kubectl create deployment demo --image=python:3.12-alpine -- sleep 300")
+    assert "demo" in sh("kubectl get deploy")
+    lab.reset_engine(cluster_session.container)
+    assert "demo" not in sh("kubectl get deploy 2>&1")
+    # the lab's registry survives a reset
+    assert "registry" in sh("docker ps --format '{{.Names}}'")

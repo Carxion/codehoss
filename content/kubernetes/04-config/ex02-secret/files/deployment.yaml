@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      volumes:
+      - name: credentials
+        secret:
+          secretName: db-credentials
+      containers:
+      - name: app
+        image: python:3.12-alpine
+        command: ["sh", "-c", "echo \"password has $(wc -c < /etc/secrets/password) characters\" > index.html && exec python -m http.server 8000"]
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: credentials
+          mountPath: /etc/secrets
+          readOnly: true

@@ -234,3 +234,66 @@ def http_get(url, *, timeout=10, wait=0):
                     "with its port published (-p HOST:CONTAINER)?"
                 ) from None
             time.sleep(0.5)
+
+
+# --- Kubernetes labs ----------------------------------------------------------------
+# The cluster is k3s at https://k3s:6443 (kubectl is already configured); NodePorts
+# answer at http://k3s:PORT.
+
+
+def kubectl(*args, timeout=60):
+    """Run kubectl; returns stdout (stripped), or fails with kubectl's message."""
+    import shlex
+
+    proc = sh("kubectl " + " ".join(shlex.quote(str(a)) for a in args), timeout=timeout)
+    assert proc.returncode == 0, (proc.stderr or proc.stdout).strip()
+    return proc.stdout.strip()
+
+
+def k8s(kind, name, namespace="default"):
+    """An object as a dict, failing helpfully if it doesn't exist."""
+    import json
+    import shlex
+
+    proc = sh(f"kubectl get {kind} {shlex.quote(name)} -n {namespace} -o json")
+    assert proc.returncode == 0, (
+        f"There's no {kind} called {name} in namespace {namespace}. "
+        f"Create it, e.g. kubectl apply -f <file>.yaml"
+    )
+    return json.loads(proc.stdout)
+
+
+def k8s_list(kind, namespace="default", selector=None):
+    import json
+
+    args = ["get", kind, "-n", namespace, "-o", "json"]
+    if selector:
+        args += ["-l", selector]
+    return json.loads(kubectl(*args))["items"]
+
+
+def wait_until(check, *, timeout=60, interval=1, message="timed out"):
+    """Call check() until it returns something truthy; returns that value."""
+    import time
+
+    deadline = time.monotonic() + timeout
+    while True:
+        result = check()
+        if result:
+            return result
+        if time.monotonic() >= deadline:
+            raise AssertionError(message)
+        time.sleep(interval)
+
+
+def assert_rolled_out(name, namespace="default", timeout=90):
+    """The deployment exists and all its replicas are updated and available."""
+    k8s("deployment", name, namespace)
+    proc = sh(
+        f"kubectl rollout status deployment/{name} -n {namespace} --timeout={timeout}s",
+        timeout=timeout + 10,
+    )
+    assert proc.returncode == 0, (
+        f"deployment {name} isn't ready: {(proc.stderr or proc.stdout).strip()}. "
+        f"Look at kubectl get pods and kubectl describe pod for why."
+    )

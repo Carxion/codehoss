@@ -8,4 +8,6 @@ def test_container_from_image():
 
 
 def test_exposes_8000():
-    assert "8000/tcp" in (assert_image("web:1")["Config"].get("ExposedPorts") or {}), "add EXPOSE 8000"
+    assert "8000/tcp" in (assert_image("web:1")["Config"].get("ExposedPorts") or {}), (
+        "add EXPOSE 8000"
+    )

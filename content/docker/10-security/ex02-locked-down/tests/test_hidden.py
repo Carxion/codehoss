@@ -5,7 +5,9 @@ from dojo_checks import docker, inspect_container, sh
 
 def test_still_working():
     time.sleep(1.5)
-    assert inspect_container("locked")["State"]["Running"], "locked stopped: check docker logs locked"
+    assert inspect_container("locked")["State"]["Running"], (
+        "locked stopped: check docker logs locked"
+    )
     first = docker("exec", "locked", "cat", "/tmp/heartbeat")
     time.sleep(1.5)
     assert docker("exec", "locked", "cat", "/tmp/heartbeat") != first

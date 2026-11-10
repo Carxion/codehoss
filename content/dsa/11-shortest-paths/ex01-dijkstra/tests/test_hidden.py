@@ -27,7 +27,13 @@ def test_grid_is_fast():
                 if 0 <= nr < n and 0 <= nc < n:
                     edges.append(((nr, nc), 1 if nr == r else 2))
             graph[(r, c)] = edges
-    dist = assert_fast(distances, graph, (0, 0), budget=2.0, size="a 10,000-node grid",
-                       hint="Pop the next closest node from a heap instead of scanning them all.")
+    dist = assert_fast(
+        distances,
+        graph,
+        (0, 0),
+        budget=2.0,
+        size="a 10,000-node grid",
+        hint="Pop the next closest node from a heap instead of scanning them all.",
+    )
     assert len(dist) == n * n
     assert dist[(n - 1, n - 1)] == (n - 1) * 1 + (n - 1) * 2

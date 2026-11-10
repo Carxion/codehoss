@@ -1,4 +1,5 @@
 """Builds the site into site/. Like real build tools, it leaves a big cache behind."""
+
 from pathlib import Path
 
 pages = sorted(Path("pages").glob("*.txt"))

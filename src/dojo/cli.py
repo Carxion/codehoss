@@ -20,7 +20,7 @@ from rich.table import Table
 from rich.tree import Tree
 
 from dojo.grader import grade
-from dojo.lab import DIND_IMAGE
+from dojo.lab import images_to_pull
 from dojo.registry import Content, LoadedExercise, load_content
 from dojo.sandbox import (
     SandboxError,
@@ -217,8 +217,8 @@ def build_images() -> None:
             )
             console.print(f"[green]Built {image}[/]")
         # Labs have no internet, so everything they run must already be on this machine.
-        pulls = {DIND_IMAGE, *(i for images in labs.values() for i in images)} if labs else set()
-        for pull in sorted(pulls):
+        kinds = {m.spec.sandbox.lab for m in content.modules.values() if m.spec.sandbox.lab}
+        for pull in images_to_pull(kinds, [i for images in labs.values() for i in images]):
             console.print(f"[bold]Pulling {pull}[/] for labs")
             if subprocess.run(["docker", "pull", "-q", pull]).returncode != 0:
                 raise SandboxError(f"could not pull {pull}")

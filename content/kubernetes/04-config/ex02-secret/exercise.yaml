@@ -1,0 +1,17 @@
+id: kubernetes.secret
+title: A password in a Secret
+difficulty: 3
+prompt: 'The `app` deployment mounts a Secret called **`db-credentials`** at `/etc/secrets`. Create the
+  Secret
+
+  with a key **`password`** whose value is **`s3cret`** (use `kubectl create secret generic`, so the password
+
+  never sits in a file), then apply the deployment.
+
+
+  The app reports how long the password is (never the password itself): `curl http://k3s:30082`.'
+hints:
+- kubectl create secret generic NAME --from-literal=KEY=VALUE
+- kubectl create secret generic db-credentials --from-literal=password=s3cret
+- Then kubectl apply -f . and kubectl rollout status deployment/app
+time_limit_s: 150

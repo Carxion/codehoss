@@ -99,6 +99,15 @@ runs the tests in the session with `LAB_DIR` set. The terminal is `dojo._term` (
 bash, JSON-lines input so resizes travel with keystrokes) bridged to xterm.js by
 `/api/sessions/{id}/terminal`.
 
+Kubernetes labs (`sandbox.lab: kubernetes`) also start `rancher/k3s` on that network
+(alias `k3s`, NodePorts at `http://k3s:PORT`). It is created stopped, given an image tarball
+(k3s system images plus `lab_images`) and a `registries.yaml` through `docker cp -`, then
+started with a dummy default route (k3s won't pick a node IP without one; the network has
+no way out regardless). The engine runs with `--insecure-registry docker:5000` and a
+`registry` container labelled `dojo.keep=1`, which lab resets leave alone; resets also
+delete the learner's namespaces and objects. The session gets a kubeconfig pointing at
+`https://k3s:6443`; `kubectl` is the k3s multi-call binary.
+
 ## Showcases and speed grading
 
 A `showcase` step names an algorithm and optional input; the API passes it through and the

@@ -122,6 +122,8 @@ LAB_TOOLS = (
     f"COPY --from={lab.CLI_IMAGE} /usr/local/bin/docker /usr/local/bin/docker\n"
     f"COPY --from={lab.CLI_IMAGE} /usr/local/libexec/docker/cli-plugins"
     " /usr/local/libexec/docker/cli-plugins\n"
+    # k3s is a multi-call binary: installed under the name kubectl, it is kubectl.
+    f"COPY --from={lab.K3S_IMAGE} /bin/k3s /usr/local/bin/kubectl\n"
     "RUN apt-get update && apt-get install -y --no-install-recommends curl procps "
     "&& rm -rf /var/lib/apt/lists/*\n"
     f"ENV DOCKER_HOST={lab.ENGINE_HOST}\n"
@@ -240,7 +242,7 @@ class SessionManager:
         if sandbox.lab:
             limits = dataclasses.replace(limits, workspace=LAB_WORKSPACE)
             try:
-                network = lab.start_engine(container, labels)
+                network = lab.start_engine(container, labels, sandbox.lab, sandbox.lab_images)
             except lab.LabError as e:
                 lab.stop_engine(container)
                 raise SandboxError(str(e)) from None
@@ -263,7 +265,7 @@ class SessionManager:
             raise SandboxError(f"could not start sandbox: {proc.stderr.strip()}")
         if sandbox.lab:
             try:
-                lab.wait_and_preload(container, sandbox.lab_images)
+                lab.wait_and_preload(container, sandbox.lab_images, sandbox.lab)
             except lab.LabError as e:
                 subprocess.run(["docker", "rm", "--force", container], capture_output=True)
                 lab.stop_engine(container)

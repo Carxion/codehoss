@@ -186,7 +186,7 @@ const LabWorkspace = forwardRef<LabHandle, Props>(function LabWorkspace({ sessio
         </div>
       </div>
       {/* Only once the folder exists, so the shell starts inside it. */}
-      <LabTerminal sessionId={status === "loading" ? null : sessionId} dir={exercise.lab.dir} />
+      <LabTerminal sessionId={status === "loading" ? null : sessionId} dir={exercise.lab.dir} beforeCommand={flush} />
     </div>
   );
 });

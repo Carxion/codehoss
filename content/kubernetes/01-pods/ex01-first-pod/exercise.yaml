@@ -1,0 +1,14 @@
+id: kubernetes.first-pod
+title: Your first pod
+difficulty: 1
+prompt: 'Run a pod named **`hello`** from `python:3.12-alpine` that prints exactly
+
+  `Hello from Kubernetes` and then finishes (`--restart=Never`).
+
+
+  Use the terminal below. Check it with `kubectl get pods` and `kubectl logs hello`.'
+hints:
+- kubectl run NAME --image=IMAGE --restart=Never -- COMMAND...
+- The command after -- is python -c "print('Hello from Kubernetes')"
+- kubectl run hello --image=python:3.12-alpine --restart=Never -- python -c "print('Hello from Kubernetes')"
+time_limit_s: 150

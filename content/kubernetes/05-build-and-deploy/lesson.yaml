@@ -1,0 +1,53 @@
+title: Build, push, deploy
+summary: Ship your own image to the cluster, then recover from a bad release.
+steps:
+- type: explain
+  md: 'Everything so far used a ready-made image. Your own code takes three steps, and you
+
+    already know the first two from the Docker module:
+
+
+    ```bash
+
+    docker build -t docker:5000/hello-k8s:1 .    # 1. build, tagged with the registry address
+
+    docker push docker:5000/hello-k8s:1          # 2. push to the lab''s registry
+
+    kubectl apply -f deployment.yaml             # 3. a Deployment with image: docker:5000/hello-k8s:1
+
+    ```
+
+
+    The cluster pulls the image from the registry, exactly as a production cluster pulls from GitLab''s
+
+    container registry or Docker Hub. **Use a new tag for every change**: re-pushing `:1` won''t update
+
+    pods that already have `:1`.'
+- type: exercise
+  ref: ex01-ship-it
+- type: explain
+  md: 'Bad releases happen. If new pods crash, the rolling update **stalls**: the old pods keep
+
+    serving while the new ones fail, so users are mostly fine. Then:
+
+
+    ```bash
+
+    kubectl get pods                            # CrashLoopBackOff: crashing over and over
+
+    kubectl logs deploy/shop                    # why
+
+    kubectl rollout undo deployment/shop        # back to the previous revision
+
+    ```'
+- type: exercise
+  ref: ex02-rollback
+- type: quiz
+  question: You fix a bug, rebuild and push with the same tag `:1`. Do running pods pick it up?
+  options:
+  - Yes, immediately
+  - 'No: nothing in the Deployment changed, so no rollout happens (and nodes may use their cached :1)'
+  - Only if you delete the registry
+  answer: 1
+  explanation: Kubernetes only rolls out when the pod template changes. A new tag (:2) changes it; reusing
+    :1 doesn't.

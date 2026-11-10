@@ -13,5 +13,12 @@ def test_no_build_junk_in_image():
 
 
 def test_build_script_not_shipped():
-    found = docker("run", "--rm", "notes:2", "sh", "-c", "find / -name build.py -not -path '/proc/*' 2>/dev/null | head -1")
+    found = docker(
+        "run",
+        "--rm",
+        "notes:2",
+        "sh",
+        "-c",
+        "find / -name build.py -not -path '/proc/*' 2>/dev/null | head -1",
+    )
     assert not found, f"build.py is in the final image ({found})"

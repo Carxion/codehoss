@@ -4,7 +4,9 @@ from pathlib import Path
 
 def check_source():
     source = Path(__file__).with_name("main.py").read_text()
-    assert not re.search('(?<!\\w)sorted\\(|\\.sort\\(|(?<!\\w)nsmallest', source), 'Use heappush/heappop: no sorted(), .sort() or nsmallest'
+    assert not re.search("(?<!\\w)sorted\\(|\\.sort\\(|(?<!\\w)nsmallest", source), (
+        "Use heappush/heappop: no sorted(), .sort() or nsmallest"
+    )
 
 
 def test_rules():

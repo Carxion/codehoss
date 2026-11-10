@@ -1,0 +1,40 @@
+title: Deployments
+summary: Keep N copies running, heal automatically, and roll out changes without downtime.
+steps:
+- type: explain
+  md: "You rarely create pods directly. A **Deployment** says \"keep N pods like *this*\nrunning\". Its\
+    \ `template` is a pod spec; its `selector` says which pods it owns (by label):\n\n```yaml\napiVersion:\
+    \ apps/v1\nkind: Deployment\nmetadata:\n  name: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n\
+    \      app: web\n  template:              # the pod to stamp out\n    metadata:\n      labels:\n \
+    \       app: web         # must match the selector\n    spec:\n      containers:\n      - name: web\n\
+    \        image: python:3.12-alpine\n        command: [\"python\", \"-m\", \"http.server\", \"8000\"\
+    ]\n```\n\nDelete one of its pods and watch a replacement appear: `kubectl get pods -w` (Ctrl-C to\
+    \ stop).\n`kubectl scale deployment web --replicas=5` changes the count."
+- type: exercise
+  ref: ex01-replicas
+- type: explain
+  md: 'Change the template (a new image, a new setting) and re-apply, and the Deployment does
+
+    a **rolling update**: new pods start, old ones stop a few at a time, so the app stays up.
+
+
+    ```bash
+
+    kubectl rollout status deployment/web    # watch it finish
+
+    kubectl rollout history deployment/web   # each change is a numbered revision
+
+    kubectl rollout undo deployment/web      # go back one revision
+
+    ```'
+- type: exercise
+  ref: ex02-rolling-update
+- type: quiz
+  question: A node dies, taking one of a Deployment's 3 pods with it. What happens?
+  options:
+  - Nothing until you redeploy
+  - The Deployment notices only 2 are running and starts a new one
+  - All 3 pods restart
+  answer: 1
+  explanation: Controllers constantly compare what you asked for (3 replicas) with what exists, and fix
+    the difference.

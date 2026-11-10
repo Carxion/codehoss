@@ -1,0 +1,32 @@
+title: ConfigMaps and Secrets
+summary: Keep settings and passwords out of images and manifests' containers.
+steps:
+- type: explain
+  md: "Hard-coding settings in a Deployment means editing it for every environment. A\n**ConfigMap** holds\
+    \ settings separately; pods read them as environment variables or files:\n\n```yaml\napiVersion: v1\n\
+    kind: ConfigMap\nmetadata:\n  name: greeter-config\ndata:\n  GREETING: Bonjour\n```\n```yaml\n   \
+    \   containers:\n      - name: greeter\n        envFrom:\n        - configMapRef:\n            name:\
+    \ greeter-config     # every key becomes an env var\n```\n\nPods read environment variables when they\
+    \ **start**, so after changing a ConfigMap, restart\nthem: `kubectl rollout restart deployment/greeter`."
+- type: exercise
+  ref: ex01-configmap
+- type: explain
+  md: "A **Secret** is the same idea for passwords, tokens and keys:\n\n```bash\nkubectl create secret\
+    \ generic db-credentials --from-literal=password=s3cret\n```\n\nand mounted as files (safer than env\
+    \ vars, which tend to leak into logs and crash reports):\n\n```yaml\n      volumes:\n      - name:\
+    \ credentials\n        secret:\n          secretName: db-credentials\n      containers:\n      - ...\n\
+    \        volumeMounts:\n        - name: credentials\n          mountPath: /etc/secrets      # one\
+    \ file per key: /etc/secrets/password\n```\n\nCareful: Secrets are only **base64-encoded**, not encrypted\n\
+    (`kubectl get secret db-credentials -o yaml`, then decode it). Access to them must be controlled,\n\
+    and they don't belong in git."
+- type: exercise
+  ref: ex02-secret
+- type: quiz
+  question: Is a Kubernetes Secret encrypted?
+  options:
+  - Yes, always
+  - 'Not by default: it''s base64-encoded; protect it with access control (and encryption at rest if configured)'
+  - Only if it's mounted as a file
+  answer: 1
+  explanation: base64 is an encoding anyone can reverse. Clusters can encrypt Secrets at rest, but access
+    control is what keeps them secret.

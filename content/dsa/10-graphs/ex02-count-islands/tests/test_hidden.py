@@ -14,6 +14,11 @@ def test_one_giant_island():
     from main import count_islands
 
     grid = ["#" * 400] * 400
-    result = assert_fast(count_islands, grid, budget=3.0, size="a 400x400 map",
-                         hint="Mark squares as seen when you push them so each is visited once.")
+    result = assert_fast(
+        count_islands,
+        grid,
+        budget=3.0,
+        size="a 400x400 map",
+        hint="Mark squares as seen when you push them so each is visited once.",
+    )
     assert result == 1

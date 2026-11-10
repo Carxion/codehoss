@@ -9,13 +9,17 @@ interface Props {
   sessionId: string | null;
   /** Folder the shell starts in. Changing it opens a fresh shell there. */
   dir: string;
+  /** Runs before a command is sent (Enter), e.g. to save edited files first. */
+  beforeCommand?: () => Promise<void>;
 }
 
 const LIGHT = { background: "#ffffff", foreground: "#1f2328", cursor: "#1f2328", selectionBackground: "#b6d4fe" };
 const DARK = { background: "#0d1117", foreground: "#e6edf3", cursor: "#e6edf3", selectionBackground: "#264f78" };
 
 /** A real bash shell in the lab session (dojo._term on the other end). */
-export default function LabTerminal({ sessionId, dir }: Props) {
+export default function LabTerminal({ sessionId, dir, beforeCommand }: Props) {
+  const before = useRef(beforeCommand);
+  before.current = beforeCommand;
   const host = useRef<HTMLDivElement | null>(null);
   const [state, setState] = useState<"connecting" | "open" | "closed">("connecting");
   const [generation, setGeneration] = useState(0);
@@ -53,7 +57,16 @@ export default function LabTerminal({ sessionId, dir }: Props) {
       setState("closed");
       term.write("\r\n\x1b[2m[shell closed]\x1b[0m\r\n");
     };
-    const typing = term.onData((data) => send({ i: data }));
+    // Keystrokes go through a queue so that, on Enter, unsaved files are written before
+    // the command runs, without reordering anything typed meanwhile.
+    let queue = Promise.resolve();
+    const typing = term.onData((data) => {
+      const flush = data.includes("\r") ? before.current : undefined;
+      queue = queue.then(async () => {
+        if (flush) await flush().catch(() => {});
+        send({ i: data });
+      });
+    });
     const resized = term.onResize(sendSize);
     const observer = new ResizeObserver(() => {
       try {

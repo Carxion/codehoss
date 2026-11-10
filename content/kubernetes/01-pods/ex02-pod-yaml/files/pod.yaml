@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web
+  # add a label: app: web
+spec:
+  containers:
+  # one container: name, image, command, ports

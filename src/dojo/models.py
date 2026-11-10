@@ -33,7 +33,7 @@ class Sandbox(_Strict):
     ai: bool = False
     # Lab modules get a private Docker engine beside the session (see dojo.lab), a
     # terminal, and files that live in the session instead of a single main.py.
-    lab: Literal["docker"] | None = None
+    lab: Literal["docker", "kubernetes"] | None = None
     # Images copied into the lab's engine at start (labs have no internet to pull).
     lab_images: list[str] = []
 

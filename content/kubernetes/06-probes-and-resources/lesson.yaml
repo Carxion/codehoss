@@ -1,0 +1,30 @@
+title: Probes and resources
+summary: Tell Kubernetes when a pod is ready and alive, and how much it may use.
+steps:
+- type: explain
+  md: "Kubernetes can't guess whether your app works. **Probes** tell it:\n\n- **readinessProbe**: may\
+    \ this pod get traffic *right now*? Until it passes, Services skip the pod\n  and a rolling update\
+    \ waits.\n- **livenessProbe**: is it still alive? If it fails repeatedly, the container is restarted.\n\
+    \n```yaml\n        readinessProbe:\n          httpGet:\n            path: /ready\n            port:\
+    \ 8000\n          periodSeconds: 2\n        livenessProbe:\n          tcpSocket:\n            port:\
+    \ 8000\n          initialDelaySeconds: 15     # give it time to start before judging\n```\n\nWatch\
+    \ the `READY` column of `kubectl get pods` flip from `0/1` to `1/1`."
+- type: exercise
+  ref: ex01-probes
+- type: explain
+  md: "**Requests** are what a container is guaranteed, and the scheduler uses them to pick a\nnode. **Limits**\
+    \ are the most it may use: over the memory limit it's killed (`OOMKilled`), over the CPU\nlimit it's\
+    \ slowed down.\n\n```yaml\n        resources:\n          requests:\n            cpu: 50m        #\
+    \ 50 millicores = 5% of one CPU\n            memory: 32Mi\n          limits:\n            cpu: 200m\n\
+    \            memory: 64Mi\n```\n\nPods with requests below their limits get the QoS class **Burstable**;\
+    \ `kubectl describe pod`\nshows it."
+- type: exercise
+  ref: ex02-resources
+- type: quiz
+  question: A pod's readiness probe is failing, but its liveness probe passes. What happens?
+  options:
+  - The container restarts
+  - It stays running but gets no traffic from Services
+  - The Deployment is deleted
+  answer: 1
+  explanation: Readiness controls traffic; only liveness failures restart the container.

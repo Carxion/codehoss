@@ -1,0 +1,14 @@
+id: kubernetes.pod-yaml
+title: A pod from YAML
+difficulty: 2
+prompt: 'Finish **`pod.yaml`**: a pod named **`web`** with the label **`app: web`**, running
+
+  `python -m http.server 8000` in a `python:3.12-alpine` container that declares port 8000.
+
+
+  Apply it with `kubectl apply -f pod.yaml` and wait for it to be `Running`.'
+hints:
+- 'metadata needs name: web and labels: {app: web}.'
+- 'Under spec.containers, one container with name, image, command and ports: [{containerPort: 8000}].'
+- 'Copy the example from the lesson: it''s exactly this pod. Then kubectl apply -f pod.yaml'
+time_limit_s: 150

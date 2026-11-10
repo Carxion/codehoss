@@ -10,7 +10,7 @@ Python Basics ──► Data Science ──► AI
       │                │            │
       ├────────────────┴────────────┴──► Projects (build plans)
       ├──► Data Structures & Algorithms
-      └──► Docker (lab) ──► Kubernetes ──► MLOps   (Kubernetes, MLOps: coming in M7)
+      └──► Docker (lab) ──► Kubernetes (lab) ──► MLOps   (MLOps: coming in M7)
 ```
 
 ## Starter modules
@@ -157,11 +157,25 @@ Every exercise is done in a real terminal and checked against real state.
 | 11 | Registries | push to your own registry, release a new version |
 | 12 | Debugging containers | it won't start, running but nobody answers |
 
+### 7. Kubernetes — `kubernetes` (lab)
+Audience: finished Docker. A private k3s cluster per learner, plus the Docker engine and a
+registry at `docker:5000` for shipping their own images.
+
+| # | Lesson | Exercises |
+|---|---|---|
+| 1 | Pods and kubectl | your first pod, a pod from YAML |
+| 2 | Deployments | three replicas (self-healing), a rolling update |
+| 3 | Services | one name for many pods (ClusterIP), open it to the outside (NodePort) |
+| 4 | ConfigMaps and Secrets | settings in a ConfigMap, a password in a Secret |
+| 5 | Build, push, deploy | ship your own image, roll back a bad release |
+| 6 | Probes and resources | readiness and liveness, requests and limits |
+
+Coming next: namespaces, volumes, Jobs and CronJobs, Ingress, Helm, debugging.
+
 ## Later modules
 
 | Module | Highlights | Needs |
 |---|---|---|
-| Kubernetes | pods, deployments, services, config, probes, Helm | lab capability (M7) |
 | MLOps | serve a model, containerize, deploy to k8s, GitLab CI, monitoring | lab capability (M7) |
 
 ## Module format

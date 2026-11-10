@@ -4,7 +4,9 @@ from pathlib import Path
 
 def check_source():
     source = Path(__file__).with_name("main.py").read_text()
-    assert not re.search('(?<!\\w)sorted\\(|\\.sort\\(', source), 'Merge with a heap: no sorted() or .sort()'
+    assert not re.search("(?<!\\w)sorted\\(|\\.sort\\(", source), (
+        "Merge with a heap: no sorted() or .sort()"
+    )
 
 
 def test_rules():

@@ -1,0 +1,11 @@
+id: kubernetes.rolling-update
+title: A rolling update
+difficulty: 2
+prompt: "`deployment.yaml` runs **`greeter`**: 2 pods that answer `<GREETING> from <pod name>`.\n\n1.\
+  \ Apply it as it is\n2. Change `GREETING` from `Hello` to **`Hola`** and apply again\n3. Watch the rollout\
+  \ with `kubectl rollout status deployment/greeter`, then look at\n   `kubectl rollout history deployment/greeter`"
+hints:
+- kubectl apply -f deployment.yaml (first, unchanged).
+- 'Edit the value under env: GREETING, save, and apply again.'
+- kubectl rollout status deployment/greeter waits until every pod is new.
+time_limit_s: 150

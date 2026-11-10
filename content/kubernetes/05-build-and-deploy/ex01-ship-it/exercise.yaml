@@ -1,0 +1,16 @@
+id: kubernetes.ship-it
+title: Ship your own image
+difficulty: 3
+prompt: 'Get `app.py` running in the cluster:
+
+
+  1. Build it as **`docker:5000/hello-k8s:1`** and **push** it
+
+  2. Finish **`deployment.yaml`** so the `hello` Deployment uses that image
+
+  3. Apply the deployment and the service, then `curl http://k3s:30083`'
+hints:
+- docker build -t docker:5000/hello-k8s:1 . && docker push docker:5000/hello-k8s:1
+- 'In deployment.yaml set image: docker:5000/hello-k8s:1'
+- kubectl apply -f deployment.yaml -f service.yaml && kubectl rollout status deployment/hello
+time_limit_s: 150

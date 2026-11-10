@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        body = ("Fixed it!\n").encode()
+        body = b"Fixed it!\n"
         self.send_response(200)
         self.end_headers()
         self.wfile.write(body)

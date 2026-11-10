@@ -1,0 +1,17 @@
+id: kubernetes.clusterip
+title: One name for many pods
+difficulty: 2
+prompt: '`deployment.yaml` runs 2 `web` pods (each answers with its own name). Write **`service.yaml`**:
+  a
+
+  Service named **`web`** that sends port **80** to the pods'' port **8000**. Apply both.
+
+
+  Try it from inside a pod a few times and watch the answers alternate:
+
+  `kubectl exec deploy/web -- wget -qO- http://web`'
+hints:
+- 'The selector must match the pods'' label: app: web.'
+- 'ports: [{port: 80, targetPort: 8000}]'
+- kubectl apply -f deployment.yaml -f service.yaml, then kubectl get endpoints web
+time_limit_s: 150

@@ -233,7 +233,19 @@ builds and test stages, user-defined and internal networks, health checks and re
 policies, non-root and locked-down containers, a self-hosted registry (`registry:3.1.2`
 preloaded) with tagging and releases, and debugging (a CMD typo, an app bound to 127.0.0.1).
 
-Next: Kubernetes (a k3s sidecar per lab) and the MLOps capstone.
+Part 3 ✅ (2026-11-09): **Kubernetes labs** and the Kubernetes module, lessons 1–6.
+`sandbox.lab: kubernetes` adds a single-node k3s (`rancher/k3s:v1.37.1-k3s1`) per session on
+the same internal network, plus a registry inside the lab's engine at `docker:5000` (the
+engine trusts it; k3s mirrors it), so learners build, push and deploy their own images.
+k3s's three system images and the module's base images are copied into it before start, so
+nothing is pulled; a full lab (engine, registry, cluster) is ready in about 20 s.
+`kubectl` is the k3s binary under that name, already configured. Lessons: pods and kubectl,
+Deployments and rolling updates, Services (ClusterIP and NodePort), ConfigMaps and Secrets,
+build-push-deploy with a rollback, probes and resources (12 exercises). The terminal now
+saves edited files before running a command.
+
+Next: Kubernetes 7–12 (namespaces, volumes and PVCs, Jobs and CronJobs, Ingress, Helm,
+debugging) and the MLOps capstone.
 
 Changed from the plan:
 - Rootful `docker:dind` (it needs `--privileged`; set `DOJO_LAB_RUNTIME=sysbox-runc` to run

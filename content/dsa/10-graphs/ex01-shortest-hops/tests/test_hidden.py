@@ -22,6 +22,13 @@ def test_wide_graph_is_fast():
 
     n = 200_000
     graph = {"start": list(range(n)), n - 1: ["goal"]}
-    result = assert_fast(shortest_hops, graph, "start", "goal", budget=1.0, size="200,000 neighbours",
-                         hint="list.pop(0) is O(n); use collections.deque and popleft().")
+    result = assert_fast(
+        shortest_hops,
+        graph,
+        "start",
+        "goal",
+        budget=1.0,
+        size="200,000 neighbours",
+        hint="list.pop(0) is O(n); use collections.deque and popleft().",
+    )
     assert result == 2

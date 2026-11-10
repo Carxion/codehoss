@@ -132,7 +132,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
   async function resetLab(engine: boolean) {
     const question = engine
-      ? "Remove every container, network and volume you've made in this lab? (Images stay.) Your files are put back to the starter too."
+      ? "Remove everything you've made in this lab: containers, networks, volumes and Kubernetes objects? (Images stay.) Your files are put back to the starter too."
       : "Put this exercise's files back to how they started? Your changes will be lost.";
     if (!window.confirm(question)) return;
     try {
@@ -347,8 +347,8 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
                 </button>
               )}
               <span className="spacer" />
-              <button onClick={() => resetLab(true)} disabled={!sessionId || step.type !== "exercise"} title="Remove your containers, networks and volumes">
-                🧹 Clean up Docker
+              <button onClick={() => resetLab(true)} disabled={!sessionId || step.type !== "exercise"} title="Remove your containers, networks, volumes and Kubernetes objects">
+                🧹 Clean up lab
               </button>
             </>
           ) : (
@@ -379,7 +379,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
         )}
         {isLab && !sessionId && !sessionError && (
           <div className="banner info">
-            <span>Starting your lab: a private Docker engine just for you. This takes about 20 seconds…</span>
+            <span>Starting your lab: a private Docker engine just for you (plus a Kubernetes cluster in Kubernetes lessons). This takes 20 to 40 seconds…</span>
           </div>
         )}
         {sessionError && (

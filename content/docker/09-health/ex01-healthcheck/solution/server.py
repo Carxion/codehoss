@@ -21,7 +21,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"ok" if READY else b"starting")
             return
-        body = ("Service is up\n").encode()
+        body = b"Service is up\n"
         self.send_response(200)
         self.end_headers()
         self.wfile.write(body)

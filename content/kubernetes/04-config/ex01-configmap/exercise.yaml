@@ -1,0 +1,16 @@
+id: kubernetes.configmap
+title: Settings in a ConfigMap
+difficulty: 2
+prompt: 'The `greeter` deployment reads its settings from a ConfigMap called **`greeter-config`**,
+
+  which doesn''t exist yet. Write **`config.yaml`** with `GREETING: Bonjour`, then apply all three
+
+  files (`kubectl apply -f .` applies a whole folder).
+
+
+  `curl http://k3s:30081` should answer `Bonjour from ...`.'
+hints:
+- 'A ConfigMap has metadata.name and a data: map of key: value.'
+- "data:\n  GREETING: Bonjour"
+- kubectl apply -f . then kubectl rollout status deployment/greeter
+time_limit_s: 150

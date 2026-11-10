@@ -1,0 +1,13 @@
+id: kubernetes.rollback
+title: Roll back a bad release
+difficulty: 3
+prompt: "Version 2 of the shop has a bug that crashes it on start. Live through a bad release:\n\n1. Build\
+  \ and push **`docker:5000/shop:1`** (the `Dockerfile`) and **`docker:5000/shop:2`**\n   (`docker build\
+  \ -f Dockerfile.v2 ...`)\n2. Apply `deployment.yaml` (it runs version 1)\n3. Release version 2: `kubectl\
+  \ set image deployment/shop shop=docker:5000/shop:2`\n4. Watch it fail (`kubectl get pods`, `kubectl\
+  \ logs`), then **roll back** with `kubectl rollout undo`\n\nVersion 1 must be serving again at `http://k3s:30084`."
+hints:
+- docker build -t docker:5000/shop:2 -f Dockerfile.v2 . builds from the other Dockerfile.
+- 'kubectl rollout status deployment/shop will hang on version 2: Ctrl-C out of it.'
+- kubectl rollout undo deployment/shop, then kubectl rollout status deployment/shop
+time_limit_s: 150

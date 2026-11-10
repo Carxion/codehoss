@@ -1,0 +1,62 @@
+title: Pods and kubectl
+summary: Meet your cluster, run your first pods, and describe one in YAML.
+steps:
+- type: explain
+  md: '**Kubernetes** runs containers across a cluster of machines and keeps them the way
+
+    you asked: the right number running, restarted when they crash, reachable by name. You describe
+
+    **what you want**; Kubernetes works out how.
+
+
+    This lab has its own single-node cluster (k3s) and `kubectl` is already set up. Try:
+
+
+    ```bash
+
+    kubectl get nodes            # the machines in the cluster
+
+    kubectl get pods -A          # pods in every namespace (the system''s own are in kube-system)
+
+    kubectl api-resources | head # the kinds of object you can create
+
+    ```
+
+
+    The smallest unit is a **pod**: one or more containers that run together. The quickest way to
+
+    make one:
+
+
+    ```bash
+
+    kubectl run hi --image=python:3.12-alpine --restart=Never -- python -c "print(''hi'')"
+
+    kubectl get pods
+
+    kubectl logs hi
+
+    kubectl delete pod hi
+
+    ```'
+- type: exercise
+  ref: ex01-first-pod
+- type: explain
+  md: "Real work is written as **YAML manifests** and applied, so it can be reviewed and\nkept in git.\
+    \ Every object has `apiVersion`, `kind`, `metadata` (name, **labels**) and `spec`:\n\n```yaml\napiVersion:\
+    \ v1\nkind: Pod\nmetadata:\n  name: web\n  labels:\n    app: web            # labels are how other\
+    \ objects find this pod\nspec:\n  containers:\n  - name: web\n    image: python:3.12-alpine\n    command:\
+    \ [\"python\", \"-m\", \"http.server\", \"8000\"]\n    ports:\n    - containerPort: 8000\n```\n\n\
+    ```bash\nkubectl apply -f pod.yaml     # create or update to match the file\nkubectl describe pod\
+    \ web      # details and recent events: the first stop when debugging\n```"
+- type: exercise
+  ref: ex02-pod-yaml
+- type: quiz
+  question: What does `kubectl apply -f pod.yaml` do if the pod already exists?
+  options:
+  - Fails with 'already exists'
+  - Updates the object to match the file (where that's allowed)
+  - Creates a second copy
+  answer: 1
+  explanation: 'apply is declarative: it makes the cluster match the file. (Some pod fields can''t change
+    in place; Deployments handle that by replacing pods.)'

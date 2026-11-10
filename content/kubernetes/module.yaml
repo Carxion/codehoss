@@ -1,0 +1,22 @@
+id: kubernetes
+title: Kubernetes
+description: 'Deploy, scale, configure and heal apps on your own cluster: a real k3s per learner, with
+  a registry to ship your own images.'
+level: intermediate
+prerequisites:
+- docker
+sandbox:
+  image: dojo-lab
+  packages: []
+  memory: 512m
+  lab: kubernetes
+  lab_images:
+  - python:3.12-alpine
+default_view: lab
+lessons:
+- 01-pods
+- 02-deployments
+- 03-services
+- 04-config
+- 05-build-and-deploy
+- 06-probes-and-resources

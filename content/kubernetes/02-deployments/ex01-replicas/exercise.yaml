@@ -1,0 +1,14 @@
+id: kubernetes.replicas
+title: Three replicas
+difficulty: 2
+prompt: 'Write **`deployment.yaml`**: a Deployment named **`web`** with **3 replicas** of a pod labelled
+
+  `app: web` that runs `python -m http.server 8000` in `python:3.12-alpine`. Apply it.
+
+
+  Then try deleting one pod (`kubectl delete pod <name>`) and watch Kubernetes replace it.'
+hints:
+- 'Start from the example in the lesson; set replicas: 3.'
+- 'selector.matchLabels and template.metadata.labels must both say app: web.'
+- kubectl apply -f deployment.yaml && kubectl rollout status deployment/web
+time_limit_s: 150

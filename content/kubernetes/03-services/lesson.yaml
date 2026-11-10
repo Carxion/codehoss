@@ -1,0 +1,28 @@
+title: Services
+summary: Give a set of pods one stable name and address, inside and outside the cluster.
+steps:
+- type: explain
+  md: "Pods come and go, and each gets a new IP. A **Service** gives a set of pods (chosen\nby **label\
+    \ selector**) one stable name and address, and load-balances across them:\n\n```yaml\napiVersion:\
+    \ v1\nkind: Service\nmetadata:\n  name: web\nspec:\n  selector:\n    app: web           # send traffic\
+    \ to pods with this label\n  ports:\n  - port: 80           # the Service's port\n    targetPort:\
+    \ 8000   # the container's port\n```\n\nInside the cluster, any pod can now reach `http://web` (or\
+    \ `web.default.svc.cluster.local`).\n`kubectl get endpoints web` lists the pod IPs behind it."
+- type: exercise
+  ref: ex01-clusterip
+- type: explain
+  md: "That default Service type, **ClusterIP**, is reachable only from inside the cluster. To\nlet the\
+    \ outside in, the simplest option is **NodePort**: every node listens on a port (30000–32767)\nand\
+    \ forwards to the Service:\n\n```yaml\nspec:\n  type: NodePort\n  ports:\n  - port: 80\n    targetPort:\
+    \ 8000\n    nodePort: 30080\n```\n\nIn this lab the node is called `k3s`: try `curl http://k3s:30080`.\
+    \ (Production clusters usually put\na **LoadBalancer** or an **Ingress** in front instead.)"
+- type: exercise
+  ref: ex02-nodeport
+- type: quiz
+  question: How does a Service decide which pods get its traffic?
+  options:
+  - By the pods' names
+  - By its label selector
+  - By the order pods were created
+  answer: 1
+  explanation: Any running, ready pod whose labels match the selector becomes an endpoint of the Service.
