@@ -1,0 +1,14 @@
+id: docker.release
+title: Release a new version
+difficulty: 3
+prompt: 'Time for version **1.1**. Change `VERSION` in `app.py` to `"1.1"`, build it, and push it to the
+
+  registry as **both** `localhost:5000/hello-app:1.1` and `localhost:5000/hello-app:latest`.
+
+
+  (If the registry isn''t running, start it as in the last exercise.)'
+hints:
+- Edit app.py, then docker build -t hello-app:1.1 .
+- 'Tag the same image twice: localhost:5000/hello-app:1.1 and localhost:5000/hello-app:latest.'
+- docker push --all-tags localhost:5000/hello-app pushes every tag of that repository.
+time_limit_s: 90

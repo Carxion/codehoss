@@ -13,6 +13,7 @@ sandbox:
   lab_images:
   - alpine:3.22
   - python:3.12-alpine
+  - registry:3.1.2
 default_view: lab
 lessons:
 - 01-containers
@@ -21,3 +22,9 @@ lessons:
 - 04-ports
 - 05-volumes
 - 06-compose
+- 07-multi-stage
+- 08-networks
+- 09-health
+- 10-security
+- 11-registry
+- 12-debugging

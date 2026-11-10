@@ -1,0 +1,42 @@
+title: Safer containers
+summary: Don't run as root, and take away what the app doesn't need.
+steps:
+- type: explain
+  md: 'By default the process in a container runs as **root**. If an attacker breaks into your
+
+    app, they''re root inside the container, one bug away from the host. Create an ordinary user and
+
+    switch to it:
+
+
+    ```dockerfile
+
+    RUN adduser -D app        # Alpine; on Debian: useradd --create-home app
+
+    USER app                  # everything after this, and the container, runs as app
+
+    ```
+
+
+    Check with `docker run --rm IMAGE id`. (This lab''s own terminal runs as an unprivileged
+
+    `learner` for the same reason.)'
+- type: exercise
+  ref: ex01-non-root
+- type: explain
+  md: "You can lock a container down further when you run it:\n\n```bash\ndocker run --read-only --tmpfs\
+    \ /tmp --cap-drop ALL ...\n```\n\n- `--read-only`: the container's filesystem can't be changed (malware\
+    \ can't be dropped in)\n- `--tmpfs /tmp`: but give it a small scratch space in memory\n- `--cap-drop\
+    \ ALL`: remove Linux **capabilities** (root's special powers, like changing file\n  owners or binding\
+    \ to low ports)"
+- type: exercise
+  ref: ex02-locked-down
+- type: quiz
+  question: Why add `USER app` to a Dockerfile?
+  options:
+  - It makes the image smaller
+  - So a compromised app isn't root inside the container
+  - It's required to publish ports
+  answer: 1
+  explanation: Running as an unprivileged user limits what an attacker can do if they get code running
+    in your container.

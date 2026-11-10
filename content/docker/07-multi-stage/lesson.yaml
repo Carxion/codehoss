@@ -1,0 +1,76 @@
+title: Multi-stage builds
+summary: Build in one stage, ship only the result from another.
+steps:
+- type: explain
+  md: 'Building software often needs things you don''t want to **ship**: compilers, test files,
+
+    build caches, source code. A **multi-stage** Dockerfile has several `FROM` lines. Earlier stages do
+
+    the work; the final stage copies just the results out of them:
+
+
+    ```dockerfile
+
+    FROM python:3.12-alpine AS build
+
+    WORKDIR /src
+
+    COPY . .
+
+    RUN python build.py                    # makes site/ (and a lot of junk)
+
+
+    FROM python:3.12-alpine                # a fresh, clean image
+
+    COPY --from=build /src/site /site      # only the output
+
+    CMD ["python", "-m", "http.server", "-d", "/site", "8000"]
+
+    ```
+
+
+    Only the **last** stage becomes the image. Everything else is thrown away after the build.
+
+    Compare sizes with `docker images`.'
+- type: exercise
+  ref: ex01-ship-the-output
+- type: explain
+  md: 'Stages can also be **targets**. `docker build --target test .` builds up to the stage
+
+    named `test` and stops, which is how CI runs tests inside the same Dockerfile:
+
+
+    ```dockerfile
+
+    FROM python:3.12-alpine AS base
+
+    ...
+
+    FROM base AS test
+
+    COPY test_app.py .
+
+    RUN python -m unittest -v          # the build fails if a test fails
+
+
+    FROM base AS final
+
+    CMD ["python", "app.py"]
+
+    ```
+
+
+    A plain `docker build` builds the last stage, and BuildKit **skips stages the final stage
+
+    doesn''t need**, so tests never slow down (or leak into) the shipped image.'
+- type: exercise
+  ref: ex02-test-stage
+- type: quiz
+  question: A Dockerfile has three FROM lines. Which ends up in the image you run?
+  options:
+  - All three, layered
+  - Only the last stage (plus anything it COPY --from's)
+  - The first stage
+  answer: 1
+  explanation: Earlier stages only exist during the build. The final stage is the image; it contains only
+    what it copies in.

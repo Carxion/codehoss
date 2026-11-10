@@ -150,9 +150,12 @@ Every exercise is done in a real terminal and checked against real state.
 | 4 | Ports and configuration | publish a web app, configure with environment variables |
 | 5 | Volumes | a counter that remembers, two containers sharing a volume |
 | 6 | Docker Compose | web + API with Compose |
-
-Coming next: multi-stage builds, networks, healthchecks, non-root images, a local
-registry, debugging.
+| 7 | Multi-stage builds | ship the output not the build, tests as a build stage |
+| 8 | Networks | find the database by name, a private (internal) network |
+| 9 | Health checks and restarts | add a health check, restart on failure |
+| 10 | Safer containers | don't run as root, read-only with no capabilities |
+| 11 | Registries | push to your own registry, release a new version |
+| 12 | Debugging containers | it won't start, running but nobody answers |
 
 ## Later modules
 

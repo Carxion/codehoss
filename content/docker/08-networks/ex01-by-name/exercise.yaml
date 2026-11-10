@@ -1,0 +1,13 @@
+id: docker.by-name
+title: Find the database by name
+difficulty: 3
+prompt: "`db.py` is a tiny \"database\" on port 6000; `app.py` is a web app on port 8000 that asks\n`http://db:6000`\
+  \ for the answer. The Dockerfile puts both scripts in one image.\n\n1. Build **`netdemo:1`**\n2. Create\
+  \ a network called **`appnet`**\n3. Run **`db`** (`python db.py`) and **`app`** (`python app.py`) on\
+  \ `appnet`, with only `app`\n   published, on host port **8084**"
+hints:
+- docker network create appnet
+- Add --network appnet to both docker run commands. The command to run goes after the image name.
+- docker run -d --name db --network appnet netdemo:1 python db.py, then docker run -d --name app --network
+  appnet -p 8084:8000 netdemo:1 python app.py
+time_limit_s: 90

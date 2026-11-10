@@ -9,9 +9,9 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > (12 lessons and 24 exercises each) plus **Projects**: six multi-checkpoint builds at
 > Guided / Assisted / Solo level, collected in a downloadable portfolio. DSA lessons open
 > with step-through algorithm animations, and its tests fail code that is too slow. AI work
-> runs on a local model (Ollama) or Claude with your own key. M7 has begun: a **Docker** lab
-> module where each learner gets a private Docker engine and a real terminal in the browser.
-> Next: more Docker, then Kubernetes and MLOps labs. See
+> runs on a local model (Ollama) or Claude with your own key. M7 has begun: a 12-lesson
+> **Docker** lab where each learner gets a private Docker engine and a real terminal in the
+> browser. Next: Kubernetes and MLOps labs. See
 > [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)

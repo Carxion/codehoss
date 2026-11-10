@@ -1,0 +1,23 @@
+id: docker.test-stage
+title: Tests as a build stage
+difficulty: 3
+prompt: 'Give this Dockerfile three stages:
+
+
+  - `base`: Python plus `app.py`
+
+  - `test`: from `base`, adds `test_app.py` and **runs the tests** (`python -m unittest -v`)
+
+  - `final`: from `base`, runs `python app.py`
+
+
+  Then `docker build --target test .` runs the tests, and `docker build -t calc:1 .` makes an image
+
+  **without** the test file. Build **`calc:1`**. The check also breaks `add()` in a copy and makes
+
+  sure your test stage catches it.'
+hints:
+- 'Name stages with AS: FROM python:3.12-alpine AS base, FROM base AS test, FROM base AS final.'
+- 'The test stage: COPY test_app.py . then RUN python -m unittest -v.'
+- 'The final stage only needs CMD ["python", "app.py"]: it inherits WORKDIR and app.py from base.'
+time_limit_s: 90

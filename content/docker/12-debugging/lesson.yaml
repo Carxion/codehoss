@@ -1,0 +1,41 @@
+title: Debugging containers
+summary: 'When it doesn''t work: logs, inspect, exec, and the classic mistakes.'
+steps:
+- type: explain
+  md: 'Your toolkit when a container misbehaves:
+
+
+    | Command | Answers |
+
+    |---|---|
+
+    | `docker ps -a` | Is it running? What was its exit code? |
+
+    | `docker logs NAME` | What did it print before it died? |
+
+    | `docker inspect NAME` | How exactly was it started? (ports, env, mounts, command) |
+
+    | `docker exec -it NAME sh` | What does it look like from inside? |
+
+    | `docker run --rm -it --entrypoint sh IMAGE` | Poke around an image that won''t start |
+
+
+    Two classics: a **typo in CMD** (the container exits at once; `docker logs` says why), and an app
+
+    listening on **127.0.0.1** inside the container (it''s running, the port is published, but nothing
+
+    answers: 127.0.0.1 inside a container means *only that container*).'
+- type: exercise
+  ref: ex01-wont-start
+- type: exercise
+  ref: ex02-no-answer
+- type: quiz
+  question: A container is Up, its port is published, but requests get "connection refused". The likeliest
+    cause?
+  options:
+  - The image is too big
+  - The app listens on 127.0.0.1 instead of 0.0.0.0
+  - The container needs --privileged
+  answer: 1
+  explanation: Published ports forward to the container's network interface; an app bound to 127.0.0.1
+    only accepts connections from inside the container.

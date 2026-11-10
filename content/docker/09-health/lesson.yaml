@@ -1,0 +1,49 @@
+title: Health checks and restarts
+summary: Tell Docker how to know your app is really working, and what to do when it isn't.
+steps:
+- type: explain
+  md: "\"Running\" only means the process hasn't exited. It could be stuck, still loading, or\nreturning\
+    \ errors. A **health check** is a command Docker runs inside the container every so often;\nexit code\
+    \ 0 means healthy:\n\n```dockerfile\nHEALTHCHECK --interval=2s --timeout=2s --retries=3 \\\n  CMD\
+    \ wget -qO- http://127.0.0.1:8000/health || exit 1\n```\n\n`docker ps` then shows `(health: starting)`,\
+    \ `(healthy)` or `(unhealthy)`, and orchestrators\n(Compose `depends_on: condition: service_healthy`,\
+    \ Kubernetes probes) use it to decide when to\nsend traffic.\n\nTwo details: `--start-period` gives\
+    \ a slow-starting app time before failures count, and use\n`127.0.0.1` rather than `localhost` in\
+    \ checks. In small images `localhost` may resolve to the\nIPv6 address `::1`, which an app listening\
+    \ on IPv4 `0.0.0.0` never answers."
+- type: exercise
+  ref: ex01-healthcheck
+- type: explain
+  md: 'Programs crash. A **restart policy** tells Docker what to do about it:
+
+
+    | Policy | Restarts when |
+
+    |---|---|
+
+    | `no` (default) | never |
+
+    | `on-failure[:N]` | it exits with an error (at most N times) |
+
+    | `unless-stopped` | it exits for any reason, unless you stopped it |
+
+    | `always` | it exits, even after you stopped it, once Docker restarts |
+
+
+    ```bash
+
+    docker run -d --restart on-failure:3 myimage
+
+    docker inspect -f ''{{.RestartCount}}'' CONTAINER
+
+    ```'
+- type: exercise
+  ref: ex02-restart
+- type: quiz
+  question: Your container shows `Up 5 minutes (unhealthy)`. What does that tell you?
+  options:
+  - The process crashed
+  - The process is running but its health check keeps failing
+  - Docker itself is unhealthy
+  answer: 1
+  explanation: Unhealthy means the health check command is failing while the main process is still running.

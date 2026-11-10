@@ -1,0 +1,15 @@
+id: docker.non-root
+title: Don't run as root
+difficulty: 2
+prompt: '`whoami.py` prints which user it runs as. Right now that''s `root`. Change the Dockerfile to
+  create
+
+  a user called **`app`** and run as it, then build **`whoami:1`**.
+
+
+  `docker run --rm whoami:1` should print `running as app`.'
+hints:
+- Alpine creates users with adduser -D NAME.
+- Add USER app after the RUN that creates it (and before CMD).
+- RUN adduser -D app / USER app, then docker build -t whoami:1 .
+time_limit_s: 90

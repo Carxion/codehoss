@@ -1,0 +1,60 @@
+title: Networks
+summary: Let containers find each other by name, and keep private services private.
+steps:
+- type: explain
+  md: 'Containers on the **default** network can''t find each other by name. Create your own
+
+    network and every container on it can reach the others **by container name**, through Docker''s
+
+    built-in DNS:
+
+
+    ```bash
+
+    docker network create appnet
+
+    docker run -d --name db  --network appnet myimage python db.py
+
+    docker run -d --name app --network appnet -p 8084:8000 myimage python app.py
+
+    # inside app, http://db:6000 reaches the db container
+
+    docker network inspect appnet     # who''s connected
+
+    ```
+
+
+    Notice that only `app` publishes a port. `db` is reachable from containers on `appnet`, but not
+
+    from outside.'
+- type: exercise
+  ref: ex01-by-name
+- type: explain
+  md: 'An **internal** network goes further: containers on it can talk to each other but have
+
+    **no route out** at all, not to the internet and not to published ports. Perfect for databases and
+
+    anything holding secrets:
+
+
+    ```bash
+
+    docker network create --internal backend
+
+    ```
+
+
+    A container can join several networks (`docker network connect NET CONTAINER`), so a web app
+
+    can sit on both a public network and an internal one.'
+- type: exercise
+  ref: ex02-internal
+- type: quiz
+  question: Two containers are on the same user-defined network. How does one reach the other?
+  options:
+  - By the other's container name
+  - Only through a published port
+  - By the host's IP address
+  answer: 0
+  explanation: 'User-defined networks have built-in DNS: container names resolve to their addresses on
+    that network.'

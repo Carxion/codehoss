@@ -1,0 +1,15 @@
+id: docker.restart
+title: Restart on failure
+difficulty: 2
+prompt: '`flaky.py` crashes a second after it starts. Build **`flaky:1`** and run it in the background
+  as
+
+  **`flaky`** with a restart policy that restarts it **on failure, at most 3 times**.
+
+
+  Watch `docker ps -a` and `docker inspect -f ''{{.RestartCount}}'' flaky`.'
+hints:
+- 'The policy is on-failure with a limit: on-failure:3'
+- Pass it with --restart on docker run.
+- docker build -t flaky:1 . && docker run -d --name flaky --restart on-failure:3 flaky:1
+time_limit_s: 90

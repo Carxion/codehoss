@@ -1,0 +1,13 @@
+id: docker.internal
+title: A private network
+difficulty: 3
+prompt: "Keep the database somewhere nothing can wander in from outside:\n\n1. Create an **internal**\
+  \ network called **`backend`**\n2. Run a container named **`vault`** from `netdemo:1` with `python db.py`,\
+  \ **only** on `backend`, with no\n   published ports\n\nThe check starts a throwaway container on `backend`\
+  \ and asks `http://vault:6000` for the answer.\n(Build `netdemo:1` here too if you haven't: the files\
+  \ are the same as the last exercise.)"
+hints:
+- docker network create --internal backend
+- docker run -d --name vault --network backend netdemo:1 python db.py
+- 'Try it yourself: docker run --rm --network backend alpine:3.22 wget -qO- http://vault:6000'
+time_limit_s: 90

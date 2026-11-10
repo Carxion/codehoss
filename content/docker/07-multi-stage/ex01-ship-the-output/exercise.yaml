@@ -1,0 +1,20 @@
+id: docker.ship-the-output
+title: Ship the output, not the build
+difficulty: 3
+prompt: '`build.py` turns `pages/` into a website in `site/`, but it also leaves a **20 MB**
+
+  `build-cache/` behind, and the single-stage Dockerfile ships all of it (plus the build script).
+
+
+  Make it **multi-stage**: build in a stage called `build`, then start a fresh `python:3.12-alpine`
+
+  stage that copies **only** `site/` (to `/site`) and serves it on port 8000. Build **`notes:2`** and
+  run
+
+  it as **`notes`** on host port **8083**.'
+hints:
+- 'Name the first stage: FROM python:3.12-alpine AS build. Keep the WORKDIR, COPY and RUN there.'
+- 'Second stage: FROM python:3.12-alpine, then COPY --from=build /src/site /site.'
+- Finish with CMD ["python", "-m", "http.server", "-d", "/site", "8000"], build, then docker run -d --name
+  notes -p 8083:8000 notes:2
+time_limit_s: 90

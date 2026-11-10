@@ -1,0 +1,18 @@
+id: docker.locked-down
+title: Lock it down
+difficulty: 3
+prompt: '`heartbeat.py` writes the time to `/tmp/heartbeat` every second; it needs nothing else. Build
+
+  **`heartbeat:1`** and run it in the background as **`locked`** with:
+
+
+  - a **read-only** filesystem
+
+  - a **tmpfs** at `/tmp` so the heartbeat can still be written
+
+  - **all** capabilities dropped'
+hints:
+- 'Three flags: --read-only, --tmpfs /tmp and --cap-drop ALL.'
+- 'Without --tmpfs /tmp the app crashes: /tmp is read-only too. Check docker logs locked.'
+- docker run -d --name locked --read-only --tmpfs /tmp --cap-drop ALL heartbeat:1
+time_limit_s: 90

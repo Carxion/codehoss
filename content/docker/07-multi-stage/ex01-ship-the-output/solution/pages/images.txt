@@ -1,0 +1,1 @@
+images are stacks of read-only layers

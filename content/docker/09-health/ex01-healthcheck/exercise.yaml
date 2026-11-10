@@ -1,0 +1,16 @@
+id: docker.healthcheck
+title: Add a health check
+difficulty: 3
+prompt: '`server.py` takes a few seconds to warm up; until then `/health` returns 503. Add a
+
+  **`HEALTHCHECK`** to the Dockerfile that fetches `http://127.0.0.1:8000/health` (use `wget -qO-`;
+
+  make it check every **2 seconds**), build **`health:1`**, and run it as **`healthy`**.
+
+
+  Watch it go from `health: starting` to `healthy` with `docker ps`.'
+hints:
+- HEALTHCHECK --interval=2s --timeout=2s --start-period=5s --retries=3 CMD ...
+- 'The command: wget -qO- http://127.0.0.1:8000/health || exit 1'
+- docker build -t health:1 . && docker run -d --name healthy health:1
+time_limit_s: 90

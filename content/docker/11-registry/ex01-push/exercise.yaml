@@ -1,0 +1,16 @@
+id: docker.push
+title: Push to your own registry
+difficulty: 3
+prompt: '1. Start a registry: container **`registry`** from `registry:3.1.2`, publishing port **5000**
+
+  2. Build this app as **`hello-app:1.0`**
+
+  3. Tag it **`localhost:5000/hello-app:1.0`** and **push** it
+
+
+  The check asks the registry what it holds.'
+hints:
+- docker run -d --name registry -p 5000:5000 registry:3.1.2
+- docker build -t hello-app:1.0 . then docker tag hello-app:1.0 localhost:5000/hello-app:1.0
+- docker push localhost:5000/hello-app:1.0, then curl http://docker:5000/v2/_catalog
+time_limit_s: 90

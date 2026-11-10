@@ -228,8 +228,12 @@ starter (must fail) and solution.sh + solution (must pass) against a reset engin
 Docker lessons: containers, Dockerfiles, layers/cache and `.dockerignore`, ports and env
 config, volumes, Compose (12 exercises). Verified with an 11-step browser walkthrough.
 
-Next: Docker 7–12 (multi-stage builds, networks, healthchecks, non-root images, a local
-registry, debugging), then Kubernetes (a k3s sidecar per lab) and the MLOps capstone.
+Part 2 ✅ (2026-11-09): Docker lessons 7–12, completing the module (24 exercises): multi-stage
+builds and test stages, user-defined and internal networks, health checks and restart
+policies, non-root and locked-down containers, a self-hosted registry (`registry:3.1.2`
+preloaded) with tagging and releases, and debugging (a CMD typo, an app bound to 127.0.0.1).
+
+Next: Kubernetes (a k3s sidecar per lab) and the MLOps capstone.
 
 Changed from the plan:
 - Rootful `docker:dind` (it needs `--privileged`; set `DOJO_LAB_RUNTIME=sysbox-runc` to run

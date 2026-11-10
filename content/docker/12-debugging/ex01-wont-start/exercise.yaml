@@ -1,0 +1,13 @@
+id: docker.wont-start
+title: It won't start
+difficulty: 2
+prompt: 'This image builds fine, but the container dies immediately. Find out why (`docker logs` is
+
+  your friend), fix the Dockerfile, build **`fixme:1`**, and run it as **`fixme`** on host port
+
+  **8085**.'
+hints:
+- Build and run it as asked, then docker ps -a shows it exited and docker logs fixme shows the error.
+- 'Read the error carefully: which file is Python trying to open? Which file actually exists?'
+- 'The CMD has a typo: sever.py should be server.py. Rebuild, docker rm fixme, and run again.'
+time_limit_s: 90

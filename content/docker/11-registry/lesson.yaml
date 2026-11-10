@@ -1,0 +1,71 @@
+title: 'Registries: sharing images'
+summary: Tag images properly and push them to a registry others can pull from.
+steps:
+- type: explain
+  md: 'A **registry** stores images so other machines can pull them: Docker Hub, GitLab''s
+
+    container registry, or your own. An image''s full name says where it lives:
+
+
+    ```
+
+    registry.example.com:5000/team/app:1.4
+
+    └──────── registry ─────┘└ repo ─┘└tag┘
+
+    ```
+
+
+    No registry part means Docker Hub. You can run a registry yourself (it''s just a container), and
+
+    push to it by **tagging** an image with its address:
+
+
+    ```bash
+
+    docker run -d --name registry -p 5000:5000 registry:3.1.2
+
+    docker tag hello-app:1.0 localhost:5000/hello-app:1.0
+
+    docker push localhost:5000/hello-app:1.0
+
+    curl http://docker:5000/v2/_catalog              # what''s in the registry
+
+    curl http://docker:5000/v2/hello-app/tags/list
+
+    ```
+
+
+    (`localhost:5000` is from the **engine''s** point of view: the registry''s published port is on the
+
+    engine. From your terminal, the same registry is `docker:5000`.)'
+- type: exercise
+  ref: ex01-push
+- type: explain
+  md: 'Tags are just labels, and one image can have many. A common habit is to push an exact
+
+    version **and** move `latest` to it:
+
+
+    ```bash
+
+    docker tag hello-app:1.1 localhost:5000/hello-app:1.1
+
+    docker tag hello-app:1.1 localhost:5000/hello-app:latest
+
+    docker push --all-tags localhost:5000/hello-app
+
+    ```
+
+
+    Deploy exact versions, never `latest`: `latest` changes under your feet.'
+- type: exercise
+  ref: ex02-release
+- type: quiz
+  question: Why deploy `app:1.4.2` instead of `app:latest`?
+  options:
+  - latest is slower to pull
+  - latest can point to a different image tomorrow, so deploys aren't repeatable
+  - Registries don't allow pulling latest
+  answer: 1
+  explanation: A version tag pins exactly what you tested; latest moves whenever someone pushes.
