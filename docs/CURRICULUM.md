@@ -12,7 +12,7 @@ Python Basics ──► Data Science ──► AI
       │                │            │
       ├────────────────┴────────────┴──► Projects (build plans)
       ├──► Data Structures & Algorithms
-      └──► Docker (lab) ──► Kubernetes (lab) ──► MLOps   (MLOps: coming in M7)
+      └──► Docker (lab) ──► Kubernetes (lab) ──► MLOps (lab capstone)
 ```
 
 ## Starter modules
@@ -192,14 +192,38 @@ registry at `docker:5000` for shipping their own images.
 | 4 | ConfigMaps and Secrets | settings in a ConfigMap, a password in a Secret |
 | 5 | Build, push, deploy | ship your own image, roll back a bad release |
 | 6 | Probes and resources | readiness and liveness, requests and limits |
+| 7 | Namespaces and quotas | a namespace for the shop, a ResourceQuota (3 of 5 pods) |
+| 8 | Volumes and storage | a shared emptyDir (sidecar), a PVC that survives a new pod |
+| 9 | Jobs and CronJobs | a parallel Job, a scheduled report (run on demand) |
+| 10 | Ingress | two sites by hostname, routing by path |
+| 11 | Helm | template a chart with values, upgrade and roll back a release |
+| 12 | Debugging | the broken shop (image, selector, port), the crashing worker |
 
-Coming next: namespaces, volumes, Jobs and CronJobs, Ingress, Helm, debugging.
+Ingress goes through Traefik at `http://k3s/`; `helm` is in the lab image (local charts:
+no internet). 24 exercises.
+
+### 8. MLOps — `mlops` (lab, capstone)
+Audience: finished Kubernetes. One house-price model (plain-Python linear regression, so it
+runs on the preloaded `python:3.12-alpine`) taken from a script to a monitored service.
+Same Kubernetes lab, plus PyYAML for the pipeline runner.
+
+| # | Lesson | Exercises |
+|---|---|---|
+| 1 | A training pipeline | save the model and metrics, a quality gate |
+| 2 | Serving predictions | a prediction API, a multi-stage image |
+| 3 | Versioned releases | push 1.0.0 to the registry, a release script that refuses bad models |
+| 4 | Deploying the model | deploy behind an Ingress, upgrade then roll back |
+| 5 | CI/CD with GitLab | write `.gitlab-ci.yml` (artifacts, rules), ship from the pipeline with a smoke test |
+| 6 | Monitoring and canary releases | Prometheus metrics, a canary Deployment |
+
+GitLab CI runs in the lab through `ci.py`, which executes a `.gitlab-ci.yml` the way a runner
+would: clean checkout per job (honouring `.gitignore`), artifacts and `needs:`, `rules:` and
+manual jobs. The file is unchanged on a real GitLab.
 
 ## Later modules
 
 | Module | Highlights | Needs |
 |---|---|---|
-| MLOps | serve a model, containerize, deploy to k8s, GitLab CI, monitoring | lab capability (M7) |
 | JavaScript Basics + projects | the Programming Basics ideas in JS, async, a web page, a REST API | multi-language platform (M9) |
 | R Basics + projects | vectors, data frames, tidyverse, ggplot2, reports | M9 platform, R notebook kernel (M10) |
 | C++ Basics + projects | compiling, pointers and memory, STL, performance | M9 platform, compile step (M11) |

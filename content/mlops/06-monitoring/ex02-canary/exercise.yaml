@@ -1,0 +1,29 @@
+id: mlops.canary
+title: A canary release
+difficulty: 3
+prompt: '`k8s/deployment.yaml` now runs the **stable** track (3 pods of 1.0.0, labelled `track: stable`).
+
+  Write **`canary.yaml`**: a Deployment named **`house-api-canary`** with **1** replica of
+
+  **1.1.0**, labelled `app: house-api` and `track: canary` (and selecting on both), with the same
+
+  readiness probe.
+
+
+  Release both versions, apply everything, and watch the traffic split:
+
+
+  ```bash
+
+  sh release.sh 1.0.0 && sh release.sh 1.1.0
+
+  kubectl apply -f k8s/ -f canary.yaml
+
+  for i in $(seq 20); do curl -s -H ''Host: api.local'' http://k3s/health; echo; done | sort | uniq -c
+
+  ```'
+hints:
+- Copy k8s/deployment.yaml and change the name, replicas, image and track.
+- 'The selector''s matchLabels and the template''s labels both need app: house-api and track: canary.'
+- 'Don''t touch the Service: it selects app: house-api, so it finds both tracks.'
+time_limit_s: 240

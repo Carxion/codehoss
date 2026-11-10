@@ -1,0 +1,29 @@
+id: kubernetes.pvc
+title: Storage that survives
+difficulty: 3
+prompt: 'The `notes` app serves whatever is in `/data`. Make that folder survive pod restarts:
+
+
+  1. Write **`pvc.yaml`**: a PersistentVolumeClaim named **`notes-data`**, `ReadWriteOnce`, **50Mi**.
+
+  2. In **`deployment.yaml`**, mount the claim at **`/data`**.
+
+
+  Apply both, then prove it: write a file, delete the pod, and read it from the new pod.
+
+
+  ```bash
+
+  kubectl exec deploy/notes -- sh -c ''echo remember me > /data/note.txt''
+
+  kubectl delete pod -l app=notes
+
+  kubectl exec deploy/notes -- cat /data/note.txt
+
+  ```'
+hints:
+- 'The PVC is short: copy the example in the lesson and change the name and size.'
+- 'In the pod template spec: volumes: [{name: data, persistentVolumeClaim: {claimName: notes-data}}]'
+- 'In the container: volumeMounts: [{name: data, mountPath: /data}]. Then kubectl apply -f pvc.yaml -f
+  deployment.yaml'
+time_limit_s: 150

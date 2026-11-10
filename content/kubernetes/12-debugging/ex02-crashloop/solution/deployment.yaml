@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - name: worker
+        image: python:3.12-alpine
+        command: ["sh", "-c", "[ -n \"$APP_MODE\" ] || { echo \"error: APP_MODE is not set\" >&2; exit 1; }; echo \"worker started in $APP_MODE mode\"; exec python -m http.server 8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: APP_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: worker-config
+              key: mode
+              optional: true
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          periodSeconds: 2

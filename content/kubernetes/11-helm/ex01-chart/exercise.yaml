@@ -1,0 +1,18 @@
+id: kubernetes.helm-chart
+title: Your first chart
+difficulty: 2
+prompt: 'The chart in **`chart/`** works, but its template has the replica count and greeting
+
+  typed in. Make **`chart/templates/deployment.yaml`** use **`.Values.replicas`** and
+
+  **`.Values.greeting`** (the defaults are already in `values.yaml`: 2 and `Howdy`).
+
+
+  Check the result with `helm template demo ./chart --set replicas=4`, then install the chart as
+
+  a release named **`shop`**.'
+hints:
+- 'replicas: {{ .Values.replicas }}'
+- 'Text values should be quoted in YAML: value: {{ .Values.greeting | quote }}'
+- helm install shop ./chart, then kubectl get deploy shop
+time_limit_s: 150

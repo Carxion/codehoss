@@ -241,7 +241,7 @@ every mistake in plain words with the line number. Platform additions:
 - Example steps can show code in another language (read-only), for the comparison lesson.
 - The catalog lists courses in prerequisite order, so the two beginner courses come first.
 
-## M7 — Infrastructure modules (Docker, Kubernetes, MLOps) — in progress
+## M7 — Infrastructure modules (Docker, Kubernetes, MLOps) ✅ (2026-11-10)
 Part 1 ✅ (2026-11-09): the **lab capability** and the **Docker** module, lessons 1–6.
 A lab session is the usual locked-down session container plus a private `docker:dind`
 engine on an internal network with no internet; base images are copied in at start
@@ -269,8 +269,20 @@ Deployments and rolling updates, Services (ClusterIP and NodePort), ConfigMaps a
 build-push-deploy with a rollback, probes and resources (12 exercises). The terminal now
 saves edited files before running a command.
 
-Next: Kubernetes 7–12 (namespaces, volumes and PVCs, Jobs and CronJobs, Ingress, Helm,
-debugging) and the MLOps capstone.
+Part 4 ✅ (2026-11-10): Kubernetes lessons 7–12, completing the module (24 exercises):
+namespaces and ResourceQuotas, emptyDir sidecars and PVCs, Jobs and CronJobs, Ingress by host
+and path, Helm (templating, upgrade, rollback) and debugging (a broken image, selector and
+port; a CrashLoopBackOff from a ConfigMap key). Platform: an ingress controller (plain
+Traefik applied from k3s's manifests folder, at `http://k3s/`), the local-path helper image
+preloaded so PVCs bind offline, `helm` in the lab image, resets that wait for namespaces.
+
+Part 5 ✅ (2026-11-10): the **MLOps** capstone (6 lessons, 12 exercises), a Kubernetes lab:
+train a plain-Python house-price model with versioned metrics and a quality gate, serve it
+over HTTP, package it with a multi-stage build, release versions to the lab registry with a
+script that refuses bad models, deploy behind an Ingress with upgrade and rollback, write a
+GitLab CI pipeline (artifacts, rules, a smoke test) and run it with `ci.py` (a local
+`.gitlab-ci.yml` runner: clean checkouts, artifacts, `needs`, rules, manual jobs), then
+Prometheus metrics and a canary release. M7 is complete.
 
 Changed from the plan:
 - Rootful `docker:dind` (it needs `--privileged`; set `DOJO_LAB_RUNTIME=sysbox-runc` to run
@@ -285,6 +297,8 @@ Original plan:
 - Lab capability: per-learner rootless Docker-in-Docker and `kind` cluster / k8s namespace
 - Lab graders inspect real state (`kubectl get`, image layers, HTTP checks)
 - MLOps capstone: deploy a Projects-module model to Kubernetes with a GitLab CI pipeline
+  (built with its own small plain-Python model instead: labs have no internet for
+  scikit-learn, and the MLOps ideas don't depend on the model)
 - Session orchestration moves onto Kubernetes (one pod per session)
 
 ## M8 — AI tutor & polish

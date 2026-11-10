@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notes
+  template:
+    metadata:
+      labels:
+        app: notes
+    spec:
+      containers:
+      - name: notes
+        image: python:3.12-alpine
+        command: ["sh", "-c", "cd /data && exec python -m http.server 8000"]
+        ports:
+        - containerPort: 8000
+        # mount the claim at /data

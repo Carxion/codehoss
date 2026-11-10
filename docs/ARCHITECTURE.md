@@ -105,8 +105,16 @@ Kubernetes labs (`sandbox.lab: kubernetes`) also start `rancher/k3s` on that net
 started with a dummy default route (k3s won't pick a node IP without one; the network has
 no way out regardless). The engine runs with `--insecure-registry docker:5000` and a
 `registry` container labelled `dojo.keep=1`, which lab resets leave alone; resets also
-delete the learner's namespaces and objects. The session gets a kubeconfig pointing at
-`https://k3s:6443`; `kubectl` is the k3s multi-call binary.
+delete the learner's namespaces (waiting, so the next exercise can reuse a name) and
+objects. The session gets a kubeconfig pointing at `https://k3s:6443`; `kubectl` is the k3s
+multi-call binary and `helm` is copied from `alpine/helm`.
+
+k3s's bundled Traefik installs through its Helm controller, which would mean more images and
+a slower start, so the cluster gets a plain Traefik instead: a manifest dropped into k3s's
+auto-applied `server/manifests` folder (RBAC, a default IngressClass, a Deployment with
+`hostPort: 80`). Ingress rules answer at `http://k3s/`; `dojo_checks.ingress_get` waits out
+the moment a new rule isn't picked up yet. The local-path provisioner's helper image is
+preloaded too, so PersistentVolumeClaims bind without internet.
 
 ## Pseudocode and step-through
 

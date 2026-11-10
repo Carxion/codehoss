@@ -1,0 +1,28 @@
+id: mlops.pipeline
+title: Write the pipeline
+difficulty: 3
+prompt: 'Finish **`.gitlab-ci.yml`**. `unit-tests` is done; add:
+
+
+  | Job | Stage | Does | When |
+
+  |---|---|---|---|
+
+  | `train` | train | `python train.py`, keeping `model/` as an artifact | always |
+
+  | `quality-gate` | evaluate | `python check_metrics.py` | always |
+
+  | `build` | build | `sh release.sh $MODEL_VERSION` | main only |
+
+  | `deploy` | deploy | `kubectl apply -f k8s/`, `kubectl set image deployment/house-api api=docker:5000/house-api:$MODEL_VERSION`,
+  `kubectl rollout status deployment/house-api --timeout=120s` | main only |
+
+
+  Check it with `python ci.py --plan --branch feature/x`, then run a feature branch''s pipeline:
+
+  `python ci.py --branch feature/x`. (Running `main` would deploy: that''s the next exercise.)'
+hints:
+- Copy the train and build jobs from the lesson; quality-gate is like train without artifacts.
+- 'Main-only jobs get rules: [{if: $CI_COMMIT_BRANCH == "main"}] (written as a list under rules:).'
+- 'If quality-gate can''t find model/metrics.json, check train''s artifacts: paths: [model/].'
+time_limit_s: 240

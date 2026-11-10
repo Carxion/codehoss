@@ -1,0 +1,13 @@
+id: kubernetes.job
+title: A parallel job
+difficulty: 2
+prompt: '**`job.yaml`** describes the `squares` Job. Make it run to **3 completions**, **3 at a
+
+  time**, with a **backoffLimit of 2**. Apply it, wait for it to complete, and read the answer
+
+  with `kubectl logs job/squares`.'
+hints:
+- 'The three fields go in the Job''s spec, above template:'
+- 'completions: 3, parallelism: 3, backoffLimit: 2'
+- kubectl apply -f job.yaml && kubectl wait --for=condition=Complete job/squares --timeout=90s
+time_limit_s: 150

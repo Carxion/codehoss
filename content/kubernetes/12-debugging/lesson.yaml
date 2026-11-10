@@ -1,0 +1,69 @@
+title: Debugging
+summary: Find out why a pod won't start, crashes, or gets no traffic.
+steps:
+- type: explain
+  md: 'When something''s wrong, work from the outside in:
+
+
+    ```bash
+
+    kubectl get pods                       # STATUS and RESTARTS tell you where to look
+
+    kubectl describe pod NAME              # events at the bottom: scheduling, pulling, probes
+
+    kubectl logs NAME                      # what the app printed
+
+    kubectl logs NAME --previous           # ...before its last crash
+
+    kubectl get events --sort-by=.lastTimestamp
+
+    kubectl get endpointslices -l kubernetes.io/service-name=SVC   # which pods a Service found
+
+    kubectl exec -it NAME -- sh            # look around inside
+
+    ```
+
+
+    | Status | Usually means | Look at |
+
+    |---|---|---|
+
+    | `ErrImagePull` / `ImagePullBackOff` | wrong image name or tag, or no access | `describe`: the image
+    line and event |
+
+    | `CrashLoopBackOff` | the app starts and exits, over and over | `logs --previous` |
+
+    | `Pending` | can''t be scheduled (too big a request, missing PVC) | `describe`: scheduling events
+    |
+
+    | `Running` but `0/1` ready | the readiness probe fails | `describe`: probe events |
+
+    | Running, but the Service gets nothing | the selector doesn''t match the pod labels, or the wrong
+    targetPort | endpoints, labels |'
+- type: exercise
+  ref: ex01-broken-shop
+- type: explain
+  md: '`CrashLoopBackOff` means Kubernetes keeps restarting a container that keeps
+
+    exiting, waiting longer each time. The answer is almost always in the logs of the attempt
+
+    that just died: `kubectl logs POD --previous`.
+
+
+    Configuration is a common culprit: a ConfigMap key spelled differently in the Deployment
+
+    than in the ConfigMap, an environment variable that''s missing, a file mounted in the wrong
+
+    place. Compare what the pod **gets** (`kubectl exec POD -- env`, when it stays up long
+
+    enough) with what you **meant** to give it.'
+- type: exercise
+  ref: ex02-crashloop
+- type: quiz
+  question: A Service's endpoint list is empty, but its pods are Running and Ready. What's the most likely
+    cause?
+  options:
+  - The image is wrong
+  - The Service's selector doesn't match the pods' labels
+  - The cluster is out of memory
+  answer: 1

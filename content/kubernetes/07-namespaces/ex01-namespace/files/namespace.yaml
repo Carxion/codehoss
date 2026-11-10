@@ -1,0 +1,4 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  # a name and a label team: shop

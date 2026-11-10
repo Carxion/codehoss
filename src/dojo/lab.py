@@ -38,12 +38,100 @@ ENGINE_HOST = "tcp://docker:2375"
 ENGINE_MEMORY = "1g"
 ENGINE_START_TIMEOUT_S = 60
 K3S_IMAGE = "rancher/k3s:v1.37.1-k3s1"
-# What k3s v1.37.1 pulls at start with traefik, metrics-server and helm disabled.
+HELM_IMAGE = "alpine/helm:3.19.0"  # only its helm binary is used (copied into dojo-lab)
+# What k3s v1.37.1 pulls at start with traefik, metrics-server and helm disabled, plus
+# the local-path provisioner's helper (it creates PersistentVolume folders) and our own
+# ingress controller.
+INGRESS_IMAGE = "traefik:v3.6.2"
 K3S_SYSTEM_IMAGES = [
     "rancher/mirrored-pause:3.10.2",
     "rancher/mirrored-coredns-coredns:1.14.7",
     "rancher/local-path-provisioner:v0.0.37",
+    "rancher/mirrored-library-busybox:1.37.0",
+    INGRESS_IMAGE,
 ]
+# k3s's bundled Traefik installs through its Helm controller (more images, slower start),
+# so labs run a plain Traefik instead, applied by k3s from its manifests folder at start.
+# It answers on port 80 of the node: Ingress rules are reachable at http://k3s/.
+INGRESS_MANIFEST = f"""apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: traefik
+rules:
+- apiGroups: [""]
+  resources: [services, secrets, nodes]
+  verbs: [get, list, watch]
+- apiGroups: [discovery.k8s.io]
+  resources: [endpointslices]
+  verbs: [get, list, watch]
+- apiGroups: [networking.k8s.io]
+  resources: [ingresses, ingressclasses]
+  verbs: [get, list, watch]
+- apiGroups: [networking.k8s.io]
+  resources: [ingresses/status]
+  verbs: [update]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: traefik
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik
+subjects:
+- kind: ServiceAccount
+  name: traefik
+  namespace: kube-system
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: traefik
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: traefik.io/ingress-controller
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: traefik
+  template:
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik
+      containers:
+      - name: traefik
+        image: {INGRESS_IMAGE}
+        args:
+        - --entryPoints.web.address=:80
+        - --providers.kubernetesingress
+        - --global.checkNewVersion=false
+        - --global.sendAnonymousUsage=false
+        ports:
+        - containerPort: 80
+          hostPort: 80
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+"""
 K3S_MEMORY = "1500m"
 CLUSTER_START_TIMEOUT_S = 120
 REGISTRY_IMAGE = "registry:3.1.2"
@@ -129,6 +217,7 @@ def _create_cluster(
         for name, data in [
             ("var/lib/rancher/k3s/agent/images/lab.tar", saved.stdout),
             ("etc/rancher/k3s/registries.yaml", registries),
+            ("var/lib/rancher/k3s/server/manifests/dojo-ingress.yaml", INGRESS_MANIFEST.encode()),
         ]:
             info = tarfile.TarInfo(name)
             info.size = len(data)
@@ -206,13 +295,12 @@ done >/dev/null
 docker network prune -f >/dev/null
 docker volume prune -af >/dev/null
 if [ -f KUBECONFIG ]; then
-  for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}'); do
-    case "$ns" in
-      default|kube-system|kube-public|kube-node-lease) ;;
-      *) kubectl delete ns "$ns" --wait=false ;;
-    esac
-  done
-  kubectl delete deploy,sts,ds,job,cronjob,pod,svc,cm,secret,pvc,ing --all -n default --now
+  namespaces=$(kubectl get ns -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' |
+    grep -vxE 'default|kube-system|kube-public|kube-node-lease')
+  # Waits, so the next exercise can create a namespace with the same name.
+  [ -z "$namespaces" ] || kubectl delete ns $namespaces --timeout=90s
+  kubectl delete deploy,sts,ds,job,cronjob,pod,svc,cm,secret,pvc,ing,quota,limits \
+    --all -n default --now
 fi >/dev/null 2>&1
 true
 """.replace("KUBECONFIG", KUBECONFIG)

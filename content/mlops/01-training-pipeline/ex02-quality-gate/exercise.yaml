@@ -1,0 +1,21 @@
+id: mlops.quality-gate
+title: A quality gate
+difficulty: 2
+prompt: 'Finish **`check_metrics.py`**: read `model/metrics.json` and compare its `mae` with
+
+  `MAX_MAE` (an environment variable, default 25000).
+
+
+  - too high: print a line starting with `FAIL` and **exit with status 1**
+
+  - fine: print a line starting with `metrics OK` (exit status 0)
+
+
+  Try both: `python train.py && python check_metrics.py`, then
+
+  `MAX_MAE=1000 python check_metrics.py; echo $?`.'
+hints:
+- 'with open(''model/metrics.json'') as f: metrics = json.load(f)'
+- 'if metrics[''mae''] > MAX_MAE: print(''FAIL: ...'') then sys.exit(1)'
+- 'Otherwise print(f"metrics OK: MAE {metrics[''mae'']:,.0f}")'
+time_limit_s: 240

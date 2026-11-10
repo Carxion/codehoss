@@ -1,0 +1,31 @@
+title: Ingress
+summary: Route web traffic to the right Service by hostname and path.
+steps:
+- type: explain
+  md: "NodePorts give every app its own odd port. Real sites use one entrance, port 80\n(and 443), and\
+    \ route by **hostname** and **path**. That's an **Ingress**: rules, applied by\nan **ingress controller**\
+    \ (this lab runs Traefik, answering at `http://k3s/`).\n\n```yaml\napiVersion: networking.k8s.io/v1\n\
+    kind: Ingress\nmetadata:\n  name: sites\nspec:\n  rules:\n  - host: shop.local\n    http:\n      paths:\n\
+    \      - path: /\n        pathType: Prefix\n        backend:\n          service:\n            name:\
+    \ shop\n            port:\n              number: 80\n```\n\nThere's no DNS for `shop.local` here,\
+    \ so send the hostname yourself:\n`curl -H 'Host: shop.local' http://k3s/`. That header is exactly\
+    \ what a browser sends."
+- type: exercise
+  ref: ex01-hosts
+- type: explain
+  md: "One host can split by **path** too, which is how a single site sends `/api` to one\nservice and\
+    \ everything else to another. With `pathType: Prefix`, the **longest** matching path\nwins, whatever\
+    \ order you list them in:\n\n```yaml\n      paths:\n      - path: /api\n        pathType: Prefix\n\
+    \        backend: {service: {name: api, port: {number: 80}}}\n      - path: /\n        pathType: Prefix\n\
+    \        backend: {service: {name: web, port: {number: 80}}}\n```\n\nThe request reaches the backend\
+    \ with its full path (`/api/...`), so the app must expect it.\n`kubectl describe ingress` shows the\
+    \ rules and the backends they point at."
+- type: exercise
+  ref: ex02-paths
+- type: quiz
+  question: Without an ingress controller running, what does an Ingress object do?
+  options:
+  - Routes traffic anyway
+  - 'Nothing: it''s just rules, and a controller has to apply them'
+  - Creates a NodePort
+  answer: 1

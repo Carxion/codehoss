@@ -1,0 +1,22 @@
+id: mlops.deploy
+title: Deploy 1.0.0
+difficulty: 2
+prompt: 'Release version 1.0.0 (`sh release.sh 1.0.0`), then finish **`k8s/deployment.yaml`**: use the
+
+  image **`docker:5000/house-api:1.0.0`** and add a **readinessProbe** (HTTP GET `/health` on port
+
+  8080, every 2 seconds). The Service and Ingress are ready. Apply the folder and ask for a price:
+
+
+  ```bash
+
+  kubectl apply -f k8s/
+
+  curl -s -H ''Host: api.local'' http://k3s/predict -d ''{"sqft": 1500, "bedrooms": 3, "age": 10}''
+
+  ```'
+hints:
+- 'sh release.sh 1.0.0 first: the cluster can only run images that are in the registry.'
+- 'image: docker:5000/house-api:1.0.0'
+- 'readinessProbe: {httpGet: {path: /health, port: 8080}, periodSeconds: 2}, inside the container'
+time_limit_s: 240

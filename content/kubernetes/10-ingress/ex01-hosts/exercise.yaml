@@ -1,0 +1,22 @@
+id: kubernetes.ingress-hosts
+title: Two sites, one entrance
+difficulty: 2
+prompt: '`sites.yaml` runs two apps, **shop** and **blog**, each with a Service on port 80.
+
+  Write **`ingress.yaml`**: an Ingress named **`sites`** that sends host **`shop.local`** to the
+
+  `shop` Service and **`blog.local`** to `blog`. Apply both files and try:
+
+
+  ```bash
+
+  curl -H ''Host: shop.local'' http://k3s/
+
+  curl -H ''Host: blog.local'' http://k3s/
+
+  ```'
+hints:
+- One rule per host, each with a single path / of pathType Prefix.
+- Copy the lesson's example, then add a second rule for blog.local.
+- kubectl apply -f sites.yaml -f ingress.yaml
+time_limit_s: 150

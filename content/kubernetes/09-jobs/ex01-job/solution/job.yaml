@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: squares
+spec:
+  completions: 3
+  parallelism: 3
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: squares
+        image: python:3.12-alpine
+        command: ["python", "-c", "print(sum(i * i for i in range(1, 101)))"]

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: busy
+  namespace: sandbox
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: busy
+  template:
+    metadata:
+      labels:
+        app: busy
+    spec:
+      containers:
+      - name: busy
+        image: python:3.12-alpine
+        command: ["sh", "-c", "echo \"$GREETING from $HOSTNAME\" > index.html && exec python -m http.server 8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GREETING
+          value: "Busy"

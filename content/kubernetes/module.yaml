@@ -20,3 +20,9 @@ lessons:
 - 04-config
 - 05-build-and-deploy
 - 06-probes-and-resources
+- 07-namespaces
+- 08-volumes
+- 09-jobs
+- 10-ingress
+- 11-helm
+- 12-debugging

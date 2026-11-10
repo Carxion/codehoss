@@ -1,0 +1,52 @@
+title: Helm
+summary: Package manifests as a chart, configure them with values, and manage releases.
+steps:
+- type: explain
+  md: "Copying YAML between environments and editing replica counts by hand doesn't scale.\n**Helm** packages\
+    \ manifests as a **chart**: templates with blanks, filled in from **values**.\n\n```\nchart/\n  Chart.yaml\
+    \          # name and version\n  values.yaml         # the defaults: replicas: 2, greeting: Howdy\n\
+    \  templates/\n    deployment.yaml   # replicas: {{ .Values.replicas }}\n```\n\nIn templates, `{{\
+    \ .Values.replicas }}` is replaced with the value, and `{{ .Release.Name }}`\nwith the name you install\
+    \ it under. Values can be overridden at install time.\n\n```bash\nhelm template demo ./chart     \
+    \             # show the YAML it would apply\nhelm install shop ./chart                   # install\
+    \ a release called shop\nhelm install big ./chart --set replicas=5   # same chart, different values\n\
+    helm list                                   # installed releases\n```\n\n(This lab has no internet,\
+    \ so charts come from folders rather than chart repositories.)"
+- type: exercise
+  ref: ex01-chart
+- type: explain
+  md: 'Every install or upgrade is a numbered **revision** of the release, so you can
+
+    change your mind:
+
+
+    ```bash
+
+    helm upgrade blog ./chart --set greeting=Hi     # revision 2
+
+    helm history blog                               # every revision and what happened
+
+    helm rollback blog 1                            # back to revision 1 (as a new revision)
+
+    helm uninstall blog
+
+    ```
+
+
+    Watch out: `helm upgrade` starts again from the chart''s defaults plus what you `--set`
+
+    **this time**. Values set in an earlier upgrade aren''t kept unless you repeat them (or use
+
+    `--reuse-values`).'
+- type: exercise
+  ref: ex02-releases
+- type: quiz
+  question: You ran `helm upgrade web ./chart --set replicas=3`, then `helm upgrade web ./chart --set
+    image=v2`. How many replicas now?
+  options:
+  - '3'
+  - The chart's default
+  - '0'
+  answer: 1
+  explanation: Each upgrade starts from the chart's values plus this command's --set flags. Repeat --set
+    replicas=3, or use --reuse-values.

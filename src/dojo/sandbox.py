@@ -124,6 +124,7 @@ LAB_TOOLS = (
     " /usr/local/libexec/docker/cli-plugins\n"
     # k3s is a multi-call binary: installed under the name kubectl, it is kubectl.
     f"COPY --from={lab.K3S_IMAGE} /bin/k3s /usr/local/bin/kubectl\n"
+    f"COPY --from={lab.HELM_IMAGE} /usr/bin/helm /usr/local/bin/helm\n"
     "RUN apt-get update && apt-get install -y --no-install-recommends curl procps "
     "&& rm -rf /var/lib/apt/lists/*\n"
     f"ENV DOCKER_HOST={lab.ENGINE_HOST}\n"

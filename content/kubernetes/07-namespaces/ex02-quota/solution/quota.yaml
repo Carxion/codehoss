@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sandbox
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-quota
+  namespace: sandbox
+spec:
+  hard:
+    pods: "3"
+    requests.cpu: 500m
+    requests.memory: 256Mi

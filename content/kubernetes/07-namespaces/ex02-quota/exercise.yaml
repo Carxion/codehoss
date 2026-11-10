@@ -1,0 +1,18 @@
+id: kubernetes.quota
+title: A quota
+difficulty: 2
+prompt: 'Finish **`quota.yaml`** with a ResourceQuota named **`team-quota`** in the `sandbox`
+
+  namespace, allowing at most **3 pods**, **500m** of requested CPU and **256Mi** of requested memory.
+
+
+  Then apply all three files (the namespace and quota first, then `limits.yaml`, then
+
+  `deployment.yaml`). The deployment asks for 5 replicas: see how many you get, and find the
+
+  reason in `kubectl get events -n sandbox`.'
+hints:
+- 'kind: ResourceQuota, metadata: {name: team-quota, namespace: sandbox}, spec.hard: {...}'
+- 'Quote the pod count: pods: "3". CPU and memory are requests.cpu: 500m and requests.memory: 256Mi'
+- kubectl apply -f quota.yaml -f limits.yaml -f deployment.yaml
+time_limit_s: 150

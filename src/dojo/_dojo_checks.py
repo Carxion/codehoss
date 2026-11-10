@@ -213,9 +213,10 @@ def inspect_container(name):
     return json.loads(proc.stdout)[0]
 
 
-def http_get(url, *, timeout=10, wait=0):
+def http_get(url, *, timeout=10, wait=0, host=None):
     """GET a URL and return (status, body). Retries for up to `wait` seconds while
-    the app is starting. Apps published with -p are on the lab engine: http://docker:PORT."""
+    the app is starting. Apps published with -p are on the lab engine: http://docker:PORT.
+    `host` sets the Host header (Ingress rules match on it)."""
     import time
     import urllib.error
     import urllib.request
@@ -223,7 +224,8 @@ def http_get(url, *, timeout=10, wait=0):
     deadline = time.monotonic() + wait
     while True:
         try:
-            with urllib.request.urlopen(url, timeout=timeout) as response:
+            request = urllib.request.Request(url, headers={"Host": host} if host else {})
+            with urllib.request.urlopen(request, timeout=timeout) as response:
                 return response.status, response.read().decode("utf-8", errors="replace")
         except urllib.error.HTTPError as e:
             return e.code, e.read().decode("utf-8", errors="replace")
@@ -251,14 +253,17 @@ def kubectl(*args, timeout=60):
 
 
 def k8s(kind, name, namespace="default"):
-    """An object as a dict, failing helpfully if it doesn't exist."""
+    """An object as a dict, failing helpfully if it doesn't exist. Pass namespace=None
+    for cluster-wide kinds such as namespaces."""
     import json
     import shlex
 
-    proc = sh(f"kubectl get {kind} {shlex.quote(name)} -n {namespace} -o json")
+    where = f" -n {namespace}" if namespace else ""
+    proc = sh(f"kubectl get {kind} {shlex.quote(name)}{where} -o json")
     assert proc.returncode == 0, (
-        f"There's no {kind} called {name} in namespace {namespace}. "
-        f"Create it, e.g. kubectl apply -f <file>.yaml"
+        f"There's no {kind} called {name}"
+        + (f" in namespace {namespace}" if namespace else "")
+        + ". Create it, e.g. kubectl apply -f <file>.yaml"
     )
     return json.loads(proc.stdout)
 
@@ -270,6 +275,19 @@ def k8s_list(kind, namespace="default", selector=None):
     if selector:
         args += ["-l", selector]
     return json.loads(kubectl(*args))["items"]
+
+
+def ingress_get(path="/", host=None, *, wait=60):
+    """GET through the lab's ingress controller (http://k3s/), waiting while a new rule
+    is picked up (404) or its pods are starting (502/503). Returns (status, body)."""
+    import time
+
+    deadline = time.monotonic() + wait
+    while True:
+        status, body = http_get(f"http://k3s{path}", host=host, wait=wait)
+        if status not in (404, 502, 503) or time.monotonic() >= deadline:
+            return status, body
+        time.sleep(1)
 
 
 def wait_until(check, *, timeout=60, interval=1, message="timed out"):

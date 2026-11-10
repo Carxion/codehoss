@@ -1,0 +1,50 @@
+title: Namespaces and quotas
+summary: Split a cluster into separate spaces, and cap what each may use.
+steps:
+- type: explain
+  md: 'A **namespace** is a separate space inside a cluster: names only have to be unique
+
+    within one, and access rules and quotas apply per namespace. Teams, apps or environments
+
+    (`dev`, `staging`) each get their own.
+
+
+    ```bash
+
+    kubectl get namespaces
+
+    kubectl create namespace shop          # or apply a YAML file, which can carry labels
+
+    kubectl apply -n shop -f deployment.yaml
+
+    kubectl get pods -n shop               # -n on every command...
+
+    kubectl get pods -A                    # ...or -A for all namespaces
+
+    kubectl config set-context --current --namespace=shop   # change your default
+
+    ```
+
+
+    Services in another namespace are reached as `NAME.NAMESPACE`, for example
+
+    `http://web.shop`.'
+- type: exercise
+  ref: ex01-namespace
+- type: explain
+  md: "A **ResourceQuota** caps a namespace's total: number of pods, CPU and memory\nrequested, and more.\
+    \ Once a quota limits CPU or memory, every pod must say what it\nrequests, so a **LimitRange** usually\
+    \ goes with it to give pods sensible defaults.\n\n```yaml\napiVersion: v1\nkind: ResourceQuota\nmetadata:\n\
+    \  name: team-quota\n  namespace: sandbox\nspec:\n  hard:\n    pods: \"3\"\n    requests.cpu: 500m\n\
+    \    requests.memory: 256Mi\n```\n\nPods over the quota are simply not created; `kubectl describe\
+    \ replicaset` and\n`kubectl get events -n sandbox` say why (`exceeded quota`)."
+- type: exercise
+  ref: ex02-quota
+- type: quiz
+  question: A pod in namespace `shop` wants the Service `db` in namespace `data`. Which address works?
+  options:
+  - http://db
+  - http://db.data
+  - http://data/db
+  answer: 1
+  explanation: A bare name only finds Services in the pod's own namespace; NAME.NAMESPACE crosses over.

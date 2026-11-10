@@ -1,0 +1,21 @@
+id: mlops.train
+title: Save the model
+difficulty: 2
+prompt: '`train.py` trains the model and prints its error, then throws it all away. Finish it so it
+
+  saves two files in a **`model/`** folder:
+
+
+  - `model/model.json`: `{"version", "features", "weights"}`
+
+  - `model/metrics.json`: `{"version", "mae" (rounded to 2 places), "train_rows", "test_rows"}`
+
+
+  Run it with `python train.py`, then `cat model/metrics.json`. The version comes from the
+
+  `MODEL_VERSION` environment variable (default `1.0.0`): try `MODEL_VERSION=1.0.1 python train.py`.'
+hints:
+- Path('model').mkdir(exist_ok=True) makes the folder.
+- Build two dicts and write them with json.dumps(..., indent=2).
+- 'metrics = {"version": VERSION, "mae": round(mae, 2), "train_rows": len(train), "test_rows": len(test)}'
+time_limit_s: 240

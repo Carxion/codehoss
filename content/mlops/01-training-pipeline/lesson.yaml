@@ -1,0 +1,58 @@
+title: A training pipeline
+summary: Turn model training into a script that saves a versioned model and its metrics, and a gate that
+  stops bad models.
+steps:
+- type: explain
+  md: '**MLOps** is everything between "it works in my notebook" and "it reliably serves
+
+    predictions, and we can change it safely". In this capstone you''ll take one model the whole
+
+    way: training, serving, containers, releases, Kubernetes, a GitLab CI pipeline, monitoring
+
+    and canary releases.
+
+
+    The model predicts house prices from `sqft`, `bedrooms` and `age` with linear regression
+
+    (`model.py`, written in plain Python so it runs anywhere). The first step is to make
+
+    training **repeatable**: a script, not a notebook, that always saves the same things:
+
+
+    - `model/model.json`: what serving needs (the weights and feature names), with a **version**
+
+    - `model/metrics.json`: how good it is, measured on rows held back from training
+
+
+    Every model you ever ship should be traceable to its version and metrics.'
+- type: exercise
+  ref: ex01-train
+- type: explain
+  md: 'A **quality gate** is a check that fails loudly when a model isn''t good enough, so a
+
+    pipeline stops before a bad model reaches users. It''s just a script that **exits with a
+
+    non-zero status** on failure: every CI system treats that as "stop".
+
+
+    ```bash
+
+    python check_metrics.py; echo "exit status: $?"
+
+    MAX_MAE=1000 python check_metrics.py; echo "exit status: $?"   # a stricter limit
+
+    ```
+
+
+    The limit comes from an environment variable, so each pipeline (or environment) can set its
+
+    own without editing code.'
+- type: exercise
+  ref: ex02-quality-gate
+- type: quiz
+  question: Why measure the error on rows the model wasn't trained on?
+  options:
+  - It's faster
+  - A model can memorise its training rows; held-out rows show how it does on new houses
+  - Training rows don't have prices
+  answer: 1

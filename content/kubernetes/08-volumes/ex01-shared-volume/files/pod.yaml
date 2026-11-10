@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shared
+spec:
+  # add an emptyDir volume called shared
+  containers:
+  - name: writer
+    image: python:3.12-alpine
+    command: ["sh", "-c", "while true; do date >> /shared/log.txt; sleep 2; done"]
+  - name: web
+    image: python:3.12-alpine
+    command: ["python", "-m", "http.server", "8000", "--directory", "/shared"]
+    ports:
+    - containerPort: 8000

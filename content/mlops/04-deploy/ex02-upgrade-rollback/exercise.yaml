@@ -1,0 +1,12 @@
+id: mlops.upgrade-rollback
+title: Upgrade, then roll back
+difficulty: 3
+prompt: "Model 1.0.0 is described in `k8s/`. Do a full release cycle:\n\n1. `sh release.sh 1.0.0`, then\
+  \ `kubectl apply -f k8s/`.\n2. Release **1.1.0** and switch the deployment to it with `kubectl set image`.\
+  \ Wait for the rollout\n   and check `/health` reports 1.1.0.\n3. Users report odd prices from 1.1.0:\
+  \ **roll back** with `kubectl rollout undo` and check 1.0.0 is\n   serving again."
+hints:
+- sh release.sh 1.1.0, then kubectl set image deployment/house-api api=docker:5000/house-api:1.1.0
+- kubectl rollout status deployment/house-api waits for it to finish.
+- 'kubectl rollout undo deployment/house-api, then curl -s -H ''Host: api.local'' http://k3s/health'
+time_limit_s: 240

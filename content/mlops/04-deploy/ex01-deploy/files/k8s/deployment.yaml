@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: house-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: house-api
+  template:
+    metadata:
+      labels:
+        app: house-api
+    spec:
+      containers:
+      - name: api
+        image: docker:5000/house-api:TODO
+        ports:
+        - containerPort: 8080
+        # TODO: a readinessProbe: GET /health on port 8080, every 2 seconds

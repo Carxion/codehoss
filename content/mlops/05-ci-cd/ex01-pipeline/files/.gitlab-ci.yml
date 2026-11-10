@@ -1,0 +1,17 @@
+stages: [test, train, evaluate, build, deploy]
+
+variables:
+  MODEL_VERSION: "1.2.0"
+  MAX_MAE: "25000"
+
+unit-tests:
+  stage: test
+  script:
+    - python -m pytest -q test_model.py
+
+# TODO: add four more jobs (see the lesson for the shape of each):
+#   train         stage train:    python train.py, keeping model/ as an artifact
+#   quality-gate  stage evaluate: python check_metrics.py
+#   build         stage build:    sh release.sh $MODEL_VERSION, only on the main branch
+#   deploy        stage deploy:   apply k8s/, pin the image to $MODEL_VERSION and wait for
+#                                 the rollout, only on the main branch

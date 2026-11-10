@@ -1,0 +1,22 @@
+id: kubernetes.ingress-paths
+title: Routing by path
+difficulty: 3
+prompt: '`app.yaml` runs a **web** front end and an **api**, each behind a Service. Write
+
+  **`ingress.yaml`**: an Ingress named **`app`** for host **`app.local`** that sends paths starting
+
+  with **`/api`** to the `api` Service and **everything else** to `web`.
+
+
+  ```bash
+
+  curl -H ''Host: app.local'' http://k3s/          # Web from web-...
+
+  curl -H ''Host: app.local'' http://k3s/api/      # API from api-...
+
+  ```'
+hints:
+- One rule (host app.local) with two paths.
+- 'path: /api -> service api, and path: / -> service web, both pathType: Prefix.'
+- kubectl apply -f app.yaml -f ingress.yaml, then curl both URLs.
+time_limit_s: 150

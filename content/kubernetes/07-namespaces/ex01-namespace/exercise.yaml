@@ -1,0 +1,14 @@
+id: kubernetes.namespace
+title: A namespace for the shop
+difficulty: 1
+prompt: 'Finish **`namespace.yaml`**: a namespace called **`shop`** with the label **`team: shop`**.
+
+  Apply it, then deploy **`deployment.yaml`** (already complete) *into* that namespace.
+
+
+  Nothing should end up in `default`.'
+hints:
+- 'A Namespace has apiVersion: v1, kind: Namespace and metadata (name, labels).'
+- kubectl apply -f namespace.yaml, then kubectl apply -n shop -f deployment.yaml
+- Check with kubectl get deploy -n shop
+time_limit_s: 150

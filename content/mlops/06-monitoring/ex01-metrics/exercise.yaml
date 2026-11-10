@@ -1,0 +1,32 @@
+id: mlops.metrics
+title: Metrics
+difficulty: 3
+prompt: 'Add **`GET /metrics`** to `serve.py`. Count each successful prediction and each bad request in
+
+  `STATS`, and reply (status 200, `Content-Type: text/plain`) with exactly these metrics:
+
+
+  ```
+
+  # TYPE predictions_total counter
+
+  predictions_total 2
+
+  # TYPE prediction_errors_total counter
+
+  prediction_errors_total 1
+
+  # TYPE model_info gauge
+
+  model_info{version="1.0.0"} 1
+
+  ```
+
+
+  Try it: run the server, make a few predictions (and a bad one), then `curl -s localhost:8080/metrics`.'
+hints:
+- 'In do_POST: STATS[''predictions''] += 1 after a prediction, STATS[''errors''] += 1 in the except branch.'
+- 'Build the text with f-strings, one metric per line, each after its # TYPE line, then encode() it.'
+- send_response(200), send_header('Content-Type', 'text/plain'), send_header('Content-Length', ...), end_headers(),
+  wfile.write(text)
+time_limit_s: 240

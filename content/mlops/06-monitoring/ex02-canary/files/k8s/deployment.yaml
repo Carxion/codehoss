@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: house-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: house-api
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: house-api
+        track: stable
+    spec:
+      containers:
+      - name: api
+        image: docker:5000/house-api:1.0.0
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          periodSeconds: 2

@@ -1,0 +1,15 @@
+id: mlops.release-script
+title: A release script
+difficulty: 3
+prompt: "Make releases one command, and impossible with a bad model:\n\n1. In the **`Dockerfile`**'s train\
+  \ stage, copy in `check_metrics.py`, declare `ARG MODEL_VERSION=1.0.0`\n   and `ARG MAX_MAE=25000`,\
+  \ and run the gate after training: `RUN python train.py && python check_metrics.py`.\n2. Write **`release.sh`**:\
+  \ `sh release.sh 1.1.0` builds with those build arguments, tags the image\n   `docker:5000/house-api:VERSION`\
+  \ **and** `:latest`, and pushes both. It must stop at the first\n   error (`set -e`).\n\nThen: `sh release.sh\
+  \ 1.1.0` works, and `MAX_MAE=1 sh release.sh 6.6.6` fails without pushing."
+hints:
+- In the Dockerfile, ARG lines go after FROM ... AS train and before the RUN that uses them.
+- 'VERSION=${1:?usage: sh release.sh VERSION} reads the first argument (and complains if it''s missing).'
+- docker build --build-arg MODEL_VERSION="$VERSION" --build-arg MAX_MAE="${MAX_MAE:-25000}" -t IMAGE:$VERSION
+  -t IMAGE:latest ., then two docker push
+time_limit_s: 240

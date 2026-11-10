@@ -1,0 +1,35 @@
+title: Jobs and CronJobs
+summary: Run tasks to completion, in parallel, and on a schedule.
+steps:
+- type: explain
+  md: "Deployments keep things running forever. A **Job** runs pods until they **finish\nsuccessfully**:\
+    \ a migration, a report, a batch of work.\n\n```yaml\napiVersion: batch/v1\nkind: Job\nmetadata:\n\
+    \  name: squares\nspec:\n  completions: 3      # succeed 3 times in total\n  parallelism: 3      #\
+    \ up to 3 pods at once\n  backoffLimit: 2     # retries before the Job counts as failed\n  template:\n\
+    \    spec:\n      restartPolicy: Never     # Jobs need Never or OnFailure\n      containers:\n   \
+    \   - name: squares\n        image: python:3.12-alpine\n        command: [\"python\", \"-c\", \"print(sum(i\
+    \ * i for i in range(1, 101)))\"]\n```\n\n```bash\nkubectl get jobs                # COMPLETIONS shows\
+    \ 3/3 when done\nkubectl logs job/squares        # logs of one of its pods\nkubectl wait --for=condition=Complete\
+    \ job/squares\n```"
+- type: exercise
+  ref: ex01-job
+- type: explain
+  md: "A **CronJob** creates a Job on a schedule, written in cron syntax:\n`minute hour day-of-month month\
+    \ day-of-week`.\n\n| Schedule | Means |\n|---|---|\n| `*/5 * * * *` | every 5 minutes |\n| `0 2 *\
+    \ * *` | 02:00 every day |\n| `0 9 * * 1` | 09:00 every Monday |\n\n```yaml\napiVersion: batch/v1\n\
+    kind: CronJob\nmetadata:\n  name: report\nspec:\n  schedule: \"*/5 * * * *\"\n  concurrencyPolicy:\
+    \ Forbid          # skip a run if the last one is still going\n  successfulJobsHistoryLimit: 2   \
+    \   # keep the last 2 finished Jobs\n  jobTemplate:\n    spec:\n      template:\n        spec: ...\
+    \                    # a pod spec, like a Job's\n```\n\nYou don't have to wait for the schedule to\
+    \ test it:\n`kubectl create job report-now --from=cronjob/report`."
+- type: exercise
+  ref: ex02-cronjob
+- type: quiz
+  question: Which is the right restartPolicy for a Job's pods?
+  options:
+  - Always
+  - Never or OnFailure
+  - Any of them
+  answer: 1
+  explanation: Always would restart a finished container forever, so a Job could never complete; Kubernetes
+    rejects it.

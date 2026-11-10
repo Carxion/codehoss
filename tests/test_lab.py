@@ -176,3 +176,35 @@ def test_cluster_ready_and_reset(cluster_session):
     assert "demo" not in sh("kubectl get deploy 2>&1")
     # the lab's registry survives a reset
     assert "registry" in sh("docker ps --format '{{.Names}}'")
+
+
+@pytest.mark.docker
+@needs_cluster
+def test_cluster_has_ingress_storage_and_helm(cluster_session):
+    def sh(script, timeout=120):
+        result = cluster_session.executor.execute({}, ["sh", "-c", script], timeout=timeout)
+        return result.stdout + result.stderr
+
+    assert "successfully rolled out" in sh(
+        "kubectl -n kube-system rollout status deploy/traefik --timeout=90s"
+    )
+    # Nothing routed yet: Traefik itself answers 404 on the node's port 80.
+    assert sh("curl -s -o /dev/null -w '%{http_code}' http://k3s/") == "404"
+    manifest = (
+        "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata: {name: probe}\n"
+        "spec: {accessModes: [ReadWriteOnce], resources: {requests: {storage: 1Mi}}}\n"
+        "---\n"
+        "apiVersion: v1\nkind: Pod\nmetadata: {name: probe}\nspec:\n"
+        "  containers: [{name: p, image: python:3.12-alpine, command: [sleep, '300'],"
+        " volumeMounts: [{name: d, mountPath: /d}]}]\n"
+        "  volumes: [{name: d, persistentVolumeClaim: {claimName: probe}}]\n"
+    )
+    applied = cluster_session.executor.execute(
+        {"probe.yaml": manifest.encode()}, ["kubectl", "apply", "-f", "probe.yaml"], timeout=60
+    )
+    assert applied.returncode == 0, applied.stderr
+    # Binding needs the provisioner's helper image, which is copied in (no internet).
+    assert "condition met" in sh("kubectl wait --for=condition=Ready pod/probe --timeout=90s")
+    assert sh("kubectl get pvc probe -o jsonpath='{.status.phase}'") == "Bound"
+    assert sh("helm version --short").startswith("v3.")
+    lab.reset_engine(cluster_session.container)

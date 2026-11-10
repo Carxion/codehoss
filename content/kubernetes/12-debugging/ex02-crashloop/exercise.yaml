@@ -1,0 +1,19 @@
+id: kubernetes.crashloop
+title: The crashing worker
+difficulty: 3
+prompt: 'Apply **`config.yaml`** and **`deployment.yaml`**: the `worker` pods go into
+
+  `CrashLoopBackOff`. Find out why from their logs, fix it, and keep going until the pods are
+
+  **Running and Ready** and their log says `worker started in production mode`.
+
+
+  Don''t change the ConfigMap: the deployment should read the value that''s already there.
+
+  (There''s a second problem waiting once it stops crashing.)'
+hints:
+- kubectl logs deploy/worker (or kubectl logs POD --previous) says what's missing.
+- Compare the key the Deployment asks for (configMapKeyRef.key) with the keys in config.yaml.
+- 'Running but 0/1 ready? kubectl describe pod: which port is the readiness probe checking, and which
+  does the app use?'
+time_limit_s: 150

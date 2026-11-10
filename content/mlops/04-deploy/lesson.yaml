@@ -1,0 +1,55 @@
+title: Deploying the model
+summary: Run the model API on Kubernetes behind an Ingress, then upgrade and roll back a model.
+steps:
+- type: explain
+  md: 'Everything from the Kubernetes course comes together: a **Deployment** of the released
+
+    image with a **readiness probe** on `/health` (so traffic only reaches pods whose model has
+
+    loaded), a **Service**, and an **Ingress** for `api.local`.
+
+
+    ```bash
+
+    kubectl apply -f k8s/
+
+    curl -s -H ''Host: api.local'' http://k3s/health
+
+    curl -s -H ''Host: api.local'' http://k3s/predict -d ''{"sqft": 1500, "bedrooms": 3, "age": 10}''
+
+    ```
+
+
+    Always deploy an **exact version**, never `latest`: the Deployment''s image line is then the
+
+    record of which model is live.'
+- type: exercise
+  ref: ex01-deploy
+- type: explain
+  md: 'Shipping a new model is changing one line, the image tag, and Kubernetes rolls it out
+
+    pod by pod. If the new model misbehaves (complaints, odd predictions, bad metrics), you
+
+    **roll back** to the previous one in seconds, no rebuild needed:
+
+
+    ```bash
+
+    kubectl set image deployment/house-api api=docker:5000/house-api:1.1.0
+
+    kubectl rollout status deployment/house-api
+
+    kubectl rollout undo deployment/house-api
+
+    kubectl rollout history deployment/house-api
+
+    ```'
+- type: exercise
+  ref: ex02-upgrade-rollback
+- type: quiz
+  question: Why does the model API need a readiness probe?
+  options:
+  - To restart it every few minutes
+  - So a pod gets traffic only once its model is loaded and it can answer
+  - Ingress needs one
+  answer: 1

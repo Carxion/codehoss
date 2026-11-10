@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shop
+  template:
+    metadata:
+      labels:
+        app: shop
+    spec:
+      containers:
+      - name: shop
+        image: pyhton:3.12-alpine
+        command: ["sh", "-c", "echo \"$GREETING from $HOSTNAME\" > index.html && exec python -m http.server 8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: GREETING
+          value: "Shop"

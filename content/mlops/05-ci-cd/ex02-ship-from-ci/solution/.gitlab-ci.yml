@@ -1,0 +1,46 @@
+stages: [test, train, evaluate, build, deploy, verify]
+
+variables:
+  MODEL_VERSION: "1.2.0"
+  MAX_MAE: "25000"
+
+unit-tests:
+  stage: test
+  script:
+    - python -m pytest -q test_model.py
+
+train:
+  stage: train
+  script:
+    - python train.py
+  artifacts:
+    paths:
+      - model/
+
+quality-gate:
+  stage: evaluate
+  script:
+    - python check_metrics.py
+
+build:
+  stage: build
+  script:
+    - sh release.sh $MODEL_VERSION
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+deploy:
+  stage: deploy
+  script:
+    - kubectl apply -f k8s/
+    - kubectl set image deployment/house-api api=docker:5000/house-api:$MODEL_VERSION
+    - kubectl rollout status deployment/house-api --timeout=120s
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+
+smoke-test:
+  stage: verify
+  script:
+    - 'curl -sf --retry 10 --retry-all-errors --retry-delay 2 -H "Host: api.local" http://k3s/health | grep -F "$MODEL_VERSION"'
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"

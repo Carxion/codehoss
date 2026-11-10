@@ -1,0 +1,25 @@
+id: kubernetes.shared-volume
+title: A shared folder
+difficulty: 2
+prompt: 'In **`pod.yaml`**, the `writer` container appends the time to `/shared/log.txt` every 2
+
+  seconds and the `web` container serves `/shared` on port 8000. Right now they don''t share
+
+  anything. Add an **emptyDir** volume named **`shared`** and mount it at `/shared` in **both**
+
+  containers. Apply it and check `log.txt` is served:
+
+
+  ```bash
+
+  kubectl exec shared -c web -- wget -qO- http://127.0.0.1:8000/log.txt
+
+  ```
+
+
+  (Pods can''t be changed in place: `kubectl delete pod shared` before re-applying.)'
+hints:
+- 'volumes: goes under spec, next to containers: [{name: shared, emptyDir: {}}]'
+- 'Each container gets volumeMounts: [{name: shared, mountPath: /shared}]'
+- kubectl delete pod shared --ignore-not-found && kubectl apply -f pod.yaml
+time_limit_s: 150

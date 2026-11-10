@@ -1,0 +1,1 @@
+# an Ingress called app for app.local: /api -> api, / -> web

@@ -1,0 +1,71 @@
+title: Monitoring and canary releases
+summary: Expose metrics, and try a new model on a slice of traffic before everyone gets it.
+steps:
+- type: explain
+  md: 'Once a model is live you need to *see* it: how many predictions, how many errors, which
+
+    version. The standard is **Prometheus metrics**: plain text at `/metrics` that a monitoring
+
+    system scrapes every few seconds and graphs (and alerts on).
+
+
+    ```
+
+    # TYPE predictions_total counter
+
+    predictions_total 1042
+
+    # TYPE prediction_errors_total counter
+
+    prediction_errors_total 3
+
+    # TYPE model_info gauge
+
+    model_info{version="1.0.0"} 1
+
+    ```
+
+
+    A **counter** only goes up (rates come from how fast it grows); a **gauge** is a current
+
+    value. `model_info{version="..."} 1` is a common trick to publish a label, here the version.
+
+    Models also **drift**: the world changes and accuracy slowly drops, which is why teams
+
+    watch prediction metrics, not just errors.'
+- type: exercise
+  ref: ex01-metrics
+- type: explain
+  md: 'A **canary release** sends a small share of real traffic to the new model first. If its
+
+    metrics look healthy, promote it; if not, delete it, and only a few users ever saw it.
+
+
+    In Kubernetes: two Deployments whose pods share the label the **Service** selects
+
+    (`app: house-api`), plus a second label to tell them apart (`track: stable` / `track: canary`).
+
+    Each Deployment''s **selector** must include `track`, so they don''t fight over each other''s
+
+    pods. With 3 stable pods and 1 canary, about a quarter of requests reach the canary.
+
+    (The ingress controller takes a few seconds to notice new pods, so give it a moment
+
+    after a rollout before counting.)
+
+
+    ```bash
+
+    for i in $(seq 20); do curl -s -H ''Host: api.local'' http://k3s/health; echo; done | sort | uniq
+    -c
+
+    ```'
+- type: exercise
+  ref: ex02-canary
+- type: quiz
+  question: The canary's error counter is climbing much faster than stable's. What do you do?
+  options:
+  - Promote it to everyone
+  - 'Delete the canary Deployment: stable keeps serving, and only a slice of users was affected'
+  - Restart the stable pods
+  answer: 1

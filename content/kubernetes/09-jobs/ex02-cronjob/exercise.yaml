@@ -1,0 +1,17 @@
+id: kubernetes.cronjob
+title: A scheduled report
+difficulty: 3
+prompt: 'Write **`cronjob.yaml`**: a CronJob named **`report`** that runs **every 5 minutes**, never
+
+  overlaps (`concurrencyPolicy: Forbid`) and keeps **2** successful Jobs. Its container runs
+
+  `python -c "print(''report done'')"` from `python:3.12-alpine`, with `restartPolicy: OnFailure`.
+
+
+  Apply it, then test it straight away with a Job named **`report-now`** made from it.'
+hints:
+- 'Start from the CronJob example in the lesson: schedule, concurrencyPolicy and successfulJobsHistoryLimit
+  sit under spec.'
+- The pod spec goes under spec.jobTemplate.spec.template.spec.
+- kubectl apply -f cronjob.yaml && kubectl create job report-now --from=cronjob/report
+time_limit_s: 150

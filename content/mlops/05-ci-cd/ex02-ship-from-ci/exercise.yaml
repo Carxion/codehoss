@@ -1,0 +1,20 @@
+id: mlops.ship-from-ci
+title: Ship it from the pipeline
+difficulty: 3
+prompt: 'Add a **`verify`** stage (after `deploy`) with a **`smoke-test`** job, main only, that fails
+  unless
+
+  `http://k3s/health` (Host `api.local`) reports `$MODEL_VERSION`. Use the lesson''s command, with
+
+  `--retry 10 --retry-all-errors --retry-delay 2` so it waits for the new pods.
+
+
+  Then run the whole `main` pipeline: `python ci.py`. It should test, train, gate, release 1.2.0,
+
+  deploy it, and prove it''s live.'
+hints:
+- 'stages: [test, train, evaluate, build, deploy, verify]'
+- 'smoke-test: stage verify, rules like build and deploy, and a script with one curl ... | grep line.'
+- 'Quote the whole script line in single quotes (it contains ": "): - ''curl -sf --retry 10 --retry-all-errors
+  --retry-delay 2 -H "Host: api.local" http://k3s/health | grep -F "$MODEL_VERSION"'''
+time_limit_s: 240

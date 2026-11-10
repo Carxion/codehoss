@@ -1,0 +1,33 @@
+id: mlops.predict-api
+title: A prediction API
+difficulty: 3
+prompt: '`serve.py` answers `/health` already. Write **`POST /predict`**:
+
+
+  - read the JSON body and take a number for each of `MODEL["features"]`
+
+  - reply **200** with `{"price": <rounded to 2 places>, "model_version": ...}`
+
+  - missing or non-numeric values: reply **400** with `{"error": "..."}`
+
+
+  Try it:
+
+
+  ```bash
+
+  python train.py && python serve.py &
+
+  curl -s -X POST localhost:8080/predict -d ''{"sqft": 1500, "bedrooms": 3, "age": 10}''
+
+  curl -s -X POST localhost:8080/predict -d ''{"sqft": "big"}''
+
+  kill %1
+
+  ```'
+hints:
+- length = int(self.headers.get('Content-Length', 0)); body = json.loads(self.rfile.read(length))
+- 'values = {f: float(body[f]) for f in MODEL[''features'']}, inside a try: that catches ValueError, KeyError
+  and TypeError'
+- price = predict(MODEL['weights'], MODEL['features'], values); self.send_json(200, {...})
+time_limit_s: 240

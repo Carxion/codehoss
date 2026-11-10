@@ -1,0 +1,27 @@
+id: mlops.container
+title: Package it
+difficulty: 3
+prompt: 'Write the **`Dockerfile`** as two stages (the comments in it say what goes where), then build
+
+  and run it:
+
+
+  ```bash
+
+  docker build -t house-api:1 .
+
+  docker run -d --name house-api -p 8080:8080 house-api:1
+
+  curl -s http://docker:8080/health
+
+  ```
+
+
+  The served image must not contain `data/` or `train.py`.'
+hints:
+- 'Stage 1: FROM python:3.12-alpine AS train, WORKDIR /app, COPY data/ data/, COPY model.py train.py ./,
+  RUN python train.py'
+- 'Stage 2: FROM python:3.12-alpine, WORKDIR /app, COPY model.py serve.py ./, COPY --from=train /app/model/
+  model/'
+- Finish with EXPOSE 8080 and CMD ["python", "serve.py"]
+time_limit_s: 240

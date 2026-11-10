@@ -1,0 +1,37 @@
+title: CI/CD with GitLab
+summary: Describe the whole path to production as a GitLab CI pipeline, and run it.
+steps:
+- type: explain
+  md: "Doing all of this by hand is slow and easy to get wrong. A **CI/CD pipeline** does it\non every\
+    \ push. In GitLab that's a `.gitlab-ci.yml` file of **jobs** grouped into **stages**;\nstages run\
+    \ in order, and a failing job stops the pipeline.\n\n```yaml\nstages: [test, train, evaluate, build,\
+    \ deploy]\n\nvariables:\n  MODEL_VERSION: \"1.2.0\"\n\ntrain:\n  stage: train\n  script:\n    - python\
+    \ train.py\n  artifacts:               # files handed on to later jobs\n    paths:\n      - model/\n\
+    \nbuild:\n  stage: build\n  script:\n    - sh release.sh $MODEL_VERSION\n  rules:                \
+    \   # only on the main branch\n    - if: $CI_COMMIT_BRANCH == \"main\"\n```\n\nEach job starts from\
+    \ a **clean checkout**, so anything a later job needs (like `model/`) must\nbe passed on as an **artifact**.\
+    \ `rules` decide when a job runs: feature branches test and\nevaluate, only `main` releases and deploys.\n\
+    \nThere's no GitLab server in this lab, so `ci.py` runs your pipeline the same way:\n`python ci.py\
+    \ --plan` shows what would run, `python ci.py --branch feature/x` runs a branch's\npipeline, and plain\
+    \ `python ci.py` runs `main`'s. The same file works on a real GitLab runner."
+- type: exercise
+  ref: ex01-pipeline
+- type: explain
+  md: "**Continuous delivery** ends with a deploy job, and a good pipeline checks its own work\nafterwards\
+    \ with a **smoke test**: a quick request to the live service that fails the\npipeline if the new version\
+    \ isn't really serving.\n\n```yaml\nsmoke-test:\n  stage: verify\n  script:\n    - 'curl -sf -H \"\
+    Host: api.local\" http://k3s/health | grep -F \"$MODEL_VERSION\"'\n```\n\n`curl -f` fails on HTTP\
+    \ errors, and `grep` fails if the version isn't in the reply, so\neither problem stops the pipeline\
+    \ (and tells you to roll back).\n\nNotice the single quotes around the whole line. In YAML, a colon\
+    \ followed by a space\n(`Host: api.local`) starts a key: value pair, so without them the line isn't\
+    \ a command\nany more. Quote any script line that contains `: `; it's one of the most common\n`.gitlab-ci.yml`\
+    \ mistakes."
+- type: exercise
+  ref: ex02-ship-from-ci
+- type: quiz
+  question: The quality-gate job can't find model/metrics.json, though the train job made it. Why?
+  options:
+  - The train job failed
+  - 'Jobs start from a clean checkout: model/ must be an artifact of train'
+  - check_metrics.py is wrong
+  answer: 1

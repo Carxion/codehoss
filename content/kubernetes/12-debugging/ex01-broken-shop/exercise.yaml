@@ -1,0 +1,23 @@
+id: kubernetes.broken-shop
+title: The broken shop
+difficulty: 3
+prompt: 'Someone deployed the shop and went home. Apply **`deployment.yaml`** and
+
+  **`service.yaml`** and you''ll find it doesn''t work: there are **three** mistakes between the two
+
+  files. Use `kubectl get`, `describe` and the endpoints to find them, fix the files, and re-apply
+
+  until this answers:
+
+
+  ```bash
+
+  curl http://k3s:30085
+
+  ```'
+hints:
+- 'kubectl get pods: what''s the STATUS? kubectl describe pod on one of them: look at the image name.'
+- When the pods run, check kubectl get endpointslices -l kubernetes.io/service-name=shop. Empty? Compare
+  the Service's selector with the pods' labels.
+- 'Still nothing? The app listens on port 8000: what''s the Service''s targetPort?'
+time_limit_s: 150

@@ -4,17 +4,18 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M6 done**: guided browser IDE with live IntelliSense and notebooks;
+> Status: **M7 done**: guided browser IDE with live IntelliSense and notebooks;
 > **Python Basics**, **Data Science**, **AI** and **Data Structures & Algorithms** modules
 > (12 lessons and 24 exercises each) plus **Projects**: six multi-checkpoint builds at
 > Guided / Assisted / Solo level, collected in a downloadable portfolio. DSA lessons open
 > with step-through algorithm animations, and its tests fail code that is too slow. AI work
 > runs on a local model (Ollama) or Claude with your own key. M7 adds hands-on labs with a
 > real terminal in the browser: a 12-lesson **Docker** module (a private Docker engine per
-> learner) and **Kubernetes** (a private k3s cluster plus registry). New: **Programming
-> Basics**, a first course that isn't tied to any language: learners write pseudocode that
-> really runs and step through it line by line, watching every variable change. Next: more
-> Kubernetes, the MLOps capstone, then JavaScript, R, C++ and C# courses with projects. See
+> learner), 12-lesson **Kubernetes** (a private k3s cluster with registry, ingress and
+> storage) and the **MLOps** capstone (train, serve, release, deploy, GitLab CI, monitoring
+> and canaries). **Programming Basics** is a first course that isn't tied to any language:
+> learners write pseudocode that really runs and step through it line by line. Next: the AI
+> tutor (M8), then JavaScript, R, C++ and C# courses with projects. See
 > [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
@@ -59,7 +60,7 @@ sandbox.
 - **Modular courses** — self-contained modules that plug in. v1 ships **Programming
   Basics** (language-agnostic, in runnable pseudocode), **Python Basics**,
   **Data Science**, **AI**, **Data Structures & Algorithms** and **Projects** (guided build
-  plans), plus hands-on **Docker** and **Kubernetes** labs; MLOps is next. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
+  plans), plus hands-on **Docker**, **Kubernetes** and **MLOps** labs. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
 - **Hand-holding** — bite-sized guided steps, escalating hints, a friendly error explainer,
   and scaffolding that fades as you improve. See
   [docs/LEARNING-EXPERIENCE.md](docs/LEARNING-EXPERIENCE.md).

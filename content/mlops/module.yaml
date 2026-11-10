@@ -1,0 +1,23 @@
+id: mlops
+title: MLOps
+description: 'The capstone: take one model from a training script to a monitored service on Kubernetes,
+  with versioned releases, a GitLab CI pipeline, rollbacks and canary releases.'
+level: intermediate
+prerequisites:
+- kubernetes
+sandbox:
+  image: dojo-lab
+  packages:
+  - pyyaml
+  memory: 512m
+  lab: kubernetes
+  lab_images:
+  - python:3.12-alpine
+default_view: lab
+lessons:
+- 01-training-pipeline
+- 02-serving
+- 03-releases
+- 04-deploy
+- 05-ci-cd
+- 06-monitoring

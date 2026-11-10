@@ -1,0 +1,25 @@
+id: kubernetes.helm-releases
+title: Upgrades and rollbacks
+difficulty: 3
+prompt: '**`chart/`** is a finished chart (defaults: 1 replica, greeting `Hello`). Using a release
+
+  named **`blog`**:
+
+
+  1. Install it (revision 1).
+
+  2. Upgrade it with the greeting **`Hi`** (revision 2).
+
+  3. Upgrade it with the greeting `Hi` **and 3 replicas** (revision 3).
+
+  4. The 3 replicas were a mistake: **roll back to revision 2**.
+
+
+  `helm history blog` should end with revision 4, "Rollback to 2", and the deployment should have
+
+  1 replica saying `Hi`.'
+hints:
+- helm install blog ./chart, then helm upgrade blog ./chart --set greeting=Hi
+- 'Revision 3 needs both values: helm upgrade blog ./chart --set greeting=Hi --set replicas=3'
+- helm rollback blog 2, then helm history blog
+time_limit_s: 150

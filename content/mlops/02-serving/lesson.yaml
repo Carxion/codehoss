@@ -1,0 +1,66 @@
+title: Serving predictions
+summary: Put the model behind an HTTP API, then package it as a small image.
+steps:
+- type: explain
+  md: 'A saved model is only useful once other programs can ask it questions. The usual
+
+    answer is a small **HTTP API**:
+
+
+    - `GET /health`: "I''m up, and this is the model version I''m serving" (used by probes)
+
+    - `POST /predict` with JSON in, JSON out:
+
+
+    ```bash
+
+    curl -s -X POST http://localhost:8080/predict -d ''{"sqft": 1500, "bedrooms": 3, "age": 10}''
+
+    {"price": 311234.56, "model_version": "1.0.0"}
+
+    ```
+
+
+    `serve.py` uses Python''s built-in HTTP server so there''s nothing to install. (Production
+
+    apps often use FastAPI or similar; the shape is the same.) Bad input should get a clear
+
+    **400** error, never a crash.'
+- type: exercise
+  ref: ex01-predict-api
+- type: explain
+  md: 'To ship it, build an image. Training doesn''t belong in the image you serve from, but
+
+    the model it produces does, so use a **multi-stage build**: a `train` stage runs
+
+    `train.py`, and the final stage copies in only `model/`:
+
+
+    ```dockerfile
+
+    FROM python:3.12-alpine AS train
+
+    ...
+
+    RUN python train.py
+
+
+    FROM python:3.12-alpine
+
+    COPY --from=train /app/model/ model/
+
+    ```
+
+
+    The served image never contains the training data, and every build retrains from the same
+
+    inputs, so the image *is* the record of what was shipped.'
+- type: exercise
+  ref: ex02-container
+- type: quiz
+  question: Why include the model version in /health and in every prediction?
+  options:
+  - It looks professional
+  - So you can always tell which model produced an answer, during rollouts and when debugging
+  - HTTP requires it
+  answer: 1

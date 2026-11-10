@@ -1,0 +1,33 @@
+title: Volumes and storage
+summary: Share files between containers, and keep data when pods are replaced.
+steps:
+- type: explain
+  md: "A container's own filesystem disappears when it restarts. **Volumes** are folders\nthat live outside\
+    \ it. You declare them once in the pod's `volumes:` and mount them into\ncontainers with `volumeMounts:`.\n\
+    \nThe simplest is **`emptyDir`**: an empty folder that lives as long as the pod. Every container\n\
+    in the pod can mount it, which is how a helper container (a *sidecar*) shares files with the\nmain\
+    \ one:\n\n```yaml\nspec:\n  volumes:\n  - name: shared\n    emptyDir: {}\n  containers:\n  - name:\
+    \ writer\n    volumeMounts:\n    - name: shared\n      mountPath: /shared\n  - name: web\n    volumeMounts:\n\
+    \    - name: shared\n      mountPath: /shared\n```\n\n`kubectl exec POD -c CONTAINER -- ...` picks\
+    \ a container in a multi-container pod."
+- type: exercise
+  ref: ex01-shared-volume
+- type: explain
+  md: "For data that must outlive pods (databases, uploads), ask for storage with a\n**PersistentVolumeClaim**\
+    \ (PVC). The cluster's storage class provisions a\n**PersistentVolume** to match (here k3s's `local-path`,\
+    \ a folder on the node; in the cloud,\na real disk):\n\n```yaml\napiVersion: v1\nkind: PersistentVolumeClaim\n\
+    metadata:\n  name: notes-data\nspec:\n  accessModes: [ReadWriteOnce]   # mounted by one node at a\
+    \ time\n  resources:\n    requests:\n      storage: 50Mi\n```\n\nThe pod mounts it by name: `volumes:\
+    \ [{name: data, persistentVolumeClaim: {claimName: notes-data}}]`.\nDelete the pod and its replacement\
+    \ finds the same files. `kubectl get pvc,pv` shows the\nclaim and the volume bound to it."
+- type: exercise
+  ref: ex02-pvc
+- type: quiz
+  question: A pod with an emptyDir volume is deleted and its Deployment creates a new one. What's in the
+    new pod's emptyDir?
+  options:
+  - The old files
+  - 'Nothing: an emptyDir lives and dies with its pod'
+  - Whatever the PVC holds
+  answer: 1
+  explanation: Use a PersistentVolumeClaim for data that must survive the pod.

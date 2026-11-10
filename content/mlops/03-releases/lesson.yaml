@@ -1,0 +1,45 @@
+title: Versioned releases
+summary: Push images to a registry with version tags, from a release script that refuses bad models.
+steps:
+- type: explain
+  md: 'A **release** is an image in a registry with a tag that never changes meaning.
+
+    This lab has a registry at `docker:5000` (the same one the cluster pulls from):
+
+
+    ```bash
+
+    docker build -t docker:5000/house-api:1.0.0 .
+
+    docker push docker:5000/house-api:1.0.0
+
+    curl -s http://docker:5000/v2/house-api/tags/list
+
+    ```
+
+
+    Use **semantic versions** (`MAJOR.MINOR.PATCH`) and treat a version as immutable: retrained
+
+    model, new version. `latest` is a convenience that moves to the newest release; never deploy
+
+    `latest` to production, because you can''t tell what it was yesterday.'
+- type: exercise
+  ref: ex01-push
+- type: explain
+  md: "Releasing by hand invites mistakes, so script it. Two ideas make the script safe:\n\n- **Build\
+    \ arguments** pass the version in: `docker build --build-arg MODEL_VERSION=1.1.0 ...`,\n  and `ARG\
+    \ MODEL_VERSION` in the Dockerfile makes it an environment variable while that stage builds,\n  so\
+    \ `train.py` stamps the model with the same version as the tag.\n- **The quality gate runs inside\
+    \ the build.** If `check_metrics.py` exits 1, `RUN` fails, the\n  build fails, and with `set -e` the\
+    \ script stops before anything is pushed. A bad model\n  can't be released, by construction."
+- type: exercise
+  ref: ex02-release-script
+- type: quiz
+  question: You retrained the model with new data. What should its image tag be?
+  options:
+  - The same version, pushed again
+  - A new version number
+  - latest only
+  answer: 1
+  explanation: Reusing a version means two different models answer to the same name, and rollbacks become
+    guesswork.

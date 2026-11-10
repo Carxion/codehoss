@@ -1,0 +1,18 @@
+import json
+
+from dojo_checks import sh
+
+
+def tags():
+    out = sh("curl -s http://docker:5000/v2/house-api/tags/list").stdout
+    return set((json.loads(out).get("tags") or []) if out.strip().startswith("{") else [])
+
+
+def model_version_in(image):
+    out = sh(f"docker run --rm {image} cat model/model.json", timeout=120)
+    assert out.returncode == 0, f"couldn't run {image}: {out.stderr[-200:]}"
+    return json.loads(out.stdout)["version"]
+
+
+def test_pushed():
+    assert "1.0.0" in tags(), f"the registry has {sorted(tags()) or 'nothing'} for house-api"

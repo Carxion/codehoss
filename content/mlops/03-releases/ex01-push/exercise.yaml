@@ -1,0 +1,10 @@
+id: mlops.push
+title: Release 1.0.0
+difficulty: 1
+prompt: 'Build the image as **`docker:5000/house-api:1.0.0`** and push it to the lab''s registry.
+
+  Check it arrived with `curl -s http://docker:5000/v2/house-api/tags/list`.'
+hints:
+- 'The tag includes the registry: docker build -t docker:5000/house-api:1.0.0 .'
+- docker push docker:5000/house-api:1.0.0
+time_limit_s: 240
