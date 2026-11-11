@@ -202,9 +202,20 @@ def hint(exercise_id: str, level: int = 1) -> None:
 
 
 @app.command("build-images")
-def build_images() -> None:
-    """Build the Docker sandbox image and Library Explorer index for every module."""
+def build_images(
+    module: Annotated[
+        list[str] | None,
+        typer.Option("--module", "-m", help="Only what these modules need (repeatable)."),
+    ] = None,
+) -> None:
+    """Build the Docker sandbox images and Library Explorer index for every module."""
     content = _load()
+    if module:
+        unknown = sorted(set(module) - set(content.modules))
+        if unknown:
+            console.print(f"[red]Unknown module(s):[/] {', '.join(unknown)}")
+            raise typer.Exit(2)
+        content.modules = {k: v for k, v in content.modules.items() if k in module}
     try:
         labs = lab_images(content)
         for image, packages in image_specs(content).items():

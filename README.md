@@ -20,8 +20,9 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > how well you know each lesson, **spaced review** brings back finished quizzes, try-its and
 > exercises just before you'd forget them, and **streaks** count your study days. Authors
 > get the **Studio**: edit any course in the browser with live validation, a preview of each
-> lesson as learners see it, and one-click testing of every solution. Next: a Helm chart,
-> then JavaScript, R, C++ and C# courses with projects. See [ROADMAP.md](ROADMAP.md).
+> lesson as learners see it, and one-click testing of every solution. A Dockerfile and a
+> **Helm chart** run it on Kubernetes. Next: JavaScript, R, C++ and C# courses with
+> projects. See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 
@@ -31,6 +32,10 @@ uv run dojo build-images            # sandbox images + Library Explorer indexes 
 cd web && npm install && npm run build && cd ..
 uv run dojo serve                   # open http://127.0.0.1:8000 and create an account
 ```
+
+**On Kubernetes:** build the image (`docker build -t <registry>/datadojo .`) and install
+[deploy/helm/datadojo](deploy/helm/datadojo/README.md); it runs the server with its own
+Docker engine for sandboxes, persistent storage, optional Ingress and optional Ollama.
 
 **AI lessons:** pick a model with **🤖 AI** in the top bar. For the local option,
 install [Ollama](https://ollama.com) and run `ollama pull llama3.2` (and

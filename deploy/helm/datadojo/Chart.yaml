@@ -1,0 +1,9 @@
+apiVersion: v2
+name: datadojo
+description: Self-hosted DataDojo, a learning platform with sandboxed code, notebooks and Docker/Kubernetes labs.
+type: application
+version: 0.1.0
+appVersion: "0.3.0"
+# The Docker engine runs as a native sidecar (an init container with restartPolicy: Always).
+kubeVersion: ">=1.29.0-0"
+keywords: [education, learning, python, sandbox]

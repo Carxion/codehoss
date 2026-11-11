@@ -1,0 +1,166 @@
+{{- $fullname := include "datadojo.fullname" . }}
+{{- $socket := "unix:///var/run/dind/docker.sock" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}
+  labels:
+    {{- include "datadojo.labels" . | nindent 4 }}
+spec:
+  # One server: progress is in SQLite and sandbox sessions live in this pod.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "datadojo.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "datadojo.labels" . | nindent 8 }}
+        app.kubernetes.io/component: server
+      annotations:
+        checksum/values: {{ toJson .Values | sha256sum | trunc 16 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        # 1. Put the courses on the content volume (see content.seed).
+        - name: seed-content
+          image: {{ include "datadojo.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [sh, -c]
+          args:
+            - |
+              set -e
+              if [ "$SEED" = always ] || [ -z "$(ls -A /app/content)" ]; then
+                cp -R /app/content.dist/. /app/content/
+                echo "Copied the courses onto the content volume."
+              else
+                echo "Content volume already has courses; leaving it as it is."
+              fi
+          env:
+            - name: SEED
+              value: {{ .Values.content.seed | quote }}
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+          volumeMounts:
+            - {name: content, mountPath: /app/content}
+        # 2. The Docker engine, as a native sidecar: it starts before the steps below and
+        #    runs for the life of the pod. Sandboxes bind-mount course data from
+        #    /app/content, so it sees the content volume at the same path as the server.
+        - name: docker
+          image: {{ .Values.dind.image }}
+          restartPolicy: Always
+          # Not the image's default entrypoint: without TLS it also opens TCP 2375 to the
+          # whole cluster, unauthenticated. `dind` does the cgroup setup, then dockerd
+          # listens only on the socket shared inside this pod.
+          #
+          # Its networks use the pod's MTU: cluster overlays are often below 1500, and
+          # with Docker's default, big packets (TLS downloads in image builds) vanish.
+          command: [sh, -c]
+          args:
+            - |
+              mtu={{ .Values.dind.mtu | default "$(cat /sys/class/net/eth0/mtu)" }}
+              echo "Docker networks use MTU $mtu"
+              exec dind dockerd --host={{ $socket }} --group=10001 \
+                --mtu="$mtu" --default-network-opt=bridge=com.docker.network.driver.mtu="$mtu"
+          securityContext:
+            privileged: true
+          startupProbe:
+            exec:
+              command: [docker, -H, {{ $socket | quote }}, info]
+            periodSeconds: 2
+            failureThreshold: 60
+          resources:
+            {{- toYaml .Values.dind.resources | nindent 12 }}
+          volumeMounts:
+            - {name: docker-socket, mountPath: /var/run/dind}
+            - {name: docker, mountPath: /var/lib/docker}
+            - {name: content, mountPath: /app/content}
+        # 3. Build the sandbox images (cached on the docker volume after the first time).
+        - name: build-images
+          image: {{ include "datadojo.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - dojo
+            - build-images
+            {{- range .Values.sandbox.buildModules }}
+            - --module={{ . }}
+            {{- end }}
+          env:
+            - name: DOCKER_HOST
+              value: {{ $socket }}
+          volumeMounts:
+            - {name: docker-socket, mountPath: /var/run/dind}
+            - {name: data, mountPath: /app/var}
+            - {name: content, mountPath: /app/content}
+      containers:
+        - name: server
+          image: {{ include "datadojo.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - {name: http, containerPort: 8000}
+          env:
+            - name: DOCKER_HOST
+              value: {{ $socket }}
+            - name: DOJO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "datadojo.secretName" . }}
+                  key: secret-key
+            {{- with .Values.authors }}
+            - name: DOJO_AUTHORS
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with include "datadojo.ollamaUrl" . }}
+            - name: DOJO_OLLAMA_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.sandbox.labRuntime }}
+            - name: DOJO_LAB_RUNTIME
+              value: {{ . | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet: {path: /api/health, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /api/health, port: http}
+            periodSeconds: 20
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - {name: docker-socket, mountPath: /var/run/dind}
+            - {name: data, mountPath: /app/var}
+            - {name: content, mountPath: /app/content}
+      volumes:
+        - name: docker-socket
+          emptyDir: {}
+        {{- range $name := list "data" "docker" "content" }}
+        - name: {{ $name }}
+          {{- if (index $.Values.persistence $name).enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $fullname }}-{{ $name }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

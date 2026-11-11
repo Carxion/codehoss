@@ -1,0 +1,26 @@
+DataDojo is starting. The first start builds the sandbox images inside the pod's Docker
+engine, which takes several minutes (longer with every module); later starts reuse them.
+
+Watch it:
+  kubectl -n {{ .Release.Namespace }} logs deploy/{{ include "datadojo.fullname" . }} -c build-images -f
+
+{{- if .Values.ingress.enabled }}
+
+Then open: http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}/
+{{- else }}
+
+Then reach it with:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "datadojo.fullname" . }} 8000:{{ .Values.service.port }}
+  open http://localhost:8000/
+{{- end }}
+
+{{- if .Values.authors }}
+
+Studio (course editing) is on for: {{ .Values.authors }}
+{{- else }}
+
+The Studio (course editing) is off. Set authors=<username> to turn it on.
+{{- end }}
+
+The Docker engine beside the server runs privileged: give DataDojo its own namespace
+and nodes you trust, and don't expose anything but the Service.

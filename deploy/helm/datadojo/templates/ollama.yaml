@@ -1,0 +1,64 @@
+{{- if .Values.ollama.enabled }}
+{{- $fullname := include "datadojo.fullname" . }}
+{{ include "datadojo.pvc" (dict "ctx" $ "name" "ollama" "spec" .Values.ollama.persistence "keep" false) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}-ollama
+  labels:
+    {{- include "datadojo.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: ollama
+  template:
+    metadata:
+      labels:
+        {{- include "datadojo.labels" . | nindent 8 }}
+        app.kubernetes.io/component: ollama
+    spec:
+      containers:
+        - name: ollama
+          image: {{ .Values.ollama.image }}
+          # Serve, then pull the configured models (already-pulled ones are quick).
+          command: [sh, -c]
+          args:
+            - |
+              ollama serve &
+              until ollama list >/dev/null 2>&1; do sleep 1; done
+              for model in $MODELS; do ollama pull "$model"; done
+              wait
+          env:
+            - name: MODELS
+              value: {{ join " " .Values.ollama.models | quote }}
+          ports:
+            - {name: http, containerPort: 11434}
+          readinessProbe:
+            httpGet: {path: /api/tags, port: http}
+          resources:
+            {{- toYaml .Values.ollama.resources | nindent 12 }}
+          volumeMounts:
+            - {name: models, mountPath: /root/.ollama}
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ $fullname }}-ollama
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullname }}-ollama
+  labels:
+    {{- include "datadojo.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: ollama
+  ports:
+    - {name: http, port: 11434, targetPort: http}
+{{- end }}

@@ -1,0 +1,101 @@
+# DataDojo runs as one pod: the server, plus a private Docker engine (docker:dind, as a
+# native sidecar) that runs every learner sandbox, notebook kernel and lab. The engine is
+# privileged and only reachable through a unix socket shared inside the pod.
+
+image:
+  # Build it from the repo root (docker build -t <registry>/datadojo:<tag> .) and push it
+  # to a registry your cluster can pull from, e.g. your GitLab project's registry.
+  repository: datadojo
+  tag: ""  # defaults to the chart's appVersion
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# Usernames allowed to use the Studio (edits course content), comma-separated, or "*".
+authors: ""
+
+# Fernet key that encrypts learners' saved API keys. Leave empty to generate one; it's
+# kept across upgrades (and kept after uninstall, with the data volume).
+secretKey: ""
+# Or use your own Secret with a `secret-key` entry.
+existingSecret: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  nodePort: null  # with type NodePort
+
+ingress:
+  enabled: false
+  className: ""
+  host: datadojo.example.com
+  annotations: {}
+  # Labs and notebooks use WebSockets and long requests; with ingress-nginx, e.g.:
+  #   nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+  #   nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+  tls: []
+  #  - secretName: datadojo-tls
+  #    hosts: [datadojo.example.com]
+
+persistence:
+  # Accounts, progress, review cards and the Library Explorer index (SQLite).
+  data:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+  # The sandbox images (several GB with labs). Without it every restart rebuilds them.
+  docker:
+    enabled: true
+    size: 40Gi
+    storageClass: ""
+  # The courses. Persisted so Studio edits survive restarts.
+  content:
+    enabled: true
+    size: 1Gi
+    storageClass: ""
+
+content:
+  # When to copy the image's courses onto the content volume:
+  #   ifEmpty  first start only (keeps Studio edits; new image content isn't picked up)
+  #   always   every start (picks up a new image's courses; overwrites Studio edits)
+  seed: ifEmpty
+
+sandbox:
+  # Modules to build sandbox images for at start-up; empty means every module.
+  # Building everything takes a while the first time (images are cached afterwards).
+  buildModules: []
+  # Run lab engines with this runtime instead of --privileged (e.g. sysbox-runc).
+  labRuntime: ""
+
+dind:
+  image: docker:29-dind
+  # MTU for the engine's networks; empty means the pod network's own (usually right).
+  mtu: ""
+  resources:
+    requests: {cpu: 500m, memory: 1Gi}
+    limits: {memory: 8Gi}
+
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {memory: 1Gi}
+
+ai:
+  # An Ollama server for AI lessons and the tutor (learners can also use Claude with
+  # their own key). Ignored when ollama.enabled is true.
+  ollamaUrl: ""
+
+ollama:
+  enabled: false
+  image: ollama/ollama:0.12.6
+  # Pulled when Ollama starts (the first time takes a while).
+  models: [qwen2.5:7b, nomic-embed-text]
+  persistence:
+    size: 20Gi
+    storageClass: ""
+  resources:
+    requests: {cpu: "1", memory: 6Gi}
+    limits: {memory: 12Gi}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

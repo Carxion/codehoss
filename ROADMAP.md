@@ -324,6 +324,14 @@ a preview of the lesson as learners see it (from the unsaved text, via a tempora
 (a module that breaks keeps its last good version), and templates for new modules, lessons
 and exercises, also as `dojo new module|lesson|exercise`.
 
+Part 4 ✅ (2026-11-10): **self-hosting**. A `Dockerfile` for the app and a **Helm chart**
+(`deploy/helm/datadojo`): one pod with a privileged Docker-in-Docker native sidecar on a
+pod-local unix socket (never TCP), content seeded onto a volume both containers mount
+(sandbox data bind mounts resolve), sandbox images built at start-up and cached
+(`sandbox.buildModules` to limit them; `dojo build-images --module`), persistent data,
+images and content, a generated secret key kept across upgrades, optional Ingress and
+Ollama. Tested by installing into k3s v1.37. M8 is complete.
+
 - Tutor on local Ollama: sees the lesson, the learner's code and failing tests; gives
   Socratic hints, never full solutions
 - Spaced-repetition review, skill map, streaks

@@ -244,6 +244,24 @@ Markdown, code, tests; 200 KB max) inside the content folder.
   `module.yaml` / the step to `lesson.yaml` by text edit, keeping comments, and each
   template is tested to pass validation and its own solution/starter check.
 
+## Deployment (Docker image, Helm)
+
+The `Dockerfile` builds one image: the web app, the Python app, the courses (twice: a
+live copy and a pristine `content.dist`) and the Docker CLI. The server drives sandboxes
+through `DOCKER_HOST`, so anywhere it runs it needs an engine.
+
+The Helm chart (`deploy/helm/datadojo`) runs one pod: `seed-content` (init) copies the
+courses onto the content volume; `docker` is a privileged `docker:dind` **native
+sidecar** (an init container with `restartPolicy: Always`, so it's up before the steps
+after it) listening only on a unix socket in a pod-local `emptyDir`, never TCP (the
+image's default entrypoint would also open an unauthenticated 2375, so the chart runs
+`dind dockerd` directly, with its networks' MTU taken from the pod's interface, since
+overlay networks are often below Docker's 1500); `build-images` (init) runs `dojo build-images`, cached on the
+docker volume; then the server. Course data is bind-mounted into sandboxes by path, and
+a bind source resolves on the engine's filesystem, so the engine mounts the content
+volume at the same `/app/content` path as the server. One replica, `Recreate`: SQLite and
+in-memory sessions. Data and content volumes and the secret key are kept on uninstall.
+
 ## Interactive runs
 
 The Run button uses a WebSocket: output streams back as it's printed, keystrokes typed in
