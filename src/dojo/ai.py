@@ -120,7 +120,7 @@ class Gateway:
         size = sum(len(m.get("content", "")) for m in messages) + len(system or "")
         if size > MAX_PROMPT_CHARS:
             raise AIError(
-                f"That prompt is too long for DataDojo ({size:,} characters; max {MAX_PROMPT_CHARS:,})."
+                f"That prompt is too long for CodeHoss ({size:,} characters; max {MAX_PROMPT_CHARS:,})."
             )
         max_tokens = max(1, min(int(payload.get("max_tokens") or 1024), MAX_TOKENS_CAP))
         started = time.monotonic()
@@ -144,7 +144,7 @@ class Gateway:
         size = sum(len(m.get("content", "")) for m in messages) + len(system)
         if size > MAX_PROMPT_CHARS:
             raise AIError(
-                f"That conversation is too long for DataDojo ({size:,} characters). Start a new one."
+                f"That conversation is too long for CodeHoss ({size:,} characters). Start a new one."
             )
         if settings.provider == "ollama":
             return self._ollama_stream(settings, system, messages, max_tokens)

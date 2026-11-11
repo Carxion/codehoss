@@ -1,6 +1,6 @@
-# DataDojo Helm chart
+# CodeHoss Helm chart
 
-Runs a self-hosted DataDojo on Kubernetes (1.29 or newer).
+Runs a self-hosted CodeHoss on Kubernetes (1.29 or newer).
 
 ## What it creates
 
@@ -11,7 +11,7 @@ One pod with:
 | `seed-content` (init) | copies the courses from the image onto the content volume (first start only, by default) |
 | `docker` (native sidecar) | a private **privileged** Docker engine (`docker:dind`) that runs every learner sandbox, notebook kernel and lab; reachable only through a unix socket inside the pod |
 | `build-images` (init) | `dojo build-images`: the sandbox images, cached on the docker volume |
-| `server` | DataDojo itself (API, browser app) on port 8000 |
+| `server` | CodeHoss itself (API, browser app) on port 8000 |
 
 Plus a Service, an optional Ingress, a Secret (the key that encrypts learners' saved API
 keys), PersistentVolumeClaims for data, sandbox images and content, and optionally an
@@ -25,17 +25,17 @@ Build the image from the repo root and push it where your cluster can pull it, f
 example your GitLab project's container registry:
 
 ```bash
-docker build -t registry.gitlab.com/<you>/datadojo:0.3.0 .
-docker push registry.gitlab.com/<you>/datadojo:0.3.0
+docker build -t registry.gitlab.com/<you>/codehoss:0.3.0 .
+docker push registry.gitlab.com/<you>/codehoss:0.3.0
 
-helm install dojo deploy/helm/datadojo -n dojo --create-namespace \
-  --set image.repository=registry.gitlab.com/<you>/datadojo --set image.tag=0.3.0 \
+helm install dojo deploy/helm/codehoss -n dojo --create-namespace \
+  --set image.repository=registry.gitlab.com/<you>/codehoss --set image.tag=0.3.0 \
   --set authors=<your-username> \
   --set ingress.enabled=true --set ingress.host=dojo.example.com
 ```
 
 The first start builds the sandbox images (several minutes; follow it with
-`kubectl -n dojo logs deploy/dojo-datadojo -c build-images -f`). Later starts reuse them.
+`kubectl -n dojo logs deploy/dojo-codehoss -c build-images -f`). Later starts reuse them.
 To start faster, build only some courses' images: `--set 'sandbox.buildModules={programming-basics,python-basics}'`.
 
 ## Values worth knowing
@@ -58,7 +58,7 @@ See [values.yaml](values.yaml) for everything.
 The Docker engine must be privileged (it runs containers, and labs run Docker and k3s
 inside those). Learner code never runs in it directly: each sandbox is a locked-down
 container (no network, no capabilities, read-only filesystem, memory/CPU/pids limits).
-Still, give DataDojo its own namespace, schedule it on nodes you trust, and expose only
+Still, give CodeHoss its own namespace, schedule it on nodes you trust, and expose only
 the Service. Uninstalling keeps the data and content volumes and the Secret
 (`helm.sh/resource-policy: keep`); delete them to remove learners' accounts and work.
 

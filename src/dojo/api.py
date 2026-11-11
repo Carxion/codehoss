@@ -178,7 +178,7 @@ def create_app(
             reaper.cancel()
             await run_in_threadpool(sessions.close_all)
 
-    app = FastAPI(title="DataDojo", version="0.3.0", lifespan=lifespan)
+    app = FastAPI(title="CodeHoss", version="0.3.0", lifespan=lifespan)
     # The JS bundle and library indexes are large and compress well.
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     api = APIRouter(prefix="/api")
@@ -198,7 +198,7 @@ def create_app(
         if not authoring.is_author(user.username, authors):
             raise HTTPException(
                 status.HTTP_403_FORBIDDEN,
-                "The Studio is for authors. Ask whoever runs this DataDojo to add you to "
+                "The Studio is for authors. Ask whoever runs this CodeHoss to add you to "
                 "DOJO_AUTHORS.",
             )
         return user

@@ -34,7 +34,7 @@ from dojo.sandbox import (
 from dojo.validate import validate as validate_content
 
 app = typer.Typer(
-    help="DataDojo: learn Python, data science and AI by doing.",
+    help="CodeHoss: learn Python, data science and AI by doing.",
     no_args_is_help=True,
     add_completion=False,
 )

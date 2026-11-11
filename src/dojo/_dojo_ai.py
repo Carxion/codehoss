@@ -1,12 +1,12 @@
-"""dojo_ai: talk to an AI model from DataDojo notebooks.
+"""dojo_ai: talk to an AI model from CodeHoss notebooks.
 
     import dojo_ai
     dojo_ai.chat("Explain recursion in one sentence.")
     dojo_ai.embed(["first text", "second text"])
 
-The same code works with whichever model you picked in DataDojo (top bar, "AI"):
+The same code works with whichever model you picked in CodeHoss (top bar, "AI"):
 a local model through Ollama, or a hosted model with your own API key. Requests go
-through the DataDojo server, so your API key never appears in your code or notebook.
+through the CodeHoss server, so your API key never appears in your code or notebook.
 
 In your own projects you would use a provider's library directly, such as `ollama`
 or `anthropic`; the ideas you learn here carry straight over.
@@ -26,7 +26,7 @@ __all__ = ["chat", "embed", "simple_embed", "cosine_similarity", "backend", "fak
 
 Message = dict[str, str]
 
-# Set by the notebook kernel to reach the DataDojo server. None means "practice mode".
+# Set by the notebook kernel to reach the CodeHoss server. None means "practice mode".
 _transport: Callable[[str, dict], dict] | None = None
 _fake_chat: Callable[..., str] | None = None
 _fake_embed: Callable[[list[str]], list[list[float]]] | None = None

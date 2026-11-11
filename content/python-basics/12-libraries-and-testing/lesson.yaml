@@ -14,7 +14,7 @@ steps:
 
       Beyond that, there are hundreds of thousands of **packages** on **PyPI** (the
       Python Package Index) that people share for free: `pandas` for data, `requests`
-      for the web, `pytest` for testing. In DataDojo, each course's packages are already
+      for the web, `pytest` for testing. In CodeHoss, each course's packages are already
       installed for you.
   - type: example
     code: |
@@ -73,7 +73,7 @@ steps:
       ```
 
       Tools like **pytest** find every function named `test_...` and run it. That's
-      exactly how DataDojo checks your exercises!
+      exactly how CodeHoss checks your exercises!
   - type: try-it
     prompt: Write an `assert` inside `test_add` that checks `add(2, 3)` gives `5`.
     starter: |
@@ -214,7 +214,7 @@ steps:
           assert is_palindrome(word) == expected
       ```
 
-      That's how most DataDojo exercises check many inputs at once.
+      That's how most CodeHoss exercises check many inputs at once.
 
       **Fixtures** are ready-made helpers pytest hands to a test when it asks for them by
       parameter name. `tmp_path` is a fresh, empty folder for each test, perfect for

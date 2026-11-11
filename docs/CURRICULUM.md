@@ -1,6 +1,6 @@
 # Curriculum & Modules
 
-DataDojo content is organized as **modules** — self-contained course packs. The platform
+CodeHoss content is organized as **modules** — self-contained course packs. The platform
 discovers modules from `content/`, shows them in the course catalog, and enforces
 prerequisites. Each module declares its own sandbox image and libraries, which is also what
 drives IntelliSense and the Library Explorer.

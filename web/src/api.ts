@@ -1,4 +1,4 @@
-// Typed client for the DataDojo API (see src/dojo/api.py).
+// Typed client for the CodeHoss API (see src/dojo/api.py).
 
 export class ApiError extends Error {
   constructor(

@@ -26,7 +26,7 @@ steps:
 
     `:` instead of `END IF`/`END FOR`, so the spaces really matter. Great for data science, AI,
 
-    automation, and beginners; it''s DataDojo''s main track.'
+    automation, and beginners; it''s CodeHoss''s main track.'
 - type: example
   language: javascript
   code: "const scores = [72, 95, 58];\nlet passed = 0;\nfor (const score of scores) {\n  if (score >=\

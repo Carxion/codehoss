@@ -47,7 +47,7 @@ def readme(item: dict, username: str) -> str:
 
 {item["summary"]}
 
-Built by **{username}** on DataDojo ({item["level"]} level), finished {finished}.
+Built by **{username}** on CodeHoss ({item["level"]} level), finished {finished}.
 Skills: {skills}.
 
 ## The brief
@@ -61,8 +61,8 @@ Skills: {skills}.
 ## Running it
 
 The code is in `{code_file}`{also}.
-Files it reads from `/data/...` came from DataDojo's datasets; point those paths at
-your own copies to run it elsewhere. Code that uses `dojo_ai` ran on DataDojo's model
+Files it reads from `/data/...` came from CodeHoss's datasets; point those paths at
+your own copies to run it elsewhere. Code that uses `dojo_ai` ran on CodeHoss's model
 picker; swap in a provider library such as `ollama` or `anthropic` to run it on its own.
 
 To put it on GitHub or GitLab:

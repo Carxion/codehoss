@@ -258,7 +258,7 @@ steps:
       `__name__` is `"__main__"` when you run the file, and the module's name when it's
       imported. You'll see this guard at the bottom of most Python scripts.
   - type: example
-    md: DataDojo gives you one file, so this example **writes** a module and then imports it. On your own computer you'd just create `shapes.py` in your editor.
+    md: CodeHoss gives you one file, so this example **writes** a module and then imports it. On your own computer you'd just create `shapes.py` in your editor.
     code: |
       from pathlib import Path
 

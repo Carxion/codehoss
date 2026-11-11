@@ -26,7 +26,7 @@ export default function Login({ onLogin }: { onLogin: (username: string) => void
     <main className="login">
       <form className="card login-card" onSubmit={submit}>
         <div className="brand big">
-          <span className="brand-mark">D</span> DataDojo
+          <span className="brand-mark">C</span> CodeHoss
         </div>
         <p className="muted">Learn Python, data science and AI by doing, one small step at a time.</p>
         <label>

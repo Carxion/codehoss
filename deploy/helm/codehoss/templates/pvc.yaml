@@ -1,0 +1,11 @@
+{{- if .Values.persistence.data.enabled }}
+{{ include "codehoss.pvc" (dict "ctx" $ "name" "data" "spec" .Values.persistence.data "keep" true) }}
+{{- end }}
+{{- if .Values.persistence.docker.enabled }}
+---
+{{ include "codehoss.pvc" (dict "ctx" $ "name" "docker" "spec" .Values.persistence.docker "keep" false) }}
+{{- end }}
+{{- if .Values.persistence.content.enabled }}
+---
+{{ include "codehoss.pvc" (dict "ctx" $ "name" "content" "spec" .Values.persistence.content "keep" true) }}
+{{- end }}

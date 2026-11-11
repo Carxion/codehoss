@@ -1,6 +1,6 @@
 # Learning Experience
 
-DataDojo is built for beginners. The design goal: **a learner is never stuck without a next
+CodeHoss is built for beginners. The design goal: **a learner is never stuck without a next
 step.** This doc defines how that works in the UI.
 
 ## 1. Discoverability while typing (IntelliSense)

@@ -1,9 +1,9 @@
-# The DataDojo server: API, browser app and the course content, plus the Docker CLI it
+# The CodeHoss server: API, browser app and the course content, plus the Docker CLI it
 # uses to run sandboxes. It needs a Docker engine to talk to (DOCKER_HOST); the Helm
-# chart (deploy/helm/datadojo) runs one beside it.
+# chart (deploy/helm/codehoss) runs one beside it.
 #
-#   docker build -t datadojo .
-#   docker run -p 8000:8000 -v /var/run/docker.sock:/var/run/docker.sock datadojo
+#   docker build -t codehoss .
+#   docker run -p 8000:8000 -v /var/run/docker.sock:/var/run/docker.sock codehoss
 
 FROM node:22-alpine AS web
 WORKDIR /web

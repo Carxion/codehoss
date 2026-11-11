@@ -1,13 +1,13 @@
 {{- if .Values.ollama.enabled }}
-{{- $fullname := include "datadojo.fullname" . }}
-{{ include "datadojo.pvc" (dict "ctx" $ "name" "ollama" "spec" .Values.ollama.persistence "keep" false) }}
+{{- $fullname := include "codehoss.fullname" . }}
+{{ include "codehoss.pvc" (dict "ctx" $ "name" "ollama" "spec" .Values.ollama.persistence "keep" false) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $fullname }}-ollama
   labels:
-    {{- include "datadojo.labels" . | nindent 4 }}
+    {{- include "codehoss.labels" . | nindent 4 }}
 spec:
   replicas: 1
   strategy:
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "datadojo.labels" . | nindent 8 }}
+        {{- include "codehoss.labels" . | nindent 8 }}
         app.kubernetes.io/component: ollama
     spec:
       containers:
@@ -54,7 +54,7 @@ kind: Service
 metadata:
   name: {{ $fullname }}-ollama
   labels:
-    {{- include "datadojo.labels" . | nindent 4 }}
+    {{- include "codehoss.labels" . | nindent 4 }}
 spec:
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}

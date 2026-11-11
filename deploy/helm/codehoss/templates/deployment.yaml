@@ -1,11 +1,11 @@
-{{- $fullname := include "datadojo.fullname" . }}
+{{- $fullname := include "codehoss.fullname" . }}
 {{- $socket := "unix:///var/run/dind/docker.sock" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $fullname }}
   labels:
-    {{- include "datadojo.labels" . | nindent 4 }}
+    {{- include "codehoss.labels" . | nindent 4 }}
 spec:
   # One server: progress is in SQLite and sandbox sessions live in this pod.
   replicas: 1
@@ -13,11 +13,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      {{- include "datadojo.selector" . | nindent 6 }}
+      {{- include "codehoss.selector" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "datadojo.labels" . | nindent 8 }}
+        {{- include "codehoss.labels" . | nindent 8 }}
         app.kubernetes.io/component: server
       annotations:
         checksum/values: {{ toJson .Values | sha256sum | trunc 16 }}
@@ -32,7 +32,7 @@ spec:
       initContainers:
         # 1. Put the courses on the content volume (see content.seed).
         - name: seed-content
-          image: {{ include "datadojo.image" . }}
+          image: {{ include "codehoss.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: [sh, -c]
           args:
@@ -86,7 +86,7 @@ spec:
             - {name: content, mountPath: /app/content}
         # 3. Build the sandbox images (cached on the docker volume after the first time).
         - name: build-images
-          image: {{ include "datadojo.image" . }}
+          image: {{ include "codehoss.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - dojo
@@ -103,7 +103,7 @@ spec:
             - {name: content, mountPath: /app/content}
       containers:
         - name: server
-          image: {{ include "datadojo.image" . }}
+          image: {{ include "codehoss.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - {name: http, containerPort: 8000}
@@ -113,13 +113,13 @@ spec:
             - name: DOJO_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "datadojo.secretName" . }}
+                  name: {{ include "codehoss.secretName" . }}
                   key: secret-key
             {{- with .Values.authors }}
             - name: DOJO_AUTHORS
               value: {{ . | quote }}
             {{- end }}
-            {{- with include "datadojo.ollamaUrl" . }}
+            {{- with include "codehoss.ollamaUrl" . }}
             - name: DOJO_OLLAMA_URL
               value: {{ . | quote }}
             {{- end }}

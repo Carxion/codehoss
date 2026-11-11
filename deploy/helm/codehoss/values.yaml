@@ -1,11 +1,11 @@
-# DataDojo runs as one pod: the server, plus a private Docker engine (docker:dind, as a
+# CodeHoss runs as one pod: the server, plus a private Docker engine (docker:dind, as a
 # native sidecar) that runs every learner sandbox, notebook kernel and lab. The engine is
 # privileged and only reachable through a unix socket shared inside the pod.
 
 image:
-  # Build it from the repo root (docker build -t <registry>/datadojo:<tag> .) and push it
+  # Build it from the repo root (docker build -t <registry>/codehoss:<tag> .) and push it
   # to a registry your cluster can pull from, e.g. your GitLab project's registry.
-  repository: datadojo
+  repository: codehoss
   tag: ""  # defaults to the chart's appVersion
   pullPolicy: IfNotPresent
 
@@ -28,14 +28,14 @@ service:
 ingress:
   enabled: false
   className: ""
-  host: datadojo.example.com
+  host: codehoss.example.com
   annotations: {}
   # Labs and notebooks use WebSockets and long requests; with ingress-nginx, e.g.:
   #   nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
   #   nginx.ingress.kubernetes.io/proxy-body-size: "8m"
   tls: []
-  #  - secretName: datadojo-tls
-  #    hosts: [datadojo.example.com]
+  #  - secretName: codehoss-tls
+  #    hosts: [codehoss.example.com]
 
 persistence:
   # Accounts, progress, review cards and the Library Explorer index (SQLite).

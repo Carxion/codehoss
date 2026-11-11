@@ -84,7 +84,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <a className="brand" href="#/">
-          <span className="brand-mark">D</span> DataDojo
+          <span className="brand-mark">C</span> CodeHoss
         </a>
         <div className="topbar-right">
           {author && (

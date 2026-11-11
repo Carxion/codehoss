@@ -1,5 +1,5 @@
 [project]
-name = "datadojo"
+name = "codehoss"
 version = "0.0.1"
 description = "Interactive platform for learning Python, data science and AI"
 readme = "README.md"

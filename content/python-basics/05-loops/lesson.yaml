@@ -90,7 +90,7 @@ steps:
   - type: explain
     md: |
       A **while loop** repeats as long as its condition stays `True`. Make sure something
-      inside the loop changes, or it will run forever! (DataDojo stops runaway programs
+      inside the loop changes, or it will run forever! (CodeHoss stops runaway programs
       after a few seconds.)
 
       Use `for` when you know how many times to repeat, and `while` when you repeat

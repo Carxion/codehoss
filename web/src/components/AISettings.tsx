@@ -154,7 +154,7 @@ export default function AISettings({ status, onSaved, onClose }: Props) {
               </label>
               <span className="pill">your API key · usage billed to you</span>
               <p className="muted small">
-                Anthropic's Claude models. Get a key at console.anthropic.com. Requests go from the DataDojo server to
+                Anthropic's Claude models. Get a key at console.anthropic.com. Requests go from the CodeHoss server to
                 Anthropic. Your key is stored encrypted and never enters your notebook or code.
               </p>
               <label className="field">

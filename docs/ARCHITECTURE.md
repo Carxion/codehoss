@@ -250,7 +250,7 @@ The `Dockerfile` builds one image: the web app, the Python app, the courses (twi
 live copy and a pristine `content.dist`) and the Docker CLI. The server drives sandboxes
 through `DOCKER_HOST`, so anywhere it runs it needs an engine.
 
-The Helm chart (`deploy/helm/datadojo`) runs one pod: `seed-content` (init) copies the
+The Helm chart (`deploy/helm/codehoss`) runs one pod: `seed-content` (init) copies the
 courses onto the content volume; `docker` is a privileged `docker:dind` **native
 sidecar** (an init container with `restartPolicy: Always`, so it's up before the steps
 after it) listening only on a unix socket in a pod-local `emptyDir`, never TCP (the

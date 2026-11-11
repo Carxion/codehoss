@@ -1,4 +1,4 @@
-# DataDojo Roadmap
+# CodeHoss Roadmap
 
 Guiding rules:
 1. **Every milestone ships something a learner can use end-to-end.** Content and platform
@@ -154,7 +154,7 @@ Original plan:
 - Module content: PyTorch basics → neural nets → LLM apps (prompting, RAG with a vector
   store, simple agent)
 
-**Exit:** a learner builds and runs a working RAG app inside DataDojo.
+**Exit:** a learner builds and runs a working RAG app inside CodeHoss.
 
 ## M5 — Projects module (build plans) ✅ (2026-11-09)
 Goal: bridge "I did exercises" → "I can build things".
@@ -325,7 +325,7 @@ a preview of the lesson as learners see it (from the unsaved text, via a tempora
 and exercises, also as `dojo new module|lesson|exercise`.
 
 Part 4 ✅ (2026-11-10): **self-hosting**. A `Dockerfile` for the app and a **Helm chart**
-(`deploy/helm/datadojo`): one pod with a privileged Docker-in-Docker native sidecar on a
+(`deploy/helm/codehoss`): one pod with a privileged Docker-in-Docker native sidecar on a
 pod-local unix socket (never TCP), content seeded onto a volume both containers mount
 (sandbox data bind mounts resolve), sandbox images built at start-up and cached
 (`sandbox.buildModules` to limit them; `dojo build-images --module`), persistent data,

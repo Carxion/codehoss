@@ -124,7 +124,7 @@ steps:
       | a capital letter: `Print("Hi")` | `NameError: name 'Print' is not defined` |
       | text without quotes: `print(Hi)` | `NameError: name 'Hi' is not defined` |
 
-      DataDojo explains each error in plain words under the output, so read it, fix the
+      CodeHoss explains each error in plain words under the output, so read it, fix the
       line, and run again.
   - type: example
     md: This program has a mistake on purpose. Run it, read the explanation, then fix it.

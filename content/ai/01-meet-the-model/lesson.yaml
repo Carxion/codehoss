@@ -14,7 +14,7 @@ steps:
       In this course you'll build each idea from scratch, then use real models.
   - type: explain
     md: |
-      DataDojo gives you one function to talk to a model:
+      CodeHoss gives you one function to talk to a model:
 
       ```python
       import dojo_ai

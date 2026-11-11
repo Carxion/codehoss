@@ -1,4 +1,8 @@
-# DataDojo
+# CodeHoss
+
+**Learn to code and be your company's prized hoss!**
+
+A free, open-source project for hands-on coding lessons that run on your own desktop.
 
 An interactive, self-hosted learning platform for Python, data structures & algorithms, and
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
@@ -35,8 +39,8 @@ cd web && npm install && npm run build && cd ..
 uv run dojo serve                   # open http://127.0.0.1:8000 and create an account
 ```
 
-**On Kubernetes:** build the image (`docker build -t <registry>/datadojo .`) and install
-[deploy/helm/datadojo](deploy/helm/datadojo/README.md); it runs the server with its own
+**On Kubernetes:** build the image (`docker build -t <registry>/codehoss .`) and install
+[deploy/helm/codehoss](deploy/helm/codehoss/README.md); it runs the server with its own
 Docker engine for sandboxes, persistent storage, optional Ingress and optional Ollama.
 
 **AI lessons:** pick a model with **🤖 AI** in the top bar. For the local option,

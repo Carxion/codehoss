@@ -9,7 +9,7 @@ steps:
       1. The **last line** says what went wrong, e.g. `NameError: name 'totl' is not defined`.
       2. The lines above say **where**: `line 3` of your file.
 
-      DataDojo also explains common errors in plain English under the output.
+      CodeHoss also explains common errors in plain English under the output.
   - type: example
     md: Run this to see an error message, then fix the typo and run it again.
     code: |

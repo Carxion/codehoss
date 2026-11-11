@@ -1,6 +1,6 @@
 apiVersion: v2
-name: datadojo
-description: Self-hosted DataDojo, a learning platform with sandboxed code, notebooks and Docker/Kubernetes labs.
+name: codehoss
+description: Self-hosted CodeHoss, a learning platform with sandboxed code, notebooks and Docker/Kubernetes labs.
 type: application
 version: 0.1.0
 appVersion: "0.3.0"
