@@ -19,3 +19,35 @@ hints:
   - Store self.owner and self.balance in __init__.
   - 'Raise an error with: raise ValueError("Not enough money")'
   - 'Format money with two decimals: f"{self.owner} has ${self.balance:.2f}"'
+guide:
+  - md: |
+      A class that protects its data: methods check the request and `raise` before
+      changing anything, so the object can never get into a bad state. Here it's a
+      fuel tank.
+    code: |
+      class FuelTank:
+          def __init__(self, size, litres=0):
+              self.size = size
+              self.litres = litres
+
+          def fill(self, extra):
+              if extra <= 0:
+                  raise ValueError("Fill with a positive amount")
+              self.litres = min(self.size, self.litres + extra)
+
+          def drive(self, used):
+              if used > self.litres:
+                  raise ValueError("Not enough fuel")
+              self.litres -= used
+
+          def gauge(self):
+              return f"{self.litres:.1f} of {self.size} litres"
+
+      tank = FuelTank(50, 10)
+      tank.fill(15)
+      tank.drive(5.5)
+      print(tank.gauge())
+      try:
+          tank.drive(100)
+      except ValueError as e:
+          print("Refused:", e, "|", tank.gauge())

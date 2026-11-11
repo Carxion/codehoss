@@ -1,5 +1,5 @@
 title: Making decisions
-summary: Use if, elif and else to let your program choose what to do.
+summary: Use if, elif, else, and, or, not and match to let your program choose what to do.
 steps:
   - type: explain
     md: |
@@ -29,6 +29,9 @@ steps:
       `if` runs a block of code only when its condition is `True`. The block is the
       **indented** lines underneath (4 spaces). `elif` ("else if") checks another
       condition, and `else` catches everything left over.
+
+      Python checks from the top and runs **only the first** block whose condition is
+      true, then skips the rest. That's why order matters.
   - type: example
     code: |
       score = 72
@@ -38,6 +41,7 @@ steps:
           print("You passed.")
       else:
           print("Keep practising.")
+      print("This line always runs: it isn't indented.")
   - type: try-it
     prompt: 'Set `label` to "even" or "odd" using if/else. `number % 2` is 0 for even numbers.'
     starter: |
@@ -54,10 +58,207 @@ steps:
     hints:
       - "% gives the remainder after dividing. 7 % 2 is 1."
       - 'if number % 2 == 0: set label = "even", otherwise (else) label = "odd"'
+  - type: quiz
+    question: 'With `score = 95`, this code checks `if score >= 50:` first and `elif score >= 90:` second. What gets printed?'
+    options:
+      - The message for >= 90
+      - The message for >= 50
+      - Both messages
+    answer: 1
+    explanation: Python stops at the first true condition. 95 >= 50 is true, so the >= 90 branch is never reached. Check the strictest condition first.
+  - type: explain
+    md: |
+      **Combining conditions:**
+
+      | Code | True when |
+      |---|---|
+      | `a and b` | **both** are true |
+      | `a or b` | **at least one** is true |
+      | `not a` | `a` is false |
+
+      ```python
+      if age >= 18 and has_ticket:
+          print("Come in")
+      if day == "Sat" or day == "Sun":
+          print("Weekend!")
+      ```
+
+      Python also lets you **chain** comparisons like in maths: `13 <= age <= 19` means
+      "age is between 13 and 19".
+
+      A common mistake: `day == "Sat" or "Sun"` is always true. Each side of `or` must be
+      a full comparison.
+  - type: example
+    code: |
+      age = 15
+      has_adult = True
+      if age >= 18 or has_adult:
+          print("You can see the film.")
+      if 13 <= age <= 19:
+          print("Teenager")
+      if not has_adult:
+          print("Come back with an adult.")
+  - type: try-it
+    prompt: 'Set `can_ride` to True only if `height` is at least 120 **and** `age` is at least 8.'
+    starter: |
+      height = 130
+      age = 9
+      can_ride = False
+    solution: |
+      height = 130
+      age = 9
+      can_ride = height >= 120 and age >= 8
+    check: |
+      assert can_ride is True, "With height 130 and age 9, can_ride should be True"
+      assert "and" in _source, "Combine the two checks with and"
+    hints:
+      - Write both comparisons and join them with and.
+      - can_ride = height >= 120 and age >= 8
+  - type: explain
+    md: |
+      **`in`** asks whether something is inside something else. It works on strings and,
+      later, on lists:
+
+      ```python
+      if "@" in email:
+          print("Looks like an email")
+      if answer in ("y", "yes"):
+          print("OK!")
+      ```
+
+      The second example checks against a group of values written in round brackets,
+      which is neater than `answer == "y" or answer == "yes"`.
+
+      **Comparing text** is exact and cares about capitals: `"Yes" == "yes"` is false.
+      Clean the input first with `.strip().lower()`.
+  - type: example
+    code: |
+      answer = "  YES "
+      clean = answer.strip().lower()
+      if clean in ("y", "yes"):
+          print("You said yes")
+      else:
+          print("You said something else")
+      print("Is 'y' in 'python'?", "y" in "python")
+  - type: try-it
+    prompt: '`colour` might be typed in any case. Set `is_primary` to True if it is red, yellow or blue.'
+    starter: |
+      colour = " Yellow"
+      is_primary = False
+    solution: |
+      colour = " Yellow"
+      is_primary = colour.strip().lower() in ("red", "yellow", "blue")
+    check: |
+      assert is_primary is True, "' Yellow' is a primary colour once it's cleaned up"
+    hints:
+      - Clean it with .strip().lower(), then check it with in.
+      - is_primary = colour.strip().lower() in ("red", "yellow", "blue")
+  - type: explain
+    md: |
+      **Truthiness.** `if` works with any value, not just `True`/`False`. Empty things and
+      zero count as false; everything else counts as true:
+
+      | Counts as false | Counts as true |
+      |---|---|
+      | `""` (empty string), `0`, `0.0`, `None`, `[]` | `"hi"`, `5`, `-1`, `[1, 2]` |
+
+      So `if name:` means "if name isn't empty", a neat way to check the user typed
+      something.
+  - type: example
+    code: |
+      name = input("Name (or press Enter to skip): ")
+      if name:
+          print(f"Hi, {name}!")
+      else:
+          print("Hi, mystery person!")
+  - type: explain
+    md: |
+      **Nested decisions:** an `if` can sit inside another. Indent one more level:
+
+      ```python
+      if logged_in:
+          if is_admin:
+              print("Admin panel")
+          else:
+              print("Your dashboard")
+      else:
+          print("Please log in")
+      ```
+
+      Nest when the second question only makes sense after the first. If you find
+      yourself three levels deep, `and` or `elif` usually reads better.
+  - type: explain
+    md: |
+      **`match`** compares one value against several options. It's a tidy alternative to
+      a long `elif` chain that tests the same variable:
+
+      ```python
+      match command:
+          case "start":
+              print("Starting")
+          case "stop" | "quit":     # | means "or"
+              print("Stopping")
+          case _:                    # _ matches anything else
+              print("Unknown command")
+      ```
+  - type: example
+    code: |
+      day = "sat"
+      match day:
+          case "sat" | "sun":
+              print("Weekend: lie in!")
+          case "fri":
+              print("Nearly there")
+          case _:
+              print("Work day")
+  - type: try-it
+    prompt: 'Use `match` to set `sound`: "woof" for "dog", "meow" for "cat", and "?" for anything else.'
+    starter: |
+      animal = "cat"
+      sound = ""
+    solution: |
+      animal = "cat"
+      match animal:
+          case "dog":
+              sound = "woof"
+          case "cat":
+              sound = "meow"
+          case _:
+              sound = "?"
+    check: |
+      assert sound == "meow", f"sound is {sound!r}, expected 'meow' for a cat"
+      assert "match" in _source and "case _" in _source, "Use match with a case _ for everything else"
+    hints:
+      - Start with match animal:, then one case per animal, then case _.
+      - 'case "cat": sets sound = "meow"'
+  - type: example
+    md: |
+      **Before the exercises:** a full program that reads input, cleans it, works out a
+      result with `if`/`elif`/`else`, then adjusts it with a combined condition. The
+      exercises follow the same shape.
+    code: |
+      temp = int(input("Temperature: "))
+      raining = input("Raining? (yes/no): ").strip().lower()
+
+      if temp >= 25:
+          outfit = "shorts"
+      elif temp >= 12:
+          outfit = "jeans"
+      else:
+          outfit = "a warm coat"
+
+      if raining == "yes" and temp >= 12:
+          outfit = outfit + " and an umbrella"
+
+      print("Wear", outfit)
   - type: exercise
     ref: ex01-grade-calculator
   - type: exercise
     ref: ex02-ticket-price
+  - type: exercise
+    ref: ex03-leap-year
+  - type: exercise
+    ref: ex04-rock-paper-scissors
   - type: quiz
     question: What is the difference between = and ==?
     options:
@@ -65,3 +266,11 @@ steps:
       - '= stores a value, == compares two values'
       - '== stores a value, = compares two values'
     answer: 1
+  - type: quiz
+    question: 'Why is `if day == "Sat" or "Sun":` always true?'
+    options:
+      - Because "Sun" on its own is a non-empty string, which counts as true
+      - Because or always gives True
+      - It isn't; it works correctly
+    answer: 0
+    explanation: Python reads it as (day == "Sat") or ("Sun"). Write day == "Sat" or day == "Sun", or day in ("Sat", "Sun").

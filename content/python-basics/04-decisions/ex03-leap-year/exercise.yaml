@@ -1,0 +1,41 @@
+id: py.leap-year
+title: Leap year
+difficulty: 3
+prompt: |
+  Ask for a year and say whether it is a leap year. The rule:
+
+  - years divisible by **4** are leap years,
+  - **except** years divisible by **100**, which aren't,
+  - **except** years divisible by **400**, which are.
+
+  ```
+  Year: 2024
+  2024 is a leap year
+  ```
+
+  ```
+  Year: 1900
+  1900 is not a leap year
+  ```
+hints:
+  - '"Divisible by 4" means year % 4 == 0.'
+  - 'Leap if (divisible by 4 and not by 100) or divisible by 400.'
+  - 'if (year % 4 == 0 and year % 100 != 0) or year % 400 == 0:'
+guide:
+  - md: |
+      Rules with exceptions turn into `and`/`or`. Brackets make the grouping clear. This one
+      gives a discount to members, but never on sale items, unless it's a staff member.
+    code: |
+      member = True
+      on_sale = True
+      staff = False
+
+      if (member and not on_sale) or staff:
+          print("Discount applies")
+      else:
+          print("No discount")
+  - md: '`%` tests "divisible by": the remainder is 0.'
+    code: |
+      n = 36
+      print("Divisible by 6?", n % 6 == 0)
+      print("Divisible by 5?", n % 5 == 0)

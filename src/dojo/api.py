@@ -373,7 +373,7 @@ def create_app(
             def line(**event) -> str:
                 return json.dumps(event) + "\n"
 
-            guard = tutor.LeakGuard(ctx.solution, allowed=f"{ctx.starter}\n{ctx.code}")
+            guard = tutor.LeakGuard(ctx.solution, allowed=f"{ctx.starter}\n{ctx.guide}\n{ctx.code}")
             try:
                 ai.limiter.check(user.id)
                 chunks = ai.chat_stream(
@@ -1094,6 +1094,7 @@ def _public_exercise(ex: LoadedExercise) -> dict:
         "prompt": ex.spec.prompt,
         "difficulty": ex.spec.difficulty,
         "hint_count": len(ex.spec.hints),
+        "guide": [g.model_dump() for g in ex.spec.guide],
         "starter": "" if ex.is_lab else ex.starter_path.read_text(encoding="utf-8"),
         "visible_tests": ex.visible_tests.read_text(encoding="utf-8"),
         "lab": {"dir": lab.lab_dir(ex)} if ex.is_lab else None,

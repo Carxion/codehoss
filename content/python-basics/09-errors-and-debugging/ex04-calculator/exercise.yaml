@@ -1,0 +1,63 @@
+id: py.calculator
+title: Careful calculator
+difficulty: 4
+prompt: |
+  Write two functions for a calculator that never crashes.
+
+  `calculate(text)` works out sums like `"8 / 2"` (number, space, operator, space,
+  number) and returns the result as a float. It **raises** `ValueError` with these
+  messages when something is wrong:
+
+  | Problem | Message |
+  |---|---|
+  | not exactly three parts | `use the form: number operator number` |
+  | a part isn't a number | `not a number: abc` |
+  | the operator isn't `+ - * /` | `unknown operator: ^` |
+
+  Dividing by zero is left to Python (a `ZeroDivisionError`).
+
+  `answer(text)` calls `calculate` and returns text for the user:
+
+  - the result as `= 4` (use `f"= {result:g}"`, which drops a pointless `.0`)
+  - `Error: ` plus the message for a `ValueError`
+  - `Error: can't divide by zero` for a `ZeroDivisionError`
+
+  ```python
+  answer("8 / 2")    # "= 4"
+  answer("2 ^ 3")    # "Error: unknown operator: ^"
+  answer("1 / 0")    # "Error: can't divide by zero"
+  ```
+hints:
+  - 'parts = text.split(); if len(parts) != 3: raise ValueError("use the form: number operator number")'
+  - 'Convert each number inside try / except ValueError, and raise a new ValueError(f"not a number: {part}") from the except block.'
+  - 'In answer: try: result = calculate(text) / except ValueError as e: return f"Error: {e}" / except ZeroDivisionError: ...'
+guide:
+  - md: |
+      A function that checks its input and raises clear errors, and a second function
+      that catches them and turns them into friendly text. Here it parses times like `"7:45"`.
+    code: |
+      def parse_time(text):
+          pieces = text.split(":")
+          if len(pieces) != 2:
+              raise ValueError("use the form: hours:minutes")
+          try:
+              hours = int(pieces[0])
+              minutes = int(pieces[1])
+          except ValueError:
+              raise ValueError(f"not a time: {text}")
+          if minutes >= 60:
+              raise ValueError(f"too many minutes: {minutes}")
+          return hours * 60 + minutes
+
+      def describe(text):
+          try:
+              total = parse_time(text)
+          except ValueError as e:
+              return f"Problem: {e}"
+          return f"{total} minutes after midnight"
+
+      for text in ["7:45", "7.45", "a:b", "9:75"]:
+          print(text, "->", describe(text))
+  - md: '`:g` formats a number without unnecessary decimals.'
+    code: |
+      print(f"{4.0:g}", f"{2.5:g}", f"{0.1 + 0.2:g}")

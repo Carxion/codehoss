@@ -1,5 +1,5 @@
 title: Functions
-summary: Name a piece of code so you can reuse it.
+summary: Name a piece of code so you can reuse it; pass values in, get results back, and build programs from small parts.
 steps:
   - type: explain
     md: |
@@ -15,6 +15,10 @@ steps:
 
       `n` is a **parameter**: a name for the value passed in. `return` sends a result
       back to whoever called the function.
+
+      Why bother? Functions let you write something once and reuse it, give a piece of
+      logic a clear name, and test small parts on their own. Real programs are mostly
+      lots of small functions.
   - type: example
     code: |
       def square(n):
@@ -38,6 +42,42 @@ steps:
       - return n * 2
   - type: explain
     md: |
+      **`print` is not `return`.** This is the most common beginner mix-up:
+
+      - `print` shows something on the screen, for a human to read. The program can't use it.
+      - `return` hands a value back to the code that called the function, which can store
+        it, do maths with it, or pass it on.
+
+      ```python
+      def add_print(a, b):
+          print(a + b)      # shows 5, gives back None
+
+      def add_return(a, b):
+          return a + b      # gives back 5
+
+      total = add_return(2, 3) * 10   # 50
+      total = add_print(2, 3) * 10    # error: None * 10
+      ```
+
+      `return` also **ends** the function straight away; lines after it don't run.
+  - type: example
+    code: |
+      def describe(n):
+          if n < 0:
+              return "negative"
+          if n == 0:
+              return "zero"
+          return "positive"
+
+      results = [describe(x) for x in (-3, 0, 8)]
+      print(results)
+  - type: quiz
+    question: 'A function ends with `print(total)` instead of `return total`. What does `x = f()` store in x?'
+    options: ['the total', 'None', 'the text "total"']
+    answer: 1
+    explanation: Without a return statement a function gives back None. print only shows the value on screen.
+  - type: explain
+    md: |
       Parameters can have **default values**, used when the caller leaves them out:
 
       ```python
@@ -48,8 +88,12 @@ steps:
       greet("Ada", "Welcome")   # "Welcome, Ada!"
       ```
 
-      A function with no `return` gives back `None`. Variables created inside a
-      function only exist inside it.
+      You can also pass arguments **by name** (keyword arguments), in any order. It makes
+      calls easier to read:
+
+      ```python
+      greet(greeting="Hi", name="Sam")    # "Hi, Sam!"
+      ```
   - type: try-it
     prompt: Finish `greet` so it returns text like `Hello, Ada!` and uses `greeting` (default `"Hello"`).
     starter: |
@@ -64,11 +108,235 @@ steps:
     hints:
       - Build the text with an f-string using both greeting and name.
       - 'return f"{greeting}, {name}!"'
+  - type: explain
+    md: |
+      A function can **return several values** at once. Python packs them into a tuple,
+      which you unpack on the other side:
+
+      ```python
+      def min_max(numbers):
+          return min(numbers), max(numbers)
+
+      low, high = min_max([4, 9, 1])    # low is 1, high is 9
+      ```
+  - type: try-it
+    prompt: 'Finish `divide` so it returns two values: the whole-number result and the remainder.'
+    starter: |
+      def divide(a, b):
+          pass
+
+      q, r = divide(17, 5)
+    solution: |
+      def divide(a, b):
+          return a // b, a % b
+
+      q, r = divide(17, 5)
+    check: |
+      assert (q, r) == (3, 2), f"divide(17, 5) gave {divide(17, 5)}, expected (3, 2)"
+    hints:
+      - Return two things separated by a comma.
+      - return a // b, a % b
+  - type: explain
+    md: |
+      **Scope: where a variable lives.** Variables created inside a function are
+      **local**: they exist only while the function runs, and don't clash with variables
+      of the same name outside.
+
+      ```python
+      def make_total():
+          total = 99     # a separate, local total
+          return total
+
+      total = 0
+      make_total()
+      print(total)       # 0: the function's total never touched this one
+      ```
+
+      A function *can read* variables from outside, but relying on that makes code hard
+      to follow. Pass values in as parameters and send results out with `return`.
+  - type: example
+    code: |
+      rate = 0.2
+
+      def with_tax(price):
+          tax = price * rate        # reads rate from outside (fine, but use with care)
+          return price + tax
+
+      print(with_tax(50))
+      # print(tax)   <- would be a NameError: tax only existed inside with_tax
+  - type: explain
+    md: |
+      **Docstrings and type hints** document a function for humans and tools:
+
+      ```python
+      def bmi(weight_kg: float, height_m: float) -> float:
+          """Body mass index, rounded to 1 decimal place."""
+          return round(weight_kg / height_m ** 2, 1)
+      ```
+
+      - The string on the first line of the body is the **docstring**. The editor shows it
+        when you hover over the function, and `help(bmi)` in a Python shell prints it.
+      - `: float` and `-> float` are **type hints**: what goes in and what comes out.
+        Python doesn't enforce them, but your editor uses them to warn you about mistakes.
+        Hover over `bmi` in the editor to see both.
+  - type: example
+    code: |
+      def bmi(weight_kg: float, height_m: float) -> float:
+          """Body mass index, rounded to 1 decimal place."""
+          return round(weight_kg / height_m ** 2, 1)
+
+      print(bmi(70, 1.75))
+      print(bmi.__doc__)
+  - type: explain
+    md: |
+      **Functions are values too.** You can store them in variables, put them in lists
+      and pass them to other functions. You've done this already with `sorted(words, key=len)`.
+
+      A **lambda** is a tiny function without a name, written in one line. It's handy as
+      a `key`:
+
+      ```python
+      people = [("Ana", 31), ("Ben", 27)]
+      sorted(people, key=lambda person: person[1])   # sort by age
+      ```
+
+      `lambda person: person[1]` is short for a function that takes `person` and returns
+      `person[1]`. Use a normal `def` for anything longer.
+  - type: example
+    code: |
+      def shout(text):
+          return text.upper() + "!"
+
+      def whisper(text):
+          return text.lower() + "..."
+
+      for style in (shout, whisper):
+          print(style("Hello"))
+
+      words = ["kiwi", "Banana", "apple"]
+      print(sorted(words, key=lambda w: w.lower()))
+      print(max(words, key=len))
+  - type: try-it
+    prompt: Sort `products` by price, cheapest first, into `by_price`. Each product is a (name, price) tuple.
+    starter: |
+      products = [("pen", 1.5), ("book", 12.0), ("mug", 6.0)]
+      by_price = products
+    solution: |
+      products = [("pen", 1.5), ("book", 12.0), ("mug", 6.0)]
+      by_price = sorted(products, key=lambda p: p[1])
+    check: |
+      assert by_price == [("pen", 1.5), ("mug", 6.0), ("book", 12.0)], f"by_price is {by_price}"
+    hints:
+      - Use sorted with a key that picks out the price, position 1 of each tuple.
+      - 'by_price = sorted(products, key=lambda p: p[1])'
+  - type: explain
+    md: |
+      **Any number of arguments.** A parameter with `*` collects extra positional arguments
+      into a tuple; one with `**` collects extra keyword arguments into a dictionary:
+
+      ```python
+      def total(*prices):
+          return sum(prices)
+
+      total(1, 2, 3)          # prices is (1, 2, 3)
+
+      def profile(name, **details):
+          print(name, details)
+
+      profile("Ana", city="Oslo", age=31)   # details is {'city': 'Oslo', 'age': 31}
+      ```
+
+      This is how `print` accepts any number of things to show.
+  - type: explain
+    md: |
+      **A trap: mutable defaults.** A default value is created **once**, when the function
+      is defined, not on every call. With a list as the default, every call shares the
+      same list:
+
+      ```python
+      def add_item(item, basket=[]):     # don't do this
+          basket.append(item)
+          return basket
+
+      add_item("a")    # ['a']
+      add_item("b")    # ['a', 'b']  (the same list again!)
+      ```
+
+      The fix is to default to `None` and make a fresh list inside:
+
+      ```python
+      def add_item(item, basket=None):
+          if basket is None:
+              basket = []
+          basket.append(item)
+          return basket
+      ```
+  - type: explain
+    md: |
+      **Recursion** is a function that calls itself on a smaller piece of the problem,
+      until it reaches a case simple enough to answer directly (the **base case**):
+
+      ```python
+      def countdown(n):
+          if n == 0:               # base case: stop here
+              print("Liftoff!")
+              return
+          print(n)
+          countdown(n - 1)         # a smaller version of the same problem
+      ```
+
+      Forget the base case and it calls itself until Python gives up with a
+      `RecursionError`. The DSA course goes much deeper.
+  - type: example
+    code: |
+      def factorial(n):
+          """n! = n x (n-1) x ... x 1"""
+          if n <= 1:
+              return 1
+          return n * factorial(n - 1)
+
+      for n in range(1, 6):
+          print(f"{n}! = {factorial(n)}")
+  - type: example
+    md: |
+      **Before the exercises:** a small program built from functions. Each one does one job
+      and **returns** its answer; the last one combines the others. The exercises ask
+      for functions like these, and the tests call them directly.
+    code: |
+      def c_to_f(celsius):
+          return round(celsius * 9 / 5 + 32, 1)
+
+      def is_freezing(celsius):
+          return celsius <= 0
+
+      def report(celsius, unit="F"):
+          shown = c_to_f(celsius) if unit == "F" else celsius
+          warning = " (freezing!)" if is_freezing(celsius) else ""
+          return f"{shown}°{unit}{warning}"
+
+      def warmest(*readings):
+          return max(readings)
+
+      print(report(-3))
+      print(report(21, unit="C"))
+      print("Warmest:", warmest(3, 18, 11))
   - type: exercise
     ref: ex01-tip-calculator
   - type: exercise
     ref: ex02-text-tools
+  - type: exercise
+    ref: ex03-password-checker
+  - type: exercise
+    ref: ex04-stats-toolkit
   - type: quiz
     question: What does a function give back if it has no return statement?
     options: ['0', 'None', 'an error']
     answer: 1
+  - type: quiz
+    question: Why is `def f(items=[]):` a problem?
+    options:
+      - Lists aren't allowed as defaults
+      - The same list is shared by every call that uses the default
+      - It makes items a tuple
+    answer: 1
+    explanation: Defaults are created once. Use items=None and create the list inside the function.

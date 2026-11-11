@@ -1,0 +1,34 @@
+id: py.gradebook
+title: Gradebook
+difficulty: 3
+prompt: |
+  Read lines like `ana 80` until the user presses Enter on an empty line. A student can
+  appear many times. Then print each student (in the order they first appeared) with
+  how many scores they have and their average to 1 decimal place.
+
+  ```
+  Entry: ana 80
+  Entry: ben 65
+  Entry: ana 90
+  Entry:
+  ana: 2 scores, average 85.0
+  ben: 1 scores, average 65.0
+  ```
+hints:
+  - 'while True: read a line; if not line: break (an empty string counts as false).'
+  - 'name, score = line.split() gives the two parts. Keep book = {} mapping each name to a list of scores.'
+  - 'book.setdefault(name, []).append(int(score)), then f"{name}: {len(scores)} scores, average {sum(scores) / len(scores):.1f}"'
+guide:
+  - md: |
+      Grouping values under a key, so each key holds a list. Here runners log lap times;
+      the typed lines are faked so the example runs on its own.
+    code: |
+      typed = ["kim 61", "lee 58", "kim 59", ""]
+      laps = {}
+      for entry in typed:
+          if not entry:
+              break
+          runner, seconds = entry.split()
+          laps.setdefault(runner, []).append(int(seconds))
+      for runner, times in laps.items():
+          print(f"{runner} ran {len(times)} laps, best {min(times)}")

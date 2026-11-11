@@ -14,3 +14,11 @@ hints:
   - Text needs quotes. Numbers and True/False don't.
   - 'name = "Ada" and born = 1815 are the first two.'
   - True must start with a capital T and have no quotes.
+guide:
+  - md: One variable of each type, describing a book. Check each with `type()`.
+    code: |
+      title = "Dune"
+      pages = 412
+      rating = 4.6
+      is_series = True
+      print(type(title), type(pages), type(rating), type(is_series))

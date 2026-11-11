@@ -1,5 +1,5 @@
 title: Variables and types
-summary: Store values in named boxes and meet the four basic types.
+summary: Store values in named boxes, update them, do maths, and meet the basic types.
 steps:
   - type: explain
     md: |
@@ -28,6 +28,56 @@ steps:
     hints:
       - The pattern is name = value
       - age = 25
+  - type: explain
+    md: |
+      **Choosing names.** A variable name can use letters, digits and `_`, but can't start
+      with a digit or contain spaces. Python cares about capitals: `score` and `Score` are
+      two different variables.
+
+      | Good | Not allowed | Allowed, but unclear |
+      |---|---|---|
+      | `total_price` | `total price` (space) | `tp` |
+      | `player2` | `2player` (starts with a digit) | `x` |
+      | `is_open` | `class` (a word Python reserves) | `thing` |
+
+      Python programmers write names in lowercase with underscores (`snake_case`). A
+      clear name is a comment you never have to write.
+  - type: explain
+    md: |
+      A variable can **change**. Assigning again replaces the old value, and the right side
+      is always worked out first, so a variable can be updated from its own value:
+
+      ```python
+      score = 10
+      score = score + 5    # take score (10), add 5, store 15 back in score
+      score += 5           # the short way to write the same thing: now 20
+      ```
+
+      `-=`, `*=` and `/=` work the same way.
+  - type: example
+    code: |
+      coins = 3
+      print("Start:", coins)
+      coins = coins + 2
+      print("Found 2:", coins)
+      coins -= 1
+      print("Spent 1:", coins)
+      coins *= 10
+      print("Ten times as many:", coins)
+  - type: try-it
+    prompt: The player picks up 3 more lives. Use `+=` to add 3 to `lives`.
+    starter: |
+      lives = 2
+      # add 3 to lives here
+    solution: |
+      lives = 2
+      lives += 3
+    check: |
+      assert lives == 5, f"lives is {lives}, expected 5"
+      assert "+=" in _source, "Use += to add to lives"
+    hints:
+      - lives += 3 means "lives gets lives plus 3".
+      - lives += 3
   - type: explain
     md: |
       Every value has a **type**:
@@ -59,12 +109,128 @@ steps:
     hints:
       - int(...) converts text to a whole number.
       - number = int(text)
+  - type: explain
+    md: |
+      **More maths.** Besides `+ - * /`, three operators come up all the time:
+
+      | Code | Meaning | Example | Result |
+      |---|---|---|---|
+      | `//` | divide and drop the remainder | `17 // 5` | `3` |
+      | `%` | the remainder after dividing | `17 % 5` | `2` |
+      | `**` | to the power of | `2 ** 10` | `1024` |
+
+      `//` and `%` are a pair: 17 sweets shared by 5 children is 3 each (`17 // 5`) with 2
+      left over (`17 % 5`). `%` also tells you if a number is even: `n % 2` is 0 for even
+      numbers.
+
+      Note that `/` **always** gives a float, even when it divides exactly: `10 / 2` is `5.0`.
+  - type: example
+    code: |
+      minutes = 135
+      hours = minutes // 60
+      left = minutes % 60
+      print(minutes, "minutes is", hours, "hours and", left, "minutes")
+      print("10 / 2 =", 10 / 2)
+      print("2 to the power 8 =", 2 ** 8)
+  - type: try-it
+    prompt: 'A video is `200` seconds long. Set `mins` to the whole minutes and `secs` to the seconds left over.'
+    starter: |
+      length = 200
+      mins = 0
+      secs = 0
+    solution: |
+      length = 200
+      mins = length // 60
+      secs = length % 60
+    check: |
+      assert mins == 3, f"mins is {mins}. Use length // 60"
+      assert secs == 20, f"secs is {secs}. Use length % 60"
+    hints:
+      - There are 60 seconds in a minute. // gives the whole minutes, % gives what's left.
+      - mins = length // 60 and secs = length % 60
+  - type: explain
+    md: |
+      **Floats are close, not exact.** Computers store decimals in binary, so a few simple
+      sums come out a tiny bit off:
+
+      ```python
+      print(0.1 + 0.2)          # 0.30000000000000004
+      print(round(0.1 + 0.2, 2))   # 0.3
+      ```
+
+      This is normal in every programming language. Use `round(value, digits)` when you
+      show a result, and never compare two floats with `==` straight after maths.
+  - type: example
+    code: |
+      price = 19.99
+      total = price * 3
+      print("Raw:", total)
+      print("Rounded:", round(total, 2))
+      print("Whole number:", round(total))
+  - type: explain
+    md: |
+      **Converting between types** is something you'll do constantly, because values often
+      arrive as text (from the keyboard, a file, a web form):
+
+      | Code | Result |
+      |---|---|
+      | `int("7")` | `7` |
+      | `float("2.5")` | `2.5` |
+      | `str(7)` | `"7"` |
+      | `int(3.9)` | `3` (cuts off the decimals, no rounding) |
+      | `int("2.5")` | an error: `int()` only reads whole-number text |
+
+      One more special value: **`None`** means "nothing here yet". It is its own type,
+      `NoneType`, and you'll often see it used as a placeholder.
+  - type: try-it
+    prompt: '`price_text` is `"4.75"` from a web form. Make `price` hold it as a float, then set `double` to twice the price.'
+    starter: |
+      price_text = "4.75"
+      price = None
+      double = None
+    solution: |
+      price_text = "4.75"
+      price = float(price_text)
+      double = price * 2
+    check: |
+      assert type(price) is float, "price should be a float. Use float(price_text)"
+      assert double == 9.5, f"double is {double!r}, expected 9.5"
+    hints:
+      - float(...) turns decimal text into a number.
+      - price = float(price_text), then double = price * 2
+  - type: quiz
+    question: What does `17 % 5` give?
+    options: ['3', '2', '3.4']
+    answer: 1
+    explanation: "% is the remainder: 5 goes into 17 three times (15), leaving 2."
+  - type: example
+    md: |
+      **Before the exercises:** these patterns appear in all four. A value is worked out from
+      other variables, rounded for display, and printed with commas between the parts.
+    code: |
+      litres = 5
+      gallons = round(litres * 0.264172, 2)
+      print(litres, "litres is", gallons, "gallons")
+
+      eggs = 26
+      boxes = eggs // 6
+      spare = eggs % 6
+      print("Boxes:", boxes, "Spare eggs:", spare)
   - type: exercise
     ref: ex01-unit-converter
   - type: exercise
     ref: ex02-type-detective
+  - type: exercise
+    ref: ex03-sharing-sweets
+  - type: exercise
+    ref: ex04-form-receipt
   - type: quiz
     question: What type is 3.0?
     options: [int, float, str]
     answer: 1
     explanation: It has a decimal point, so it is a float even though it is a whole number.
+  - type: quiz
+    question: 'After `x = 4` and then `x = x * 2 + 1`, what is x?'
+    options: ['4', '9', '12']
+    answer: 1
+    explanation: The right side is worked out first using the old x (4 * 2 + 1 = 9), then stored back in x.

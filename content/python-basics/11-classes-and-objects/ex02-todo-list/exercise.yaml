@@ -12,3 +12,29 @@ hints:
   - 'Keep two things in __init__: self.tasks = [] and self.done = set()'
   - In complete, check if task not in self.tasks and raise ValueError.
   - 'pending can use a list comprehension: [t for t in self.tasks if t not in self.done]'
+guide:
+  - md: |
+      A class that keeps a list and a set as attributes: the list remembers order, the set
+      remembers which items are "ticked". Here it's a packing list.
+    code: |
+      class PackingList:
+          def __init__(self):
+              self.items = []
+              self.packed = set()
+
+          def need(self, item):
+              self.items.append(item)
+
+          def pack(self, item):
+              if item not in self.items:
+                  raise ValueError(f"{item} isn't on the list")
+              self.packed.add(item)
+
+          def still_to_pack(self):
+              return [i for i in self.items if i not in self.packed]
+
+      trip = PackingList()
+      for thing in ["passport", "charger", "socks"]:
+          trip.need(thing)
+      trip.pack("socks")
+      print(trip.still_to_pack(), len(trip.packed))

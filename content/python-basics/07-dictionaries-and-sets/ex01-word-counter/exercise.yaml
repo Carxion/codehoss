@@ -16,3 +16,12 @@ hints:
   - sentence.lower().split() gives a list of lowercase words.
   - 'Use a dictionary: counts[word] = counts.get(word, 0) + 1'
   - 'Dictionaries remember the order keys were added, so loop over counts.items() and print f"{word}: {count}"'
+guide:
+  - md: The counting pattern on a list of colours, printing in the order each first appeared.
+    code: |
+      picks = "red blue red green blue red".split()
+      tally = {}
+      for colour in picks:
+          tally[colour] = tally.get(colour, 0) + 1
+      for colour, n in tally.items():
+          print(f"{colour} = {n}")

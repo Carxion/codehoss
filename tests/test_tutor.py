@@ -128,6 +128,23 @@ def test_exercise_context_has_the_essentials(content):
     assert "Never write the solution" in prompt
 
 
+def test_exercise_guide_is_shared_with_the_tutor(content):
+    module, lesson, i = lesson_with(content, "python-basics", "exercise")
+    exercise = lesson.exercises[lesson.spec.steps[i].ref]
+    assert exercise.spec.guide, "the first Python Basics exercise should have a guide"
+    ctx = tutor.context_for(module, lesson, i)
+    prompt = tutor.system_prompt(ctx)
+    assert "<worked_examples_the_learner_can_see>" in prompt
+    assert exercise.spec.guide[0].code.strip() in prompt
+
+
+def test_quoting_the_guide_is_not_a_leak():
+    guide = 'score = int(input("Score: "))\nif score >= 90:\n    grade = "A"\n'
+    reply = f"Look at the example again:\n```python\n{guide}```\n"
+    out, redactions = guarded(reply, allowed=f"{STARTER}\n{guide}")
+    assert redactions == 0 and guide in out
+
+
 def test_quiz_context_never_includes_the_answer(content):
     module, lesson, i = lesson_with(content, "python-basics", "quiz")
     step = lesson.spec.steps[i]

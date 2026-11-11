@@ -646,6 +646,22 @@ export function StepContent({
             {step.exercise.title} <span className="stars">{"★".repeat(step.exercise.difficulty)}</span>
           </h2>
           <Markdown>{step.exercise.prompt}</Markdown>
+          {step.exercise.guide?.length > 0 && (
+            <details className="exercise-guide" open>
+              <summary>📘 Code that shows the way ({step.exercise.guide.length})</summary>
+              <p className="muted small">
+                The same techniques on a different problem. Read them, then use the ideas in your answer.
+              </p>
+              {step.exercise.guide.map((example, i) => (
+                <div key={i} className="guide-example">
+                  {example.md && <Markdown>{example.md}</Markdown>}
+                  <pre>
+                    <code>{example.code}</code>
+                  </pre>
+                </div>
+              ))}
+            </details>
+          )}
           <details className="visible-tests">
             <summary>See an example test</summary>
             <pre>{step.exercise.visible_tests}</pre>

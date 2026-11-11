@@ -11,3 +11,19 @@ hints:
   - int(" 7 ") already ignores the spaces. int("abc") raises ValueError.
   - Wrap the conversion in try / except ValueError and return None in the except.
   - After converting, check the range with if 0 <= age <= 130.
+guide:
+  - md: |
+      Converting text safely: try the conversion, return `None` if it fails, then check
+      the value is in range before returning it.
+    code: |
+      def parse_month(text):
+          try:
+              month = int(text)
+          except ValueError:
+              return None
+          if 1 <= month <= 12:
+              return month
+          return None
+
+      for text in [" 3 ", "13", "May", "0"]:
+          print(repr(text), "->", parse_month(text))

@@ -1,0 +1,45 @@
+id: py.logic-bugs
+title: Logic bugs
+difficulty: 3
+prompt: |
+  Each of these three functions has **one logic bug**. None of them crash; they just
+  give wrong answers. Find each bug and fix it.
+
+  - `average_of_evens(numbers)`: the average of the even numbers (0 if there are none).
+    `average_of_evens([1, 2, 3, 4])` should be `3.0`.
+  - `count_up_to(limit)`: the list of numbers from 1 to `limit`, **including** `limit`.
+    `count_up_to(3)` should be `[1, 2, 3]`.
+  - `longest_word(words)`: the longest word; if two tie, the first one wins.
+    `longest_word(["hi", "hello", "hey"])` should be `"hello"`.
+
+  Add `print(f"{variable=}")` lines inside the loops to watch what happens, then remove
+  them when you're done.
+hints:
+  - Call each function with the example input and print what it returns. Which ones are wrong?
+  - 'Check the condition in average_of_evens: what does n % 2 give for an even number? Check where range stops.'
+  - In longest_word, look at what happens to best on every round of the loop.
+guide:
+  - md: |
+      Hunting a logic bug with prints. This function should count words longer than 3
+      letters. The printed values show `>=` lets 3-letter words through.
+    code: |
+      def count_long(words):
+          found = 0
+          for w in words:
+              print(f"{w=} {len(w)=} counted={len(w) >= 3}")
+              if len(w) >= 3:          # bug: should be > 3
+                  found += 1
+          return found
+
+      print(count_long(["cat", "horse", "ox"]), "(expected 1)")
+  - md: 'Where a variable is set matters: before the loop it starts once; inside the loop it restarts every round.'
+    code: |
+      total = 0               # starts once
+      for n in [1, 2, 3]:
+          total += n
+      print(total)            # 6
+
+      for n in [1, 2, 3]:
+          total = 0           # restarts every round
+          total += n
+      print(total)            # 3 (only the last number)

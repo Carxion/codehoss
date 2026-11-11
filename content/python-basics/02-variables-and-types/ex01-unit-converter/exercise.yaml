@@ -15,3 +15,9 @@ hints:
   - Multiply km by 0.621371 to get miles.
   - miles = round(km * 0.621371, 2)
   - 'print(km, "km is", miles, "miles"). The commas add the spaces for you.'
+guide:
+  - md: The same steps for a different conversion, pounds to kilograms.
+    code: |
+      pounds = 20
+      kg = round(pounds * 0.453592, 2)
+      print(pounds, "pounds is", kg, "kg")

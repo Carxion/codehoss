@@ -4,9 +4,10 @@ An interactive, self-hosted learning platform for Python, data structures & algo
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
 
-> Status: **M7 done**: guided browser IDE with live IntelliSense and notebooks;
-> **Python Basics**, **Data Science**, **AI** and **Data Structures & Algorithms** modules
-> (12 lessons and 24 exercises each) plus **Projects**: six multi-checkpoint builds at
+> Status: **M9 done**: guided browser IDE with live IntelliSense and notebooks;
+> **Python Basics** (12 in-depth lessons, 47 exercises, each with worked examples beside
+> it), **Data Science**, **AI** and **Data Structures & Algorithms** modules (12 lessons
+> and 24 exercises each) plus **Projects**: six multi-checkpoint builds at
 > Guided / Assisted / Solo level, collected in a downloadable portfolio. DSA lessons open
 > with step-through algorithm animations, and its tests fail code that is too slow. AI work
 > runs on a local model (Ollama) or Claude with your own key. M7 adds hands-on labs with a
@@ -21,8 +22,9 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > exercises just before you'd forget them, and **streaks** count your study days. Authors
 > get the **Studio**: edit any course in the browser with live validation, a preview of each
 > lesson as learners see it, and one-click testing of every solution. A Dockerfile and a
-> **Helm chart** run it on Kubernetes. Next: JavaScript, R, C++ and C# courses with
-> projects. See [ROADMAP.md](ROADMAP.md).
+> **Helm chart** run it on Kubernetes. Next: Python Intermediate and Python in Practice
+> (automation, scraping, APIs, databases, web backends), then JavaScript, R, C++ and C#,
+> each from basics to real applications. See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 

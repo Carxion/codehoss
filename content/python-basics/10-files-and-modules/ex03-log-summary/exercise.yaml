@@ -1,0 +1,49 @@
+id: py.log-summary
+title: Log summary
+difficulty: 3
+prompt: |
+  Servers write **log files**, one event per line: a date, a time, a level and a message.
+
+  ```
+  2026-11-11 09:00:01 INFO Server started
+  2026-11-11 09:05:12 WARNING Disk 85% full
+
+  2026-11-11 09:07:40 ERROR Disk full
+  2026-11-11 09:08:00 INFO Cleanup finished
+  ```
+
+  Write two functions that take the file's path:
+
+  - `count_levels(path)` returns a dictionary counting each level:
+    `{"INFO": 2, "WARNING": 1, "ERROR": 1}` for the file above.
+  - `error_messages(path)` returns a list of the messages of the `ERROR` lines, in
+    order: `["Disk full"]`.
+
+  Skip blank lines.
+hints:
+  - Read the lines with Path(path).read_text(encoding="utf-8").splitlines(), or open the file and loop over it.
+  - 'line.split(maxsplit=3) splits into at most 4 parts: date, time, level, and the rest of the message.'
+  - 'Count with counts[level] = counts.get(level, 0) + 1. For errors: if level == "ERROR": messages.append(message)'
+guide:
+  - md: |
+      Reading a file line by line, skipping blanks, and splitting each line into a fixed
+      number of parts with `maxsplit`, so the last part keeps its spaces.
+    code: |
+      from pathlib import Path
+
+      Path("orders.txt").write_text(
+          "A17 shipped Two red mugs\n\nB02 pending One blue teapot\nA18 shipped A spoon\n",
+          encoding="utf-8",
+      )
+
+      status_count = {}
+      shipped = []
+      for row in Path("orders.txt").read_text(encoding="utf-8").splitlines():
+          if not row.strip():
+              continue
+          order_id, status, details = row.split(maxsplit=2)
+          status_count[status] = status_count.get(status, 0) + 1
+          if status == "shipped":
+              shipped.append(details)
+      print(status_count)
+      print(shipped)

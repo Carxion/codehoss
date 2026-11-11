@@ -1,0 +1,67 @@
+id: py.inventory
+title: Shop inventory
+difficulty: 4
+prompt: |
+  Build a shop inventory from a dataclass and a class.
+
+  - `Item` is a **dataclass** with `name` (str), `price` (float) and `qty` (int,
+    default `0`). It has a **property** `value`: price × qty.
+  - `Inventory` keeps its items in a dictionary keyed by name:
+    - `add(item)` adds an `Item`. If an item with that name is already there, raise
+      `ValueError`.
+    - `restock(name, amount)` adds to that item's `qty`. An unknown name raises `KeyError`
+      (a plain dictionary lookup does that for you).
+    - `total_value()` returns the value of everything, rounded to 2 decimals.
+    - `low_stock(limit=5)` returns the names of items with fewer than `limit` in stock,
+      sorted alphabetically.
+
+  ```python
+  shop = Inventory()
+  shop.add(Item("pen", 1.5, 10))
+  shop.add(Item("ink", 4.0))
+  shop.restock("ink", 3)
+  shop.total_value()    # 27.0
+  shop.low_stock()      # ['ink']
+  ```
+hints:
+  - '@dataclass above class Item:, then name: str, price: float, qty: int = 0. The property is a method with @property above it.'
+  - 'In Inventory.__init__: self.items = {}. In add: if item.name in self.items: raise ValueError(...)'
+  - 'total_value: round(sum([i.value for i in self.items.values()]), 2). low_stock: sorted([n for n, i in self.items.items() if i.qty < limit])'
+guide:
+  - md: |
+      A dataclass with a computed property, and a class that manages a dictionary of them.
+      Here a library keeps books by title.
+    code: |
+      from dataclasses import dataclass
+
+      @dataclass
+      class Book:
+          title: str
+          pages: int
+          copies: int = 1
+
+          @property
+          def total_pages(self):
+              return self.pages * self.copies
+
+      class Library:
+          def __init__(self):
+              self.books = {}
+
+          def donate(self, book):
+              if book.title in self.books:
+                  raise ValueError(f"already have {book.title}")
+              self.books[book.title] = book
+
+          def buy_copies(self, title, extra):
+              self.books[title].copies += extra
+
+          def single_copies(self):
+              return sorted([t for t, b in self.books.items() if b.copies < 2])
+
+      lib = Library()
+      lib.donate(Book("Emma", 474))
+      lib.donate(Book("Dune", 412, 3))
+      lib.buy_copies("Dune", 1)
+      print(lib.books["Dune"], lib.books["Dune"].total_pages)
+      print(lib.single_copies())

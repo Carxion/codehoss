@@ -1,5 +1,5 @@
 title: Errors and debugging
-summary: Read error messages, fix bugs, and handle problems gracefully.
+summary: Read error messages, hunt down bugs that don't crash, handle problems gracefully, and raise your own errors.
 steps:
   - type: explain
     md: |
@@ -15,6 +15,56 @@ steps:
     code: |
       total = 10
       print(totl)
+  - type: explain
+    md: |
+      The **error type** is the first word of the last line. Learn these and you'll know
+      where to look straight away:
+
+      | Error | Usually means | Example |
+      |---|---|---|
+      | `SyntaxError` | Python can't read the line: a missing `:`, bracket or quote | `if x > 3` |
+      | `IndentationError` | the spaces at the start of a line are wrong | a loop body not indented |
+      | `NameError` | a name that doesn't exist: a typo, or used before it's created | `prnt("hi")` |
+      | `TypeError` | the wrong kind of value for the operation | `"age: " + 30` |
+      | `ValueError` | the right kind, but a bad value | `int("abc")` |
+      | `IndexError` | a list position that doesn't exist | `[1, 2][5]` |
+      | `KeyError` | a dictionary key that doesn't exist | `{"a": 1}["b"]` |
+      | `AttributeError` | a method the value doesn't have | `[1, 2].upper()` |
+      | `ZeroDivisionError` | dividing by zero | `10 / 0` |
+      | `FileNotFoundError` | opening a file that isn't there | `open("nope.txt")` |
+  - type: quiz
+    question: 'Which error does `scores = [80, 90]` followed by `print(scores[2])` cause?'
+    options: [KeyError, IndexError, ValueError]
+    answer: 1
+    explanation: The list has positions 0 and 1 only. Asking for a position that doesn't exist is an IndexError.
+  - type: explain
+    md: |
+      When the error happens **inside a function**, the message (the **traceback**) lists
+      every call that led there, oldest at the top:
+
+      ```
+      Traceback (most recent call last):
+        File "main.py", line 7, in <module>
+          print(average([]))
+        File "main.py", line 2, in average
+          return sum(values) / len(values)
+      ZeroDivisionError: division by zero
+      ```
+
+      The bottom frame is **where** it crashed (line 2). The frame above it shows **how
+      you got there** (line 7 called `average` with an empty list). Often the real bug
+      is in the caller.
+  - type: example
+    md: Run it and read the traceback from the bottom up. Which line made the bad call?
+    code: |
+      def average(values):
+          return sum(values) / len(values)
+
+      def report(name, values):
+          print(name, "average:", average(values))
+
+      report("Week 1", [3, 4, 5])
+      report("Week 2", [])
   - type: explain
     md: |
       Some errors are expected, like a user typing `abc` when you asked for a number.
@@ -45,6 +95,122 @@ steps:
     hints:
       - Put the int(text) line inside a try block, indented.
       - 'try: number = int(text), then except ValueError: number = 0'
+  - type: explain
+    md: |
+      The full shape of `try`:
+
+      ```python
+      try:
+          value = int(text)
+          result = 100 / value
+      except ValueError:
+          print("That's not a number")
+      except ZeroDivisionError as e:      # e holds the error itself
+          print("Problem:", e)
+      else:
+          print("Result:", result)       # runs only if nothing went wrong
+      finally:
+          print("Done")                  # runs no matter what
+      ```
+
+      - Put **only** the risky lines inside `try`, so you don't hide other bugs.
+      - Catch **specific** errors. A bare `except:` catches everything, even your typos,
+        and makes bugs very hard to find.
+  - type: example
+    code: |
+      for text in ["4", "zero", "0"]:
+          try:
+              value = int(text)
+              result = 100 / value
+          except ValueError:
+              print(f"{text!r}: not a number")
+          except ZeroDivisionError as e:
+              print(f"{text!r}: {e}")
+          else:
+              print(f"{text!r}: 100 / {value} = {result}")
+  - type: try-it
+    prompt: 'Finish `safe_divide` so it returns `a / b`, or `None` when `b` is zero.'
+    starter: |
+      def safe_divide(a, b):
+          return a / b
+    solution: |
+      def safe_divide(a, b):
+          try:
+              return a / b
+          except ZeroDivisionError:
+              return None
+    check: |
+      assert safe_divide(10, 4) == 2.5, f"safe_divide(10, 4) gave {safe_divide(10, 4)}"
+      assert safe_divide(1, 0) is None, "safe_divide(1, 0) should return None"
+    hints:
+      - Wrap the division in try, and catch ZeroDivisionError.
+      - 'try: return a / b, then except ZeroDivisionError: return None'
+  - type: explain
+    md: |
+      You can **raise** errors yourself, when your function is given something it can't
+      work with. Stopping loudly is far better than quietly giving a wrong answer:
+
+      ```python
+      def set_age(age):
+          if age < 0:
+              raise ValueError(f"age can't be negative, got {age}")
+          return age
+      ```
+
+      The message is what the caller sees. Pick the error type that fits: `ValueError`
+      for a bad value, `TypeError` for the wrong kind of value.
+
+      For your own kinds of errors, make a **custom exception** in one line. (Classes come
+      in lesson 11; this is all you need for now.)
+
+      ```python
+      class OutOfStock(Exception):
+          pass
+
+      raise OutOfStock("no more pears")
+      ```
+  - type: example
+    code: |
+      class OutOfStock(Exception):
+          pass
+
+      stock = {"apples": 2, "pears": 0}
+
+      def buy(item):
+          if item not in stock:
+              raise ValueError(f"we don't sell {item}")
+          if stock[item] == 0:
+              raise OutOfStock(f"no {item} left")
+          stock[item] -= 1
+          return f"one {item}, please"
+
+      for item in ["apples", "pears", "kiwis"]:
+          try:
+              print(buy(item))
+          except (ValueError, OutOfStock) as e:
+              print("Sorry:", e)
+  - type: try-it
+    prompt: 'Make `set_volume` raise a `ValueError` when `level` is outside 0 to 10. Otherwise it returns the level.'
+    starter: |
+      def set_volume(level):
+          return level
+    solution: |
+      def set_volume(level):
+          if not 0 <= level <= 10:
+              raise ValueError("volume must be 0-10")
+          return level
+    check: |
+      assert set_volume(7) == 7, "set_volume(7) should return 7"
+      for bad in (-1, 11):
+          try:
+              set_volume(bad)
+          except ValueError:
+              pass
+          else:
+              raise AssertionError(f"set_volume({bad}) should raise ValueError")
+    hints:
+      - Check the range with an if, before the return.
+      - 'if not 0 <= level <= 10: raise ValueError("volume must be 0-10")'
   - type: try-it
     prompt: This loop has an **indentation** bug. Fix it so `total` ends up as 6.
     starter: |
@@ -60,12 +226,81 @@ steps:
     hints:
       - The line inside the loop must be indented to belong to it.
       - Add 4 spaces before total = total + n
+  - type: explain
+    md: |
+      **The hardest bugs don't crash.** The program runs and prints a wrong answer. These
+      are **logic bugs**: an off-by-one `range`, `>` where you meant `>=`, a total reset
+      inside the loop instead of before it.
+
+      A debugging routine that works:
+
+      1. **Reproduce** it: find the smallest input that gives the wrong answer.
+      2. **Look inside**: print the values at each step. `print(f"{total=}")` prints the
+         name *and* the value, like `total=7`.
+      3. **Check your assumptions** with `assert`: `assert len(items) > 0, "no items!"`
+      4. **Explain the code out loud**, line by line (to a rubber duck, a friend, or the
+         🧑‍🏫 Tutor). Saying what each line *should* do often reveals what it *actually* does.
+      5. Fix **one** thing, run again.
+  - type: example
+    md: This should add up the numbers 1 to 5 (15) but doesn't. The `print` shows why. Can you fix it?
+    code: |
+      total = 0
+      for n in range(1, 5):
+          total += n
+          print(f"{n=} {total=}")
+      print("Total:", total)
+  - type: quiz
+    question: Why is `except:` with no error type a bad idea?
+    options:
+      - It's a syntax error
+      - It catches every error, including typos, so real bugs get hidden
+      - It only catches ValueError
+    answer: 1
+  - type: example
+    md: |
+      **Before the exercises:** spotting logic bugs with prints, catching specific errors,
+      and raising a clear error with a message. The exercises use all three.
+    code: |
+      def count_passes(scores, pass_mark=50):
+          passes = 0
+          for s in scores:
+              if s >= pass_mark:        # >= not >: exactly 50 is a pass
+                  passes += 1
+          return passes
+
+      def parse_percent(text):
+          try:
+              value = float(text.strip().rstrip("%"))
+          except ValueError:
+              raise ValueError(f"not a percentage: {text!r}")
+          if not 0 <= value <= 100:
+              raise ValueError(f"out of range: {value}")
+          return value
+
+      print(count_passes([50, 49, 80]))
+      for text in ["45%", "abc", "150"]:
+          try:
+              print(parse_percent(text))
+          except ValueError as e:
+              print("Error:", e)
   - type: exercise
     ref: ex01-fix-the-bugs
   - type: exercise
     ref: ex02-safe-age
+  - type: exercise
+    ref: ex03-logic-bugs
+  - type: exercise
+    ref: ex04-calculator
   - type: quiz
     question: 'Which error does `int("hello")` cause?'
     options: [NameError, TypeError, ValueError]
     answer: 2
     explanation: The value "hello" is the wrong kind of value for int(), which is a ValueError.
+  - type: quiz
+    question: When does the `else` block of a try statement run?
+    options:
+      - Only when an error happened
+      - Only when no error happened in the try block
+      - Always
+    answer: 1
+    explanation: else runs when try finished without an error; finally is the one that always runs.

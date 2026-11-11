@@ -1,0 +1,50 @@
+id: py.password-checker
+title: Password checker
+difficulty: 3
+prompt: |
+  Build a password checker from small functions. Each returns a value; none of them print.
+
+  - `has_digit(password)`: `True` if it contains at least one digit.
+  - `has_upper(password)`: `True` if it contains at least one capital letter.
+  - `strength(password)`: counts how many of these four rules pass, then returns
+    `"weak"` (0-1), `"medium"` (2-3) or `"strong"` (all 4):
+    1. at least 8 characters
+    2. has a digit (use your `has_digit`)
+    3. has a capital (use your `has_upper`)
+    4. has one of these symbols: `!@#$%&*`
+
+  `strength("Tr0ub4dor&3")` gives `"strong"`; `strength("hello")` gives `"weak"`.
+hints:
+  - 'In has_digit, loop over the characters: if ch.isdigit(): return True. After the loop, return False.'
+  - 'ch.isupper() is True for capital letters.'
+  - 'In strength, start score = 0 and add 1 for each rule that passes, then pick the word with if/elif/else.'
+guide:
+  - md: |
+      Small yes/no helper functions, then one function that combines them into a score.
+      Returning early with `return True` inside a loop stops as soon as the answer is known.
+    code: |
+      def has_vowel(word):
+          for letter in word:
+              if letter in "aeiou":
+                  return True
+          return False
+
+      def is_long(word):
+          return len(word) >= 6
+
+      def rating(word):
+          points = 0
+          if has_vowel(word):
+              points += 1
+          if is_long(word):
+              points += 1
+          if points == 2:
+              return "great"
+          elif points == 1:
+              return "ok"
+          return "poor"
+
+      print(rating("rhythm"), rating("banana"), rating("tsk"))
+  - md: 'String methods that test characters: `isdigit`, `isupper`, `isalpha`.'
+    code: |
+      print("7".isdigit(), "Q".isupper(), "q".isupper(), "x".isalpha())

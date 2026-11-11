@@ -1,5 +1,5 @@
 title: Dictionaries and sets
-summary: Look things up by name, and keep only unique values.
+summary: Look things up by name, count and group data, work with nested records, and keep only unique values.
 steps:
   - type: explain
     md: |
@@ -35,6 +35,177 @@ steps:
       - colours["blue"] = 3
   - type: explain
     md: |
+      Asking for a key that isn't there with square brackets is an error:
+      `ages["Bob"]` raises `KeyError: 'Bob'`. Two safe ways to look things up:
+
+      ```python
+      if "Bob" in ages:          # in checks the keys
+          print(ages["Bob"])
+      print(ages.get("Bob"))     # None when missing (or the default you give)
+      ```
+
+      More dictionary tools:
+
+      | Code | What it does |
+      |---|---|
+      | `del ages["Ada"]` | remove a key |
+      | `ages.pop("Ada")` | remove a key and give back its value |
+      | `ages.keys()`, `ages.values()` | just the keys, just the values |
+      | `len(ages)` | how many pairs |
+      | `ages.update({"Kim": 22})` | add or change several pairs at once |
+
+      Keys must be unique and unchangeable (strings, numbers, tuples). Values can be
+      anything, including lists and other dictionaries.
+  - type: example
+    code: |
+      stock = {"apples": 12, "pears": 0, "plums": 7}
+      del stock["pears"]
+      stock["kiwis"] = 4
+      print(list(stock.keys()))
+      print("Total fruit:", sum(stock.values()))
+      if "mango" not in stock:
+          print("No mangoes")
+  - type: try-it
+    prompt: '`prices` maps items to prices. Set `total` to the sum of all the prices, using `.values()`.'
+    starter: |
+      prices = {"tea": 2.5, "cake": 3.0, "soup": 4.5}
+      total = 0
+    solution: |
+      prices = {"tea": 2.5, "cake": 3.0, "soup": 4.5}
+      total = sum(prices.values())
+    check: |
+      assert total == 10.0, f"total is {total}, expected 10.0"
+    hints:
+      - prices.values() gives just the prices; sum() adds them.
+      - total = sum(prices.values())
+  - type: explain
+    md: |
+      **Counting** is the classic dictionary job. For each item: add 1 to its count,
+      starting from 0 if it's new:
+
+      ```python
+      counts = {}
+      for word in words:
+          counts[word] = counts.get(word, 0) + 1
+      ```
+
+      **Grouping** is its sibling: a dictionary whose values are lists:
+
+      ```python
+      groups = {}
+      for name in names:
+          first = name[0]
+          if first not in groups:
+              groups[first] = []
+          groups[first].append(name)
+      ```
+  - type: example
+    code: |
+      votes = ["tea", "coffee", "tea", "juice", "tea", "coffee"]
+      counts = {}
+      for v in votes:
+          counts[v] = counts.get(v, 0) + 1
+      print(counts)
+      winner = max(counts, key=counts.get)
+      print("Winner:", winner)
+
+      names = ["Ana", "Ben", "Abe", "Bo", "Cy"]
+      by_letter = {}
+      for name in names:
+          by_letter.setdefault(name[0], []).append(name)
+      print(by_letter)
+  - type: try-it
+    prompt: Count how many times each letter appears in `word`, into the dictionary `counts`.
+    starter: |
+      word = "banana"
+      counts = {}
+    solution: |
+      word = "banana"
+      counts = {}
+      for ch in word:
+          counts[ch] = counts.get(ch, 0) + 1
+    check: |
+      assert counts == {"b": 1, "a": 3, "n": 2}, f"counts is {counts}"
+    hints:
+      - Loop over the word; for each letter add 1 to counts, starting from 0.
+      - counts[ch] = counts.get(ch, 0) + 1
+  - type: explain
+    md: |
+      Python's `collections` module has two helpers that make counting and grouping
+      one-liners. (`import` is covered properly in lesson 10.)
+
+      ```python
+      from collections import Counter, defaultdict
+
+      Counter("banana")                 # Counter({'a': 3, 'n': 2, 'b': 1})
+      Counter(votes).most_common(2)     # the two most common, with counts
+
+      groups = defaultdict(list)        # missing keys start as an empty list
+      groups["A"].append("Ana")         # no need to check first
+      ```
+
+      Write the loop yourself while you're learning; reach for these once the pattern
+      feels natural.
+  - type: example
+    code: |
+      from collections import Counter
+      text = "the cat and the hat and the bat"
+      counts = Counter(text.split())
+      print(counts.most_common(2))
+      print("the:", counts["the"], "dog:", counts["dog"])
+  - type: explain
+    md: |
+      **Nested data.** Real data (from files and web APIs) is usually lists of
+      dictionaries, sometimes with more lists inside. This shape is called **JSON**:
+
+      ```python
+      books = [
+          {"title": "Dune", "year": 1965, "tags": ["sci-fi", "classic"]},
+          {"title": "Emma", "year": 1815, "tags": ["romance"]},
+      ]
+      books[0]["title"]        # 'Dune'
+      books[0]["tags"][1]      # 'classic'
+      ```
+
+      Read it one step at a time from left to right: the list, then position 0, then the
+      `"tags"` key, then position 1.
+  - type: example
+    code: |
+      books = [
+          {"title": "Dune", "year": 1965, "tags": ["sci-fi", "classic"]},
+          {"title": "Emma", "year": 1815, "tags": ["romance"]},
+          {"title": "Neuromancer", "year": 1984, "tags": ["sci-fi"]},
+      ]
+      for book in books:
+          print(f"{book['title']} ({book['year']})")
+      sci_fi = [b["title"] for b in books if "sci-fi" in b["tags"]]
+      print("Sci-fi:", sci_fi)
+      print("Earliest year:", min([b["year"] for b in books]))
+  - type: try-it
+    prompt: Set `names` to a list of every user's name, in order (use a comprehension or a loop).
+    starter: |
+      users = [{"name": "ana", "admin": True}, {"name": "ben", "admin": False}]
+      names = []
+    solution: |
+      users = [{"name": "ana", "admin": True}, {"name": "ben", "admin": False}]
+      names = [u["name"] for u in users]
+    check: |
+      assert names == ["ana", "ben"], f"names is {names}"
+    hints:
+      - Each user is a dictionary; u["name"] is its name.
+      - names = [u["name"] for u in users]
+  - type: explain
+    md: |
+      A **dictionary comprehension** builds a dictionary in one line, like a list
+      comprehension with `key: value`:
+
+      ```python
+      squares = {n: n * n for n in range(1, 4)}            # {1: 1, 2: 4, 3: 9}
+      lengths = {w: len(w) for w in ["hi", "hello"]}      # {'hi': 2, 'hello': 5}
+      cheap = {k: v for k, v in prices.items() if v < 3}  # filter pairs
+      ```
+  - type: explain
+    md: |
       A **set** keeps only **unique** values, with no duplicates and no order:
 
       ```python
@@ -42,7 +213,8 @@ steps:
       unique = set(words)     # {"hi", "bye"}
       ```
 
-      Sets are great for "have I seen this before?" with `x in seen` and `seen.add(x)`.
+      Sets are great for "have I seen this before?" with `x in seen` and `seen.add(x)`,
+      and checking `in` on a set is very fast, even with millions of items.
   - type: try-it
     prompt: Make `unique_count` hold how many **different** words are in `words`.
     starter: |
@@ -56,8 +228,62 @@ steps:
     hints:
       - set(words) removes the duplicates.
       - unique_count = len(set(words))
+  - type: explain
+    md: |
+      Sets do maths like Venn diagrams:
+
+      | Code | Gives | Meaning |
+      |---|---|---|
+      | `a & b` | in both | intersection |
+      | `a \| b` | in either | union |
+      | `a - b` | in `a` but not `b` | difference |
+      | `a ^ b` | in one but not both | symmetric difference |
+
+      An empty set is written `set()`, because `{}` is an empty dictionary.
+  - type: example
+    code: |
+      ana = {"python", "sql", "excel"}
+      ben = {"python", "docker", "excel"}
+      print("Both know:", sorted(ana & ben))
+      print("Together:", sorted(ana | ben))
+      print("Only Ana:", sorted(ana - ben))
+      seen = set()
+      for n in [3, 1, 3, 2, 1]:
+          if n in seen:
+              print(n, "is a repeat")
+          seen.add(n)
+  - type: quiz
+    question: 'What is `{1, 2, 3} - {2, 3, 4}`?'
+    options: ['{1}', '{4}', '{1, 4}']
+    answer: 0
+    explanation: Difference keeps what is in the first set but not the second.
+  - type: example
+    md: |
+      **Before the exercises:** counting into a dictionary, a dictionary that maps names
+      to lists, looking up nested data, and comparing groups with sets. The exercises
+      each lean on one of these.
+    code: |
+      orders = ["pizza", "salad", "pizza", "soup"]
+      tally = {}
+      for dish in orders:
+          tally[dish] = tally.get(dish, 0) + 1
+      for dish, n in tally.items():
+          print(f"{dish}: {n}")
+
+      marks = {"Ana": [70, 90], "Ben": [55]}
+      marks["Ben"].append(65)
+      for student, scores in marks.items():
+          print(student, "average", sum(scores) / len(scores))
+
+      monday = {"Ana", "Ben", "Cy"}
+      tuesday = {"Ben", "Dee"}
+      print("Came both days:", sorted(monday & tuesday))
   - type: exercise
     ref: ex01-word-counter
+  - type: exercise
+    ref: ex03-gradebook
+  - type: exercise
+    ref: ex04-common-interests
   - type: exercise
     ref: ex02-text-adventure
   - type: quiz
@@ -65,3 +291,8 @@ steps:
     options: ['an error', '0', 'None']
     answer: 1
     explanation: get returns the default you give it when the key isn't there.
+  - type: quiz
+    question: 'What does `{}` create?'
+    options: ['an empty set', 'an empty dictionary', 'an empty list']
+    answer: 1
+    explanation: Curly braces with nothing inside make a dictionary. Use set() for an empty set.

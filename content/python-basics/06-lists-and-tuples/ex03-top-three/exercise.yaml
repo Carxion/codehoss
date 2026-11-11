@@ -1,0 +1,29 @@
+id: py.top-three
+title: Top three
+difficulty: 3
+prompt: |
+  Read a line of scores separated by commas, then print the top three (highest first),
+  the lowest score, and how many scores are 80 or more.
+
+  ```
+  Scores: 70, 95, 88, 60, 91
+  Top 3: 95, 91, 88
+  Lowest: 60
+  80 or more: 3
+  ```
+
+  Spaces after the commas are optional, so `70,95, 88` must work too.
+hints:
+  - line.split(",") gives the pieces as text; int() ignores spaces around a number.
+  - 'scores = [int(piece) for piece in line.split(",")] makes the list of numbers.'
+  - 'sorted(scores, reverse=True)[:3] is the top three. ", ".join(...) needs strings, so convert them back with str().'
+guide:
+  - md: |
+      Turning a comma-separated line into numbers, sorting a copy, slicing the best part,
+      and joining numbers back into text.
+    code: |
+      line = "3.5, 1.2,9.8, 4.0"
+      times = [float(piece) for piece in line.split(",")]
+      fastest = sorted(times)[:2]
+      print("Fastest two:", " | ".join([str(t) for t in fastest]))
+      print("Over 4s:", len([t for t in times if t > 4]))

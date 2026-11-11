@@ -1,0 +1,59 @@
+id: py.shapes
+title: Shapes family
+difficulty: 4
+prompt: |
+  Build a small family of classes:
+
+  - `Shape(name)` stores `name`. Its `area()` method raises `NotImplementedError` (each
+    child shape provides its own). Its `describe()` returns text like
+    `circle with area 3.14`, using `area()` and 2 decimal places.
+  - `Rectangle(width, height)` is a `Shape` named `"rectangle"`; `area()` is width × height.
+  - `Circle(radius)` is a `Shape` named `"circle"`; `area()` is `math.pi * radius ** 2`.
+  - `Square(side)` is a `Rectangle` named `"square"`.
+
+  Every child calls `super().__init__(...)`, and `describe()` is written **once**, in `Shape`.
+
+  ```python
+  Square(3).describe()     # "square with area 9.00"
+  ```
+hints:
+  - 'Shape.__init__ sets self.name. Shape.area can just do: raise NotImplementedError'
+  - 'Rectangle.__init__(self, width, height): super().__init__("rectangle"), then store width and height.'
+  - 'Square can call super().__init__(side, side) and then set self.name = "square".'
+guide:
+  - md: |
+      A parent class with a shared method that relies on a method each child provides.
+      Here vehicles describe their wheels; only the children know how many.
+    code: |
+      class Vehicle:
+          def __init__(self, kind):
+              self.kind = kind
+
+          def wheels(self):
+              raise NotImplementedError
+
+          def summary(self):
+              return f"a {self.kind} on {self.wheels()} wheels"
+
+      class Bike(Vehicle):
+          def __init__(self):
+              super().__init__("bike")
+
+          def wheels(self):
+              return 2
+
+      class Truck(Vehicle):
+          def __init__(self, axles):
+              super().__init__("truck")
+              self.axles = axles
+
+          def wheels(self):
+              return self.axles * 4
+
+      class Tandem(Bike):
+          def __init__(self):
+              super().__init__()
+              self.kind = "tandem"
+
+      for v in [Bike(), Truck(3), Tandem()]:
+          print(v.summary())

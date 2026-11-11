@@ -63,6 +63,8 @@ export interface Exercise {
   prompt: string;
   difficulty: number;
   hint_count: number;
+  /** Worked examples of the techniques the exercise needs, on other problems. */
+  guide: { md: string; code: string }[];
   starter: string;
   visible_tests: string;
   /** Projects only: the starter for each level (null: continue from your own code). */

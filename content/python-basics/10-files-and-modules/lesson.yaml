@@ -1,5 +1,5 @@
 title: Files and modules
-summary: Use code other people wrote, and save data to files.
+summary: Use code other people wrote, write your own modules, and save data to text, JSON and CSV files.
 steps:
   - type: explain
     md: |
@@ -13,6 +13,14 @@ steps:
       from random import randint
       print(randint(1, 6))      # a dice roll
       ```
+
+      Three ways to import:
+
+      | Code | Then use it as |
+      |---|---|
+      | `import math` | `math.sqrt(16)`: clear where it came from |
+      | `from math import sqrt, pi` | `sqrt(16)`, `pi`: shorter |
+      | `import statistics as st` | `st.mean(...)`: a nickname for a long name |
 
       Open the **📚 Library** panel to browse what each module offers.
   - type: try-it
@@ -29,34 +37,288 @@ steps:
       - root = math.sqrt(81)
   - type: explain
     md: |
+      A few standard-library modules you'll use again and again:
+
+      | Module | Handy for |
+      |---|---|
+      | `math` | `sqrt`, `ceil` (round up), `floor` (round down), `pi` |
+      | `random` | `randint(1, 6)`, `choice(items)`, `shuffle(items)`, `sample(items, 3)` |
+      | `datetime` | today's date, the time, date maths |
+      | `statistics` | `mean`, `median`, `mode`, `stdev` |
+      | `collections` | `Counter`, `defaultdict` (lesson 7) |
+      | `json`, `csv` | reading and writing data files (below) |
+      | `pathlib` | working with file and folder paths (below) |
+
+      **Dates** deserve a closer look. Subtracting two dates gives a `timedelta`, and
+      `strftime` formats a date any way you like (`%d` day, `%m` month, `%Y` year, `%A`
+      weekday name, `%B` month name).
+  - type: example
+    code: |
+      from datetime import date, timedelta
+      import math
+      import random
+
+      launch = date(2026, 12, 25)
+      today = date(2026, 11, 11)
+      print("Days to go:", (launch - today).days)
+      print("A week later:", today + timedelta(days=7))
+      print(launch.strftime("%A %d %B %Y"))
+
+      print("Boxes of 6 for 20 eggs:", math.ceil(20 / 6))
+      print("Random pick:", random.choice(["tea", "coffee", "juice"]))
+  - type: try-it
+    prompt: 'Set `age_days` to how many days old someone born on 1 Jan 2000 is on 1 Jan 2026 (use `date` subtraction and `.days`).'
+    starter: |
+      from datetime import date
+
+      age_days = 0
+    solution: |
+      from datetime import date
+
+      age_days = (date(2026, 1, 1) - date(2000, 1, 1)).days
+    check: |
+      assert age_days == 9497, f"age_days is {age_days}, expected 9497"
+    hints:
+      - Make both dates with date(year, month, day) and subtract the earlier one from the later one.
+      - age_days = (date(2026, 1, 1) - date(2000, 1, 1)).days
+  - type: explain
+    md: |
       **Files** keep data after your program ends. Use `with open(...)`, which closes
-      the file for you automatically:
+      the file for you automatically, even if an error happens:
 
       ```python
-      with open("notes.txt", "w") as f:    # "w" = write
-          f.write("Hello file!")
+      with open("notes.txt", "w", encoding="utf-8") as f:    # "w" = write
+          f.write("Hello file!\n")
 
-      with open("notes.txt") as f:         # read is the default
+      with open("notes.txt", encoding="utf-8") as f:         # read is the default
           print(f.read())
       ```
 
-      The `json` module saves lists and dictionaries: `json.dump(data, f)` writes and
-      `json.load(f)` reads them back.
+      | Mode | Meaning |
+      |---|---|
+      | `"r"` | read (the default); error if the file is missing |
+      | `"w"` | write: creates the file, or **wipes** an existing one |
+      | `"a"` | append: adds to the end, keeping what's there |
+
+      `write` doesn't add new lines for you; put `\n` at the end of each line. Always pass
+      `encoding="utf-8"` so accents and emoji survive on every computer.
+  - type: example
+    code: |
+      with open("diary.txt", "w", encoding="utf-8") as f:
+          f.write("Monday: learnt loops\n")
+          f.write("Tuesday: learnt lists\n")
+
+      with open("diary.txt", "a", encoding="utf-8") as f:
+          f.write("Wednesday: learnt files\n")
+
+      with open("diary.txt", encoding="utf-8") as f:
+          for line in f:                  # one line at a time
+              day, note = line.strip().split(": ")
+              print(f"{day:<10} {note}")
+  - type: try-it
+    prompt: 'Write each name in `names` to `names.txt`, **one per line**.'
+    starter: |
+      names = ["Ana", "Ben", "Cy"]
+    solution: |
+      names = ["Ana", "Ben", "Cy"]
+      with open("names.txt", "w", encoding="utf-8") as f:
+          for name in names:
+              f.write(name + "\n")
+    check: |
+      with open("names.txt", encoding="utf-8") as f:
+          written = f.read()
+      assert written == "Ana\nBen\nCy\n", f"names.txt holds {written!r}, expected one name per line"
+    hints:
+      - Open the file with "w", loop over the names, and write each one followed by "\n".
+      - 'with open("names.txt", "w", encoding="utf-8") as f: then f.write(name + "\n") in a loop'
+  - type: explain
+    md: |
+      Reading a file **line by line** is the most common job. Each line still has its
+      `\n` at the end, so `strip()` it:
+
+      ```python
+      with open("data.txt", encoding="utf-8") as f:
+          for line in f:
+              line = line.strip()
+              if not line:          # skip blank lines
+                  continue
+              ...
+      ```
+
+      `f.read()` gives the whole file as one string, and `f.read().splitlines()` gives a
+      list of lines without the `\n`.
+  - type: explain
+    md: |
+      **`pathlib`** treats file paths as objects instead of strings. It's the modern way
+      to work with files and folders:
+
+      ```python
+      from pathlib import Path
+
+      folder = Path("reports")
+      folder.mkdir(exist_ok=True)            # make a folder (no error if it exists)
+      path = folder / "summary.txt"          # join paths with /
+      path.write_text("All good\n", encoding="utf-8")
+      print(path.read_text(encoding="utf-8"))
+      print(path.exists(), path.name, path.suffix, path.stem)
+      for p in folder.glob("*.txt"):         # every .txt file in the folder
+          print(p)
+      ```
+  - type: example
+    code: |
+      from pathlib import Path
+
+      notes = Path("notes")
+      notes.mkdir(exist_ok=True)
+      for day in ["mon", "tue", "wed"]:
+          (notes / f"{day}.txt").write_text(f"Notes for {day}\n", encoding="utf-8")
+      (notes / "todo.md").write_text("- buy milk\n", encoding="utf-8")
+
+      for p in sorted(notes.glob("*.txt")):
+          print(p.name, "->", p.read_text(encoding="utf-8").strip())
+      print("Is there a fri.txt?", (notes / "fri.txt").exists())
+  - type: explain
+    md: |
+      **JSON** files store lists and dictionaries, so it's how programs save structured
+      data, and how most web APIs send it:
+
+      ```python
+      import json
+
+      json.dump(data, f, indent=2)     # write to an open file (indent makes it readable)
+      data = json.load(f)              # read it back
+      text = json.dumps(data)          # to a string instead of a file
+      data = json.loads(text)          # from a string
+      ```
+
+      JSON has strings, numbers, `true`/`false`, `null`, lists and objects, which come
+      back as Python `str`, `int`/`float`, `True`/`False`, `None`, `list` and `dict`.
+      Dictionary keys always come back as strings.
   - type: example
     code: |
       import json
 
-      scores = {"Ada": 9, "Alan": 7}
-      with open("scores.json", "w") as f:
-          json.dump(scores, f)
+      scores = {"Ada": [9, 7], "Alan": [7], "active": True, "coach": None}
+      with open("scores.json", "w", encoding="utf-8") as f:
+          json.dump(scores, f, indent=2)
 
-      with open("scores.json") as f:
+      with open("scores.json", encoding="utf-8") as f:
+          print(f.read())
+
+      with open("scores.json", encoding="utf-8") as f:
           loaded = json.load(f)
-      print(loaded["Ada"])
+      print(loaded["Ada"], type(loaded["active"]))
+  - type: explain
+    md: |
+      **CSV** files are spreadsheets as plain text: one row per line, values separated by
+      commas. The `csv` module handles the fiddly parts (commas inside quotes, and so on):
+
+      ```python
+      import csv
+
+      with open("people.csv", "w", newline="", encoding="utf-8") as f:
+          writer = csv.writer(f)
+          writer.writerow(["name", "age"])          # header row
+          writer.writerow(["Ana", 31])
+
+      with open("people.csv", newline="", encoding="utf-8") as f:
+          for row in csv.DictReader(f):              # each row as a dict, keyed by header
+              print(row["name"], row["age"])         # values are always text
+      ```
+
+      Open CSV files with `newline=""`; the `csv` module handles line endings itself.
+  - type: example
+    code: |
+      import csv
+
+      rows = [["city", "temp"], ["Oslo", 4], ["Cairo", 31], ["Lima", 19]]
+      with open("weather.csv", "w", newline="", encoding="utf-8") as f:
+          csv.writer(f).writerows(rows)
+
+      with open("weather.csv", newline="", encoding="utf-8") as f:
+          for row in csv.DictReader(f):
+              temp = int(row["temp"])
+              print(f"{row['city']}: {temp}°C", "(warm)" if temp > 18 else "")
+  - type: explain
+    md: |
+      **Your own modules.** Any `.py` file is a module. Put helper functions in
+      `helpers.py`, and another file in the same folder can `import helpers`.
+
+      When Python imports a file, it runs it from top to bottom, so code at the top level
+      (like test prints) would run on import too. The fix is this guard:
+
+      ```python
+      def greet(name):
+          return f"Hi, {name}"
+
+      if __name__ == "__main__":     # only when this file is run directly
+          print(greet("test"))
+      ```
+
+      `__name__` is `"__main__"` when you run the file, and the module's name when it's
+      imported. You'll see this guard at the bottom of most Python scripts.
+  - type: example
+    md: DataDojo gives you one file, so this example **writes** a module and then imports it. On your own computer you'd just create `shapes.py` in your editor.
+    code: |
+      from pathlib import Path
+
+      Path("shapes.py").write_text(
+          "def area(w, h):\n"
+          "    return w * h\n"
+          "\n"
+          "if __name__ == '__main__':\n"
+          "    print('testing shapes:', area(2, 3))\n",
+          encoding="utf-8",
+      )
+
+      import shapes                     # the test print doesn't run on import
+
+      print("Area:", shapes.area(4, 5))
+      print("Its __name__ is", shapes.__name__, "and mine is", __name__)
+  - type: quiz
+    question: 'Inside `helpers.py`, what is `__name__` when another file does `import helpers`?'
+    options: ["'__main__'", "'helpers'", 'None']
+    answer: 1
+    explanation: An imported module's __name__ is its own name. It is "__main__" only for the file you ran.
+  - type: example
+    md: |
+      **Before the exercises:** functions that take a file path, read it safely (missing
+      files included), work through it row by row, and write results to a new file.
+    code: |
+      import csv
+      import json
+      from pathlib import Path
+
+      def load_settings(path):
+          try:
+              with open(path, encoding="utf-8") as f:
+                  return json.load(f)
+          except FileNotFoundError:
+              return {"theme": "light"}
+
+      def word_lengths(text_path, csv_path):
+          with open(csv_path, "w", newline="", encoding="utf-8") as out:
+              writer = csv.writer(out)
+              writer.writerow(["word", "letters"])
+              count = 0
+              for line in Path(text_path).read_text(encoding="utf-8").splitlines():
+                  for word in line.split():
+                      writer.writerow([word, len(word)])
+                      count += 1
+          return count
+
+      print(load_settings("missing.json"))
+      Path("poem.txt").write_text("tiny code\nbig ideas\n", encoding="utf-8")
+      print(word_lengths("poem.txt", "lengths.csv"), "words")
+      print(Path("lengths.csv").read_text(encoding="utf-8"))
   - type: exercise
     ref: ex01-contact-book
   - type: exercise
     ref: ex02-sales-report
+  - type: exercise
+    ref: ex03-log-summary
+  - type: exercise
+    ref: ex04-results-export
   - type: quiz
     question: Why use `with open(...) as f:`?
     options:
@@ -64,3 +326,11 @@ steps:
       - It closes the file automatically when the block ends
       - It is the only way to read a file
     answer: 1
+  - type: quiz
+    question: 'You open an existing file with mode `"w"` and write one line. What happens to what was there before?'
+    options:
+      - It stays, and the line is added at the end
+      - It is wiped; the file now holds only the new line
+      - Python raises an error because the file exists
+    answer: 1
+    explanation: '"w" starts the file fresh. Use "a" to append to the end instead.'

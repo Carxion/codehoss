@@ -1,5 +1,5 @@
 title: Classes and objects
-summary: Bundle data and the actions that go with it.
+summary: Bundle data and the actions that go with it; inherit, use properties, and let dataclasses write the boring parts.
 steps:
   - type: explain
     md: |
@@ -53,10 +53,424 @@ steps:
     hints:
       - Use self.name and self.age inside the method.
       - 'return f"{self.name} is {self.age}"'
+  - type: explain
+    md: |
+      **Why classes?** You could keep a player as a dictionary and write separate
+      functions that change it. A class keeps the data **and** the rules for changing it
+      together, so the rest of the program can't put it in a bad state by accident.
+
+      Methods often **change** the object's attributes. Every object has its own copy:
+
+      ```python
+      class Counter:
+          def __init__(self):
+              self.count = 0
+
+          def click(self):
+              self.count += 1
+
+      a = Counter()
+      b = Counter()
+      a.click()
+      a.click()
+      print(a.count, b.count)    # 2 0
+      ```
+  - type: example
+    code: |
+      class Player:
+          def __init__(self, name, health=100):
+              self.name = name
+              self.health = health
+
+          def take_hit(self, damage):
+              self.health = max(0, self.health - damage)
+
+          def is_alive(self):
+              return self.health > 0
+
+      hero = Player("Ana")
+      hero.take_hit(30)
+      hero.take_hit(80)
+      print(hero.name, hero.health, hero.is_alive())
+  - type: try-it
+    prompt: Add a `birthday` method to `Pet` that adds 1 to its age.
+    starter: |
+      class Pet:
+          def __init__(self, name, age):
+              self.name = name
+              self.age = age
+
+      rex = Pet("Rex", 3)
+      rex.birthday()
+    solution: |
+      class Pet:
+          def __init__(self, name, age):
+              self.name = name
+              self.age = age
+
+          def birthday(self):
+              self.age += 1
+
+      rex = Pet("Rex", 3)
+      rex.birthday()
+    check: |
+      assert rex.age == 4, f"After one birthday rex.age is {rex.age}, expected 4"
+    hints:
+      - A method is a def inside the class, indented, with self as its first parameter.
+      - "def birthday(self): and inside it, self.age += 1"
+  - type: explain
+    md: |
+      **Making objects print nicely.** `print(rex)` normally shows something unhelpful
+      like `<__main__.Pet object at 0x7f3a...>`. Two special methods fix that:
+
+      - `__str__` gives friendly text for users, used by `print` and `str()`.
+      - `__repr__` gives precise text for programmers, used in lists and the console.
+        By convention it looks like the code that would create the object.
+
+      ```python
+      class Point:
+          def __init__(self, x, y):
+              self.x, self.y = x, y
+
+          def __str__(self):
+              return f"({self.x}, {self.y})"
+
+          def __repr__(self):
+              return f"Point({self.x}, {self.y})"
+      ```
+
+      Methods with double underscores are called **dunder** ("double under") methods.
+      Python calls them for you at the right moments.
+  - type: example
+    code: |
+      class Point:
+          def __init__(self, x, y):
+              self.x, self.y = x, y
+
+          def __str__(self):
+              return f"({self.x}, {self.y})"
+
+          def __repr__(self):
+              return f"Point({self.x}, {self.y})"
+
+      p = Point(3, 4)
+      print(p)            # uses __str__
+      print([p, Point(0, 0)])   # lists use __repr__
+  - type: try-it
+    prompt: 'Give `Card` a `__str__` method so `str(Card("Q", "hearts"))` is `Q of hearts`.'
+    starter: |
+      class Card:
+          def __init__(self, rank, suit):
+              self.rank = rank
+              self.suit = suit
+    solution: |
+      class Card:
+          def __init__(self, rank, suit):
+              self.rank = rank
+              self.suit = suit
+
+          def __str__(self):
+              return f"{self.rank} of {self.suit}"
+    check: |
+      got = str(Card("Q", "hearts"))
+      assert got == "Q of hearts", f"str(Card('Q', 'hearts')) gave {got!r}"
+    hints:
+      - Add a method called __str__(self) that returns a string.
+      - 'return f"{self.rank} of {self.suit}"'
+  - type: explain
+    md: |
+      **Class attributes** are shared by every object of the class. Write them in the
+      class body, outside any method. **Instance attributes** (set on `self`) belong to
+      one object:
+
+      ```python
+      class Dog:
+          species = "Canis familiaris"     # class attribute: shared
+          count = 0
+
+          def __init__(self, name):
+              self.name = name             # instance attribute: each dog's own
+              Dog.count += 1
+      ```
+
+      Use class attributes for constants and shared counters, never for data that should
+      differ between objects.
+  - type: example
+    code: |
+      class Ticket:
+          price = 12            # same for every ticket
+          sold = 0
+
+          def __init__(self, seat):
+              self.seat = seat
+              Ticket.sold += 1
+
+      a = Ticket("A1")
+      b = Ticket("B7")
+      print(a.seat, b.seat, a.price)
+      print("Sold:", Ticket.sold, "Takings:", Ticket.sold * Ticket.price)
+  - type: explain
+    md: |
+      **Inheritance** makes a new class from an existing one. The **child** class gets
+      every method of the **parent**, and can add new ones or **override** (replace)
+      existing ones:
+
+      ```python
+      class Animal:
+          def __init__(self, name):
+              self.name = name
+
+          def speak(self):
+              return "..."
+
+          def intro(self):
+              return f"I'm {self.name} and I say {self.speak()}"
+
+      class Cat(Animal):             # Cat inherits from Animal
+          def speak(self):           # override
+              return "meow"
+      ```
+
+      `Cat("Tom").intro()` uses `Animal`'s `intro`, which calls `Cat`'s `speak`:
+      `"I'm Tom and I say meow"`.
+
+      When a child needs its own `__init__`, call the parent's first with
+      **`super().__init__(...)`** so the parent can set up its attributes.
+  - type: example
+    code: |
+      class Animal:
+          def __init__(self, name):
+              self.name = name
+
+          def speak(self):
+              return "..."
+
+          def intro(self):
+              return f"I'm {self.name} and I say {self.speak()}"
+
+      class Cat(Animal):
+          def speak(self):
+              return "meow"
+
+      class Parrot(Animal):
+          def __init__(self, name, word):
+              super().__init__(name)      # let Animal set self.name
+              self.word = word
+
+          def speak(self):
+              return self.word
+
+      for animal in [Animal("Blob"), Cat("Tom"), Parrot("Polly", "hello")]:
+          print(animal.intro())
+      print(isinstance(Cat("x"), Animal))
+  - type: try-it
+    prompt: 'Make `Square` a child of `Rectangle`. Its `__init__` takes one `side` and calls `super().__init__(side, side)`.'
+    starter: |
+      class Rectangle:
+          def __init__(self, width, height):
+              self.width = width
+              self.height = height
+
+          def area(self):
+              return self.width * self.height
+
+      class Square:
+          pass
+    solution: |
+      class Rectangle:
+          def __init__(self, width, height):
+              self.width = width
+              self.height = height
+
+          def area(self):
+              return self.width * self.height
+
+      class Square(Rectangle):
+          def __init__(self, side):
+              super().__init__(side, side)
+    check: |
+      sq = Square(3)
+      assert sq.area() == 9, f"Square(3).area() gave {sq.area()}"
+      assert isinstance(sq, Rectangle), "Square should inherit from Rectangle: class Square(Rectangle):"
+    hints:
+      - Put the parent class in brackets after the name, class Square(Rectangle):, then write __init__(self, side).
+      - "Inside __init__: super().__init__(side, side)"
+  - type: explain
+    md: |
+      A **property** is a method that you use like an attribute, with no brackets. Use one
+      for values that are **worked out** from other attributes, so they're never out of date:
+
+      ```python
+      class Rectangle:
+          def __init__(self, width, height):
+              self.width = width
+              self.height = height
+
+          @property
+          def area(self):
+              return self.width * self.height
+
+      r = Rectangle(2, 5)
+      r.width = 4
+      print(r.area)        # 20, recalculated: no brackets
+      ```
+
+      `@property` is a **decorator**: a line starting with `@` that changes the function
+      below it. You'll meet more decorators in the Intermediate course.
+  - type: example
+    code: |
+      class Temperature:
+          def __init__(self, celsius):
+              self.celsius = celsius
+
+          @property
+          def fahrenheit(self):
+              return round(self.celsius * 9 / 5 + 32, 1)
+
+      t = Temperature(20)
+      print(t.fahrenheit)
+      t.celsius = 30
+      print(t.fahrenheit)
+  - type: explain
+    md: |
+      **Dataclasses** write the boring parts for you. For a class that mainly holds data,
+      `@dataclass` creates `__init__`, `__repr__` and `==` from a list of fields:
+
+      ```python
+      from dataclasses import dataclass, field
+
+      @dataclass
+      class Book:
+          title: str
+          author: str
+          pages: int = 0                              # a default
+          tags: list = field(default_factory=list)    # a fresh list for each book
+
+          def is_long(self):                          # normal methods still work
+              return self.pages > 400
+
+      b = Book("Dune", "Herbert", 412)
+      print(b)          # Book(title='Dune', author='Herbert', pages=412, tags=[])
+      ```
+
+      The type hints (`: str`) are required: they're how the dataclass finds the fields.
+      Notice `field(default_factory=list)`: the same mutable-default trap as in lesson 8,
+      solved for you.
+  - type: example
+    code: |
+      from dataclasses import dataclass
+
+      @dataclass
+      class Song:
+          title: str
+          seconds: int
+          plays: int = 0
+
+          def play(self):
+              self.plays += 1
+
+          @property
+          def length(self):
+              return f"{self.seconds // 60}:{self.seconds % 60:02}"
+
+      s = Song("Intro", 95)
+      s.play()
+      print(s)
+      print(s.length)
+      print(Song("A", 60) == Song("A", 60))
+  - type: try-it
+    prompt: 'Turn `Movie` into a dataclass with fields `title` (str), `year` (int) and `rating` (float, default `0.0`).'
+    starter: |
+      from dataclasses import dataclass
+
+      class Movie:
+          pass
+
+      m = Movie("Up", 2009)
+    solution: |
+      from dataclasses import dataclass
+
+      @dataclass
+      class Movie:
+          title: str
+          year: int
+          rating: float = 0.0
+
+      m = Movie("Up", 2009)
+    check: |
+      assert (m.title, m.year, m.rating) == ("Up", 2009, 0.0), f"Got {m!r}"
+      assert repr(m) == "Movie(title='Up', year=2009, rating=0.0)", f"repr is {m!r}. Did you add @dataclass?"
+    hints:
+      - Put @dataclass on the line above class Movie:, and list each field with its type.
+      - "title: str, then year: int, then rating: float = 0.0 (each on its own line)"
+  - type: explain
+    md: |
+      **Which tool when?**
+
+      | Use | When |
+      |---|---|
+      | a **function** | you're transforming input into output, with nothing to remember |
+      | a **dict** | quick, loose data, like a row read from a file |
+      | a **dataclass** | a record with fixed fields you'll pass around a lot |
+      | a **class** | data plus rules about how it may change (a bank balance that can't go negative) |
+
+      Start simple. Turn a dict into a dataclass when you keep mistyping its keys, and
+      into a full class when it needs rules.
+  - type: quiz
+    question: 'In `class Cat(Animal):`, what does `super().__init__(name)` do inside Cat''s `__init__`?'
+    options:
+      - Creates a second Animal object
+      - Runs Animal's __init__ so it can set up its attributes on this cat
+      - Deletes the parent class
+    answer: 1
+  - type: example
+    md: |
+      **Before the exercises:** a class that guards its data with `raise`, keeps a list
+      as an attribute, has a computed property, and a child class that adds to it. These
+      are the moves in the four exercises.
+    code: |
+      class Jar:
+          def __init__(self, label, capacity):
+              self.label = label
+              self.capacity = capacity
+              self.contents = []
+
+          def add(self, item):
+              if len(self.contents) >= self.capacity:
+                  raise ValueError(f"{self.label} is full")
+              self.contents.append(item)
+
+          @property
+          def free_space(self):
+              return self.capacity - len(self.contents)
+
+          def __str__(self):
+              return f"{self.label}: {len(self.contents)}/{self.capacity}"
+
+      class CookieJar(Jar):
+          def __init__(self, capacity):
+              super().__init__("Cookies", capacity)
+
+          def eat(self):
+              return self.contents.pop() if self.contents else None
+
+      jar = CookieJar(2)
+      jar.add("choc chip")
+      jar.add("oat")
+      print(jar, "free:", jar.free_space)
+      try:
+          jar.add("ginger")
+      except ValueError as e:
+          print("Oops:", e)
+      print("Ate:", jar.eat())
   - type: exercise
     ref: ex01-bank-account
   - type: exercise
     ref: ex02-todo-list
+  - type: exercise
+    ref: ex03-shapes
+  - type: exercise
+    ref: ex04-inventory
   - type: quiz
     question: Inside a method, what does `self` refer to?
     options:
@@ -64,3 +478,10 @@ steps:
       - The object the method was called on
       - The previous object that was created
     answer: 1
+  - type: quiz
+    question: What does `@property` let you do?
+    options:
+      - Call a method without brackets, like reading an attribute
+      - Make an attribute impossible to read
+      - Share an attribute between all objects
+    answer: 0

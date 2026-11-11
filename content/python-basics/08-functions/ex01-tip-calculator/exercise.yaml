@@ -12,3 +12,16 @@ hints:
   - The tip is bill * percent / 100.
   - 'return round(bill * percent / 100, 2)'
   - 'return round(total / people, 2)'
+guide:
+  - md: |
+      Two small functions that take numbers in and **return** a rounded result. The caller
+      decides what to do with it.
+    code: |
+      def discount(price, percent):
+          return round(price * percent / 100, 2)
+
+      def per_slice(pizza_cost, slices):
+          return round(pizza_cost / slices, 2)
+
+      print(discount(80, 15))
+      print(per_slice(14.99, 8))

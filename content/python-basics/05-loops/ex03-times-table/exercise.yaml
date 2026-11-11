@@ -1,0 +1,28 @@
+id: py.times-table
+title: Times table grid
+difficulty: 3
+prompt: |
+  Ask for a size, then print a multiplication grid that big. Each number takes **4
+  characters**, right-aligned, using an f-string like `f"{value:4}"`.
+
+  ```
+  Size: 4
+     1   2   3   4
+     2   4   6   8
+     3   6   9  12
+     4   8  12  16
+  ```
+hints:
+  - One loop for the rows, and inside it another loop for the columns.
+  - Build each row as a string with row_text += f"{row * col:4}", then print it after the inner loop.
+  - Start row_text = "" at the top of the outer loop, so each row starts empty.
+guide:
+  - md: |
+      A nested loop that builds one line of text per outer round. Here each line holds
+      squares of a growing size, padded to 3 characters.
+    code: |
+      for row in range(1, 4):
+          line = ""
+          for col in range(row):
+              line += f"{'#':>3}"
+          print(line)

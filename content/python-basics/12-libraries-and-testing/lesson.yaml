@@ -1,5 +1,5 @@
 title: Libraries and testing
-summary: Lean on the standard library, and prove your code works with tests.
+summary: Lean on the standard library and packages, and prove your code works with pytest.
 steps:
   - type: explain
     md: |
@@ -12,10 +12,10 @@ steps:
       | `statistics` | `mean`, `median`, `mode` |
       | `json`, `csv` | reading and writing data files |
 
-      Beyond that, there are thousands of **packages** that you install with `pip`
-      (like `pandas` for data). On your own computer you'd install them into a
-      *virtual environment* (`python -m venv .venv`) so each project keeps its own set.
-      In DataDojo, each course's packages are already installed for you.
+      Beyond that, there are hundreds of thousands of **packages** on **PyPI** (the
+      Python Package Index) that people share for free: `pandas` for data, `requests`
+      for the web, `pytest` for testing. In DataDojo, each course's packages are already
+      installed for you.
   - type: example
     code: |
       import random
@@ -43,6 +43,25 @@ steps:
     hints:
       - The function is statistics.median(...)
       - middle = statistics.median(values)
+  - type: explain
+    md: |
+      **Installing packages on your own computer.** Each project gets its own
+      **virtual environment** (a private folder of packages), so projects that need
+      different versions don't clash. In a terminal:
+
+      ```bash
+      python -m venv .venv                 # create one in the project folder
+      source .venv/bin/activate            # turn it on (Windows: .venv\Scripts\activate)
+      pip install requests                 # install a package into it
+      pip freeze > requirements.txt        # record exactly what's installed
+      pip install -r requirements.txt      # recreate it on another computer
+      ```
+
+      Newer tools like **uv** do all of this faster in one command (`uv add requests`).
+      Whichever you use, the idea is the same: a list of what the project needs, installed
+      into a space of its own.
+
+      `_` in `for _ in range(10)` above is a name for "a value I don't need".
   - type: explain
     md: |
       A **test** is code that checks other code. The simplest test uses `assert`,
@@ -84,10 +103,219 @@ steps:
     hints:
       - 'An assert looks like: assert something == expected'
       - assert add(2, 3) == 5
+  - type: explain
+    md: |
+      **Why test?** Tests catch mistakes when you write code, and catch them again
+      months later when a change breaks something that used to work (a **regression**).
+
+      Good tests check more than the obvious case. For each function, think about:
+
+      - the **normal** case: `average([2, 4])`
+      - **edges**: an empty list, one item, zero, negative numbers, huge numbers
+      - **bad input**: what *should* happen with `"abc"`? An error? `None`?
+
+      Each test has three parts: **arrange** (set up the input), **act** (call the
+      function), **assert** (check the result). Give tests names that say what they check:
+      `test_average_of_empty_list_is_zero`.
+  - type: example
+    md: |
+      Run this: it runs **pytest** on its own file and shows the real report. One test
+      fails on purpose; read the report to see which assert, and why.
+    code: |
+      def average(numbers):
+          if not numbers:
+              return 0
+          return sum(numbers) / len(numbers)
+
+
+      def test_normal_case():
+          assert average([2, 4, 6]) == 4
+
+
+      def test_empty_list_is_zero():
+          assert average([]) == 0
+
+
+      def test_one_number():
+          assert average([7]) == 7
+
+
+      def test_this_one_is_wrong_on_purpose():
+          assert average([1, 2]) == 1
+
+
+      if __name__ == "__main__":
+          import pytest
+          pytest.main(["-q", __file__])
+  - type: explain
+    md: |
+      **Testing that an error is raised.** When a function should refuse bad input, test
+      that too, with `pytest.raises`:
+
+      ```python
+      import pytest
+
+      def test_negative_age_is_refused():
+          with pytest.raises(ValueError):
+              set_age(-5)
+      ```
+
+      The test passes only if the code inside the `with` block raises `ValueError`. If it
+      raises nothing (or a different error), the test fails.
+  - type: try-it
+    prompt: 'Finish `test_bad_text_is_refused` so it checks that `to_int("abc")` raises `ValueError`, using `pytest.raises`.'
+    starter: |
+      import pytest
+
+
+      def to_int(text):
+          return int(text)
+
+
+      def test_bad_text_is_refused():
+          # TODO: use pytest.raises
+          pass
+    solution: |
+      import pytest
+
+
+      def to_int(text):
+          return int(text)
+
+
+      def test_bad_text_is_refused():
+          with pytest.raises(ValueError):
+              to_int("abc")
+    check: |
+      test_bad_text_is_refused()
+      globals()["to_int"] = lambda text: 0     # a broken to_int that never complains...
+      try:
+          test_bad_text_is_refused()
+      except BaseException as e:
+          if not type(e).__name__ == "Failed":
+              raise
+      else:
+          raise AssertionError("Your test should fail when to_int doesn't raise. Use: with pytest.raises(ValueError):")
+    hints:
+      - 'The shape is: with pytest.raises(ValueError): then the call, indented underneath.'
+      - 'with pytest.raises(ValueError): and inside it, to_int("abc")'
+  - type: explain
+    md: |
+      **Many cases, one test.** `@pytest.mark.parametrize` runs the same test with
+      different inputs. Each set counts as its own test in the report:
+
+      ```python
+      @pytest.mark.parametrize(("word", "expected"), [
+          ("level", True),
+          ("hello", False),
+          ("", True),
+      ])
+      def test_is_palindrome(word, expected):
+          assert is_palindrome(word) == expected
+      ```
+
+      That's how most DataDojo exercises check many inputs at once.
+
+      **Fixtures** are ready-made helpers pytest hands to a test when it asks for them by
+      parameter name. `tmp_path` is a fresh, empty folder for each test, perfect for
+      testing code that reads or writes files:
+
+      ```python
+      def test_save_and_load(tmp_path):
+          path = tmp_path / "data.json"
+          save({"a": 1}, path)
+          assert load(path) == {"a": 1}
+      ```
+  - type: example
+    code: |
+      import json
+
+      import pytest
+
+
+      def is_palindrome(word):
+          word = word.lower()
+          return word == word[::-1]
+
+
+      @pytest.mark.parametrize(
+          ("word", "expected"),
+          [("level", True), ("Racecar", True), ("hello", False), ("", True)],
+      )
+      def test_is_palindrome(word, expected):
+          assert is_palindrome(word) == expected
+
+
+      def test_json_round_trip(tmp_path):
+          path = tmp_path / "data.json"
+          path.write_text(json.dumps({"a": 1}))
+          assert json.loads(path.read_text()) == {"a": 1}
+
+
+      if __name__ == "__main__":
+          pytest.main(["-v", __file__])
+  - type: explain
+    md: |
+      **Test first.** Many programmers write the test **before** the code:
+
+      1. **Red**: write a test for the next small thing the code should do. Run it; it fails.
+      2. **Green**: write just enough code to make it pass.
+      3. **Refactor**: tidy the code, re-running the tests to make sure nothing broke.
+
+      It sounds backwards, but it makes you decide exactly what "working" means before you
+      start, and you end up with tests for everything. The last exercise works this way:
+      the tests are written, and you make them pass.
+  - type: quiz
+    question: Which is the best extra test for a function `average(numbers)`, beyond a normal list?
+    options:
+      - The same normal list again, to be sure
+      - An empty list, to check it doesn't crash
+      - A list printed to the screen
+    answer: 1
+    explanation: Edge cases like an empty list are where bugs hide. Repeating the same test adds nothing.
+  - type: example
+    md: |
+      **Before the exercises:** functions with careful edge cases, and tests that check
+      normal input, edges and refusals. Note how each test checks **one** thing and is
+      named after it.
+    code: |
+      import pytest
+
+
+      def initials(full_name):
+          parts = full_name.split()
+          if not parts:
+              raise ValueError("no name given")
+          return "".join([p[0].upper() for p in parts])
+
+
+      def test_two_names():
+          assert initials("ada lovelace") == "AL"
+
+
+      def test_extra_spaces_are_ignored():
+          assert initials("  grace   hopper ") == "GH"
+
+
+      def test_one_name():
+          assert initials("Cher") == "C"
+
+
+      def test_empty_name_is_refused():
+          with pytest.raises(ValueError):
+              initials("   ")
+
+
+      if __name__ == "__main__":
+          pytest.main(["-v", __file__])
   - type: exercise
     ref: ex01-dice-stats
   - type: exercise
     ref: ex02-budget-tracker
+  - type: exercise
+    ref: ex03-write-the-tests
+  - type: exercise
+    ref: ex04-slugify
   - type: quiz
     question: How does pytest know which functions are tests?
     options:
@@ -95,3 +323,10 @@ steps:
       - Their names start with test_
       - They contain print statements
     answer: 1
+  - type: quiz
+    question: What does `with pytest.raises(ValueError):` check?
+    options:
+      - That the code inside raises a ValueError
+      - That the code inside never raises any error
+      - That ValueError is installed
+    answer: 0

@@ -25,3 +25,27 @@ hints:
   - 'rooms[current]["exits"] is a dictionary of direction -> room name.'
   - 'command.startswith("go ") checks for a go command; command[3:] is the direction.'
   - 'if direction in exits: current = exits[direction] then print(rooms[current]["description"])'
+guide:
+  - md: |
+      Looking things up in a nested dictionary and following a "link" from one entry to
+      another. Here each station on a train line knows the next station.
+    code: |
+      line = {
+          "Ash": {"info": "A quiet village stop.", "next": {"east": "Birch"}},
+          "Birch": {"info": "A busy market town.", "next": {"west": "Ash"}},
+      }
+      here = "Ash"
+      print(line[here]["info"])
+      for command in ("ride east", "ride north", "ride west"):
+          way = command[5:]
+          links = line[here]["next"]
+          if way in links:
+              here = links[way]
+              print(line[here]["info"])
+          else:
+              print("No track that way.")
+  - md: '`startswith` and slicing pull a command apart.'
+    code: |
+      command = "say hello there"
+      if command.startswith("say "):
+          print("Words:", command[4:])

@@ -1,0 +1,29 @@
+id: py.sharing-sweets
+title: Sharing sweets
+difficulty: 2
+prompt: |
+  `sweets` are shared equally between `children`. Nobody gets a broken sweet.
+
+  1. Set `each` to how many whole sweets each child gets.
+  2. Set `left_over` to how many are left over.
+  3. Print it like this (for 47 sweets and 6 children):
+
+  ```
+  Each child gets 7 sweets
+  Left over: 5
+  ```
+
+  Use the variables, not the numbers 7 and 5: the checks change `sweets` and `children`.
+hints:
+  - "// divides and drops the remainder; % gives the remainder."
+  - each = sweets // children
+  - 'print("Each child gets", each, "sweets")'
+guide:
+  - md: Packing books into boxes of 12 with the same pair of operators.
+    code: |
+      books = 75
+      per_box = 12
+      full_boxes = books // per_box
+      loose = books % per_box
+      print("Full boxes:", full_boxes)
+      print("Loose books:", loose)

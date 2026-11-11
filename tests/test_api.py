@@ -72,7 +72,7 @@ def test_modules_include_progress_counts(client):
     modules = {m["id"]: m for m in client.get("/api/modules").json()}
     lesson = modules["python-basics"]["lessons"][0]
     assert lesson["slug"] == "01-first-program"
-    assert lesson["steps"] == 9 and lesson["done"] >= 0
+    assert lesson["steps"] == 20 and lesson["done"] >= 0
 
 
 def test_lesson_never_leaks_answers(client):
@@ -95,8 +95,12 @@ def test_hints_escalate_to_show_me_and_are_recorded(client):
     assert progress["hints_used"] == 2 and progress["showed_solution"] is True
 
 
+def _step_index(client, matches):
+    return next(s["index"] for s in client.get(LESSON).json()["steps"] if matches(s))
+
+
 def test_quiz_only_reveals_explanation_when_right(client):
-    quiz_index = 8
+    quiz_index = _step_index(client, lambda s: "prints the word Hi" in s.get("question", ""))
     wrong = client.post(f"{LESSON}/steps/{quiz_index}/answer", json={"answer": 0}).json()
     right = client.post(f"{LESSON}/steps/{quiz_index}/answer", json={"answer": 1}).json()
     assert wrong == {"correct": False, "explanation": ""}
@@ -138,7 +142,8 @@ class TestSandboxed:
             f"/api/sessions/{session_id}/check", json={"exercise_id": "py.hello", "code": solution}
         ).json()
         assert body["passed"] is True
-        assert client.get(LESSON).json()["progress"]["6"]["done"] is True
+        index = _step_index(client, lambda s: s.get("exercise", {}).get("id") == "py.hello")
+        assert client.get(LESSON).json()["progress"][str(index)]["done"] is True
 
     def test_try_it(self, client, session_id):
         url = f"/api/sessions/{session_id}/try-it"

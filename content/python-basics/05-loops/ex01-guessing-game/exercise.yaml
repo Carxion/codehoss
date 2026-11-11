@@ -20,3 +20,19 @@ hints:
   - "while True: makes a loop that only stops when you break out of it."
   - Add 1 to guesses every time you read a guess.
   - 'When guess == secret: print(f"Correct! Guesses: {guesses}") and then break'
+guide:
+  - md: |
+      Keep asking until a condition is met: `while True`, count each round, give feedback,
+      and `break` out when done. Here a lift asks for a floor until a valid one is typed.
+    code: |
+      attempts = 0
+      for typed in ("12", "-1", "4"):   # pretend these were typed, one per round
+          attempts += 1
+          floor = int(typed)
+          if floor > 10:
+              print("Too high, we only have 10 floors")
+          elif floor < 0:
+              print("Too low")
+          else:
+              print(f"Going to floor {floor}. Attempts: {attempts}")
+              break

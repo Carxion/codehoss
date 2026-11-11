@@ -19,3 +19,13 @@ hints:
   - append adds to the end, remove takes an item out, insert(0, ...) puts one at the front.
   - 'print(len(shopping), "items:") prints the first line.'
   - 'Use a loop for the items: for item in shopping: print("-", item)'
+guide:
+  - md: Changing a playlist with the same list tools, then printing a count and each item.
+    code: |
+      playlist = ["Song A", "Song B"]
+      playlist.append("Song C")
+      playlist.remove("Song A")
+      playlist.insert(0, "Intro")
+      print(len(playlist), "tracks:")
+      for track in playlist:
+          print("*", track)

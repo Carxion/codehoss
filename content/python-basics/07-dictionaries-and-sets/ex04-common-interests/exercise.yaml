@@ -1,0 +1,33 @@
+id: py.common-interests
+title: Common interests
+difficulty: 3
+prompt: |
+  Two people list their interests, separated by commas. Compare them with sets and print
+  what they share and what is unique to each, **sorted alphabetically**. Ignore spaces
+  and capitals. Print `(none)` for an empty group.
+
+  ```
+  You: Chess, hiking ,Python
+  Them: python, cooking, chess
+  Both: chess, python
+  Only you: hiking
+  Only them: cooking
+  ```
+hints:
+  - 'Make each set with a comprehension: {i.strip().lower() for i in line.split(",")}'
+  - 'mine & theirs is what they share; mine - theirs is only yours.'
+  - '", ".join(sorted(group)) or "(none)" gives the text, because an empty string counts as false.'
+guide:
+  - md: |
+      Cleaning a comma-separated line into a set, comparing two sets, and printing sorted
+      results. A set comprehension is like a list comprehension in curly braces.
+    code: |
+      monday = {d.strip().lower() for d in "Tea, COFFEE ,juice".split(",")}
+      tuesday = {d.strip().lower() for d in "coffee,water".split(",")}
+      print("Both days:", ", ".join(sorted(monday & tuesday)))
+      print("Monday only:", ", ".join(sorted(monday - tuesday)))
+      print("Any day:", ", ".join(sorted(monday | tuesday)))
+  - md: '`or` gives the right side when the left side is empty, handy for a fallback.'
+    code: |
+      leftovers = ""
+      print("Leftovers:", leftovers or "(nothing)")

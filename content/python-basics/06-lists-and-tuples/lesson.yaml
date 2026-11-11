@@ -1,5 +1,5 @@
 title: Lists and tuples
-summary: Keep many values in order, and change them.
+summary: Keep many values in order; change, sort, filter and transform them.
 steps:
   - type: explain
     md: |
@@ -11,11 +11,13 @@ steps:
 
       Each item has a **position** (index) starting at **0**: `fruits[0]` is `"apple"`.
       Negative positions count from the end: `fruits[-1]` is `"cherry"`.
-      `len(fruits)` tells you how many items there are.
+      `len(fruits)` tells you how many items there are. Slices work just like on
+      strings: `fruits[:2]` is the first two items.
   - type: example
     code: |
       fruits = ["apple", "banana", "cherry"]
       print(fruits[0], fruits[-1], len(fruits))
+      print(fruits[:2])
       fruits.append("date")
       print(fruits)
   - type: try-it
@@ -32,19 +34,26 @@ steps:
       - 'fruits.append("cherry")'
   - type: explain
     md: |
+      Unlike strings, lists **can be changed in place**. Assign to a position to replace
+      an item:
+
+      ```python
+      colours = ["red", "green", "blue"]
+      colours[1] = "yellow"      # ['red', 'yellow', 'blue']
+      ```
+
       Useful list tools:
 
       | Code | What it does |
       |---|---|
       | `items.insert(0, x)` | put `x` at position 0 |
       | `items.remove(x)` | remove the first `x` |
-      | `items.pop()` | remove and return the last item |
+      | `items.pop()` | remove and return the last item (`pop(0)` for the first) |
+      | `items.index(x)` | the position of `x` |
+      | `items.count(x)` | how many times `x` appears |
       | `items.sort()` | sort the list in place (`reverse=True` for biggest first) |
       | `x in items` | `True` if `x` is in the list |
       | `sum(items)`, `max(items)`, `min(items)` | add up, biggest, smallest |
-
-      A **tuple** is like a list that can't be changed, written with round brackets:
-      `point = (3, 4)`. Use tuples for things that belong together and stay fixed.
   - type: try-it
     prompt: Sort `scores` from **highest to lowest** using `.sort()`.
     starter: |
@@ -57,12 +66,206 @@ steps:
     hints:
       - sort() puts the smallest first. Is there an option to flip that?
       - scores.sort(reverse=True)
+  - type: explain
+    md: |
+      **Looping over a list** is where lists shine. All the loop patterns from the last
+      lesson work:
+
+      ```python
+      prices = [4.5, 12.0, 3.25]
+      total = 0
+      for price in prices:
+          total += price
+      ```
+
+      Building a **new** list in a loop is just as common: start with `[]` and `append`.
+  - type: example
+    code: |
+      temps = [12, 25, 31, 18, 29]
+      hot_days = []
+      for t in temps:
+          if t >= 25:
+              hot_days.append(t)
+      print("Hot days:", hot_days)
+      print("How many:", len(hot_days))
+      for day, t in enumerate(temps, start=1):
+          print(f"Day {day}: {t}°C")
+  - type: try-it
+    prompt: Build `long_words`, a new list holding only the words in `words` with more than 4 letters.
+    starter: |
+      words = ["sun", "planet", "moon", "galaxy", "star"]
+      long_words = []
+    solution: |
+      words = ["sun", "planet", "moon", "galaxy", "star"]
+      long_words = []
+      for w in words:
+          if len(w) > 4:
+              long_words.append(w)
+    check: |
+      assert long_words == ["planet", "galaxy"], f"long_words is {long_words}"
+    hints:
+      - Loop over words; when len(w) > 4, append w to long_words.
+      - "for w in words: then if len(w) > 4: long_words.append(w)"
+  - type: explain
+    md: |
+      `.sort()` changes the list itself. **`sorted(items)`** gives back a **new** sorted
+      list and leaves the original alone.
+
+      Both take a **`key`**: a function that says *what to sort by*:
+
+      ```python
+      names = ["Bea", "alexander", "Kim"]
+      sorted(names, key=len)          # ['Bea', 'Kim', 'alexander']  (by length)
+      sorted(names, key=str.lower)    # ['alexander', 'Bea', 'Kim']  (ignoring capitals)
+      ```
+
+      Notice there are no brackets after `len`: you pass the function itself, and
+      `sorted` calls it on each item.
+  - type: example
+    code: |
+      scores = [72, 95, 58, 88]
+      ranked = sorted(scores, reverse=True)
+      print("Original:", scores)
+      print("Ranked:", ranked)
+      print("Top two:", ranked[:2])
+      words = ["kiwi", "fig", "banana", "apple"]
+      print(sorted(words, key=len))
+  - type: explain
+    md: |
+      **`zip`** walks through two (or more) lists side by side, pairing items up:
+
+      ```python
+      names = ["Ana", "Ben"]
+      ages = [31, 27]
+      for name, age in zip(names, ages):
+          print(name, "is", age)
+      ```
+  - type: example
+    code: |
+      items = ["tea", "cake", "soup"]
+      prices = [2.5, 3.75, 6.0]
+      for item, price in zip(items, prices):
+          print(f"{item:<6}${price:>5.2f}")
+      print(f"{'Total':<6}${sum(prices):>5.2f}")
+  - type: explain
+    md: |
+      **A trap: two names, one list.** `b = a` doesn't copy a list; it gives the *same*
+      list a second name. Change one and you see the change through both:
+
+      ```python
+      a = [1, 2, 3]
+      b = a          # same list
+      b.append(4)
+      print(a)       # [1, 2, 3, 4]  (surprise!)
+
+      c = a.copy()   # a real, separate copy (a[:] works too)
+      ```
+  - type: example
+    code: |
+      original = ["x", "y"]
+      same = original
+      copy = original.copy()
+      same.append("z")
+      print("original:", original)
+      print("copy:", copy)
+  - type: quiz
+    question: 'After `a = [1, 2]`, `b = a`, `b.append(3)`, what is `a`?'
+    options: ['[1, 2]', '[1, 2, 3]', 'an error']
+    answer: 1
+    explanation: b = a doesn't copy; both names point at the same list. Use a.copy() for a separate list.
+  - type: explain
+    md: |
+      A **list comprehension** builds a list in one line. These two do the same thing:
+
+      ```python
+      squares = []
+      for n in range(1, 6):
+          squares.append(n * n)
+
+      squares = [n * n for n in range(1, 6)]     # [1, 4, 9, 16, 25]
+      ```
+
+      Read it as "`n * n` **for** each `n` in the range". Add `if` at the end to filter:
+
+      ```python
+      evens = [n for n in range(10) if n % 2 == 0]          # [0, 2, 4, 6, 8]
+      shout = [w.upper() for w in ["hi", "there"]]          # ['HI', 'THERE']
+      ```
+
+      Use them for simple transform-or-filter jobs. If it gets hard to read, write the loop.
+  - type: try-it
+    prompt: Use a list comprehension to make `prices_with_tax`, each price multiplied by 1.2 and rounded to 2 decimals.
+    starter: |
+      prices = [10, 4.5, 20]
+      prices_with_tax = []
+    solution: |
+      prices = [10, 4.5, 20]
+      prices_with_tax = [round(p * 1.2, 2) for p in prices]
+    check: |
+      assert prices_with_tax == [12.0, 5.4, 24.0], f"prices_with_tax is {prices_with_tax}"
+      assert "for" in _source and "[" in _source.split("prices_with_tax =")[-1], "Use a list comprehension: [... for p in prices]"
+    hints:
+      - The shape is [expression for p in prices].
+      - prices_with_tax = [round(p * 1.2, 2) for p in prices]
+  - type: explain
+    md: |
+      A **tuple** is like a list that can't be changed, written with round brackets:
+      `point = (3, 4)`. Use tuples for things that belong together and stay fixed, like
+      coordinates or a (name, score) pair.
+
+      **Unpacking** pulls a tuple (or list) apart into separate variables:
+
+      ```python
+      point = (3, 4)
+      x, y = point                  # x is 3, y is 4
+      first, *rest = [1, 2, 3, 4]   # first is 1, rest is [2, 3, 4]
+      a, b = b, a                   # swap two variables
+      ```
+
+      Lists of tuples are a common way to keep records:
+      `people = [("Ana", 31), ("Ben", 27)]`.
+  - type: example
+    code: |
+      people = [("Ana", 31), ("Ben", 27), ("Cy", 45)]
+      for name, age in people:
+          print(name, "is", age)
+      ages = [age for name, age in people]
+      print("Oldest age:", max(ages))
+      first, *others = people
+      print("First:", first, "Others:", len(others))
+  - type: example
+    md: |
+      **Before the exercises:** reading values into a list in a loop, getting stats from
+      it, sorting a copy, pairing two lists with `zip`, and filtering with a
+      comprehension. You'll need these moves in the next four exercises.
+    code: |
+      laps = []
+      for lap_time in ("62", "58", "65"):   # pretend each was typed with input()
+          laps.append(int(lap_time))
+      print("Fastest:", min(laps), "Slowest:", max(laps))
+      print("Average:", round(sum(laps) / len(laps), 1))
+      print("Best two:", sorted(laps)[:2])
+
+      runners = ["Ana", "Ben", "Cy"]
+      for place, (runner, t) in enumerate(zip(runners, laps), start=1):
+          print(place, runner, t)
+      quick = [r for r, t in zip(runners, laps) if t < 63]
+      print("Under 63s:", quick)
   - type: exercise
     ref: ex01-shopping-list
   - type: exercise
     ref: ex02-score-stats
+  - type: exercise
+    ref: ex03-top-three
+  - type: exercise
+    ref: ex04-class-results
   - type: quiz
     question: 'If `nums = [10, 20, 30]`, what is `nums[-1]`?'
     options: ['10', '30', 'an error']
     answer: 1
     explanation: Negative positions count from the end, so -1 is the last item.
+  - type: quiz
+    question: 'What does `[n * 2 for n in [1, 2, 3] if n != 2]` give?'
+    options: ['[2, 4, 6]', '[2, 6]', '[1, 3]']
+    answer: 1
+    explanation: The if keeps 1 and 3; each is doubled.

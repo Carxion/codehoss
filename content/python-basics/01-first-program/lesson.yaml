@@ -1,5 +1,5 @@
 title: Your first program
-summary: Write code, run it, and make Python print messages.
+summary: Write code, run it, make Python print messages, do sums, and read your first error.
 steps:
   - type: explain
     md: |
@@ -44,10 +44,117 @@ steps:
     hints:
       - Write a new line of code underneath the first one.
       - 'print("Line two")'
+  - type: explain
+    md: |
+      Python is also a calculator. Without quotes, Python **works out** the sum and prints
+      the answer. With quotes, it prints the characters exactly as written:
+
+      ```python
+      print(2 + 3)     # 5
+      print("2 + 3")   # 2 + 3
+      ```
+
+      | Symbol | Meaning | Example | Result |
+      |---|---|---|---|
+      | `+` | add | `7 + 2` | `9` |
+      | `-` | subtract | `7 - 2` | `5` |
+      | `*` | multiply | `7 * 2` | `14` |
+      | `/` | divide | `7 / 2` | `3.5` |
+
+      Brackets work like in maths: `(2 + 3) * 4` is `20`, but `2 + 3 * 4` is `14`.
+  - type: example
+    md: Run it, then change the numbers and run it again.
+    code: |
+      print(60 * 60)
+      print("60 * 60")
+      print((10 + 20) / 2)
+  - type: try-it
+    prompt: Make the program print how many **hours are in a year** (365 days, 24 hours each). Let Python do the multiplying.
+    starter: |
+      print()
+    solution: |
+      print(365 * 24)
+    check: |
+      assert _output.strip() == "8760", f"Expected 8760, but the program printed {_output.strip()!r}"
+    hints:
+      - Put a sum inside the brackets, with no quotes, so Python calculates it.
+      - print(365 * 24)
+  - type: explain
+    md: |
+      `print` can show **several things at once**. Separate them with commas and Python
+      puts a space between each one. Text and numbers can be mixed this way:
+
+      ```python
+      print("Minutes in an hour:", 60)   # Minutes in an hour: 60
+      ```
+
+      Two optional settings change how things are joined:
+
+      - `sep="..."` sets what goes **between** the items (a space unless you say otherwise)
+      - `end="..."` sets what goes **after** the last item (a new line unless you say otherwise)
+  - type: example
+    code: |
+      print("Days in a week:", 7)
+      print("red", "green", "blue", sep=", ")
+      print("Loading", end="...")
+      print("done!")
+  - type: try-it
+    prompt: Use `sep` so this prints the date as `2026-11-11` (with dashes, no spaces).
+    starter: |
+      print("2026", "11", "11")
+    solution: |
+      print("2026", "11", "11", sep="-")
+    check: |
+      assert _output.strip() == "2026-11-11", f"Expected 2026-11-11, got {_output.strip()!r}"
+    hints:
+      - Add a fourth thing inside the brackets, after the last comma, that sets sep.
+      - 'print("2026", "11", "11", sep="-")'
+  - type: explain
+    md: |
+      **Mistakes are normal.** Every programmer sees error messages every day. When Python
+      can't understand a line, it stops and tells you **where** (the line number) and
+      **what** went wrong (the last line of the message).
+
+      The usual first-week mistakes:
+
+      | Mistake | What Python says |
+      |---|---|
+      | a missing quote: `print("Hi)` | `SyntaxError: unterminated string literal` |
+      | a missing bracket: `print("Hi"` | `SyntaxError: '(' was never closed` |
+      | a capital letter: `Print("Hi")` | `NameError: name 'Print' is not defined` |
+      | text without quotes: `print(Hi)` | `NameError: name 'Hi' is not defined` |
+
+      DataDojo explains each error in plain words under the output, so read it, fix the
+      line, and run again.
+  - type: example
+    md: This program has a mistake on purpose. Run it, read the explanation, then fix it.
+    code: |
+      print("This line is fine")
+      Print("This one has a capital P")
+  - type: quiz
+    question: 'Python says `NameError: name ''Hello'' is not defined` for the line `print(Hello)`. What is the fix?'
+    options:
+      - Put Hello in quotes, print("Hello"), because it is text
+      - Write PRINT in capitals
+      - Delete the brackets
+    answer: 0
+    explanation: Without quotes Python thinks Hello is the name of something it should already know. Quotes mark it as text.
+  - type: example
+    md: |
+      **Before the exercises:** this program prints a little banner. Notice that every line
+      of the picture needs its own `print`, and the spaces inside the quotes are printed
+      exactly as typed.
+    code: |
+      print("*************")
+      print("*  WELCOME  *")
+      print("*************")
+      print("Rooms:", 3, "Floors:", 2)
   - type: exercise
     ref: ex01-hello
   - type: exercise
     ref: ex02-greeting-card
+  - type: exercise
+    ref: ex03-time-facts
   - type: quiz
     question: Which line prints the word Hi?
     options:

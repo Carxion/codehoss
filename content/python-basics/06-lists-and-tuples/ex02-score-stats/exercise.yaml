@@ -18,3 +18,14 @@ hints:
   - Start with an empty list, scores = [], and append each score inside a for loop.
   - max(scores), min(scores) and sum(scores) / len(scores) do the maths.
   - 'print("Average:", round(sum(scores) / len(scores), 1))'
+guide:
+  - md: |
+      Reading a known number of values into a list with a for loop, then summarising it.
+      (The typed values are faked here so the example runs on its own.)
+    code: |
+      typed = ["21", "17", "25"]   # stands in for three input() calls
+      temps = []
+      for t in typed:
+          temps.append(int(t))
+      print("Warmest:", max(temps))
+      print("Mean:", round(sum(temps) / len(temps), 2))

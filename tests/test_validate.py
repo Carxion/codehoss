@@ -1,7 +1,7 @@
 from conftest import REPO, exercise_files, module_yaml
 
 from dojo.registry import load_content
-from dojo.validate import validate
+from dojo.validate import _generic, validate
 
 PASSING_TEST = "def test_x(run_program):\n    assert run_program().vars.get('x') == 1\n"
 LESSON = "title: Intro\nsteps:\n  - type: exercise\n    ref: ex01\n"
@@ -95,3 +95,51 @@ def test_duplicate_exercise_ids(make_content):
         }
     )
     assert any("is already used by" in m for _, m in _messages(root, run=False))
+
+
+def _with_guide(make_content, guide_yaml):
+    files = exercise_files(
+        "mod-a/01-intro/ex01",
+        "a.one",
+        "x = 0\n",
+        "total = 40 + 2\nhalf = total / 2\nprint(None)\nx = 1\n",
+        PASSING_TEST,
+    )
+    files["mod-a/01-intro/ex01/exercise.yaml"] += f"guide:\n{guide_yaml}"
+    return make_content(
+        {
+            "mod-a/module.yaml": module_yaml("mod-a"),
+            "mod-a/01-intro/lesson.yaml": LESSON,
+            **files,
+        }
+    )
+
+
+def test_a_guide_on_another_problem_is_fine(make_content):
+    root = _with_guide(make_content, "  - md: Add things up\n    code: 'price = 3 + 4'\n")
+    assert _messages(root) == []
+
+
+def test_a_guide_that_repeats_the_solution_is_a_warning(make_content):
+    root = _with_guide(make_content, "  - code: |\n      total = 40 + 2\n      print(total)\n")
+    assert ("warning", "repeats solution lines: total=40+2") in _messages(root, run=False)
+
+
+def test_generic_shared_lines_are_fine(make_content):
+    root = _with_guide(make_content, "  - code: |\n      print(None)\n      price = 3\n")
+    assert _messages(root, run=False) == []
+
+
+def test_generic_lines():
+    assert _generic("except ValueError as e:")
+    assert _generic("    return None  # nothing found")
+    assert _generic('if x in "aeiou":')
+    assert _generic("return json.load(f)")
+    assert not _generic("for row in csv.DictReader(f):")
+    assert not _generic("total = sum(prices)")
+    assert not _generic("if total > 0:")
+
+
+def test_a_guide_example_that_crashes_is_an_error(make_content):
+    root = _with_guide(make_content, "  - code: 'print(1 / 0)'\n")
+    assert any(level == "error" and m.startswith("example fails") for level, m in _messages(root))

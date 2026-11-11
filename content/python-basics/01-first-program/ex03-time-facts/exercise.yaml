@@ -1,0 +1,23 @@
+id: py.time-facts
+title: Time facts
+difficulty: 1
+prompt: |
+  Print three facts about time. Let Python **calculate** each number: write the sum,
+  not the answer (the checks look for that).
+
+  ```
+  Seconds in an hour: 3600
+  Minutes in a day: 1440
+  Hours in a week: 168
+  ```
+hints:
+  - 'Mix text and a sum with a comma: print("Seconds in an hour:", 60 * 60)'
+  - A day is 24 hours of 60 minutes each.
+  - 'print("Hours in a week:", 7 * 24)'
+guide:
+  - md: |
+      Text and a calculation in one `print`, separated by a comma. Python works out the
+      sum and adds the space for you.
+    code: |
+      print("Legs on 4 dogs:", 4 * 4)
+      print("Eggs in 3 dozen:", 3 * 12)

@@ -17,3 +17,21 @@ hints:
   - 'A list comprehension works well: [rng.randint(1, 6) for _ in range(count)]'
   - statistics.mean(rolls) gives the mean.
   - 'return {"min": min(rolls), "max": max(rolls), "mean": round(statistics.mean(rolls), 2)}'
+guide:
+  - md: |
+      Passing a `random.Random` object in, so the same seed gives the same "random"
+      results every time, which makes the function testable. Then a summary dictionary.
+    code: |
+      import random
+      import statistics
+
+      def deal(count, generator):
+          return [generator.choice("ABCDEFG") for _ in range(count)]
+
+      def describe(letters):
+          return {"first": min(letters), "last": max(letters), "unique": len(set(letters))}
+
+      hand = deal(5, random.Random(42))
+      print(hand, describe(hand))
+      print(deal(5, random.Random(42)) == hand)   # same seed, same hand
+      print(round(statistics.mean([2, 6, 3]), 2))

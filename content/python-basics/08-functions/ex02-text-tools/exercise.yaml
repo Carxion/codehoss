@@ -12,3 +12,22 @@ hints:
   - 'Loop over text.lower() and check: if letter in "aeiou"'
   - For palindromes, first make a cleaned version with text.lower().replace(" ", "")
   - 'A string reversed is cleaned[::-1]. Return cleaned == cleaned[::-1]'
+guide:
+  - md: A function that counts matching characters with a loop and returns the count.
+    code: |
+      def count_digits(text):
+          found = 0
+          for ch in text:
+              if ch in "0123456789":
+                  found += 1
+          return found
+
+      print(count_digits("Room 101, floor 3"))
+  - md: A function that cleans text first, then returns a True/False comparison.
+    code: |
+      def same_letters(a, b):
+          a = a.lower().replace(" ", "")
+          b = b.lower().replace(" ", "")
+          return sorted(a) == sorted(b)
+
+      print(same_letters("Dormitory", "dirty room"))

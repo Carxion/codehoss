@@ -1,0 +1,46 @@
+id: py.results-export
+title: Results export
+difficulty: 3
+prompt: |
+  A JSON file holds a list of students:
+
+  ```json
+  [{"name": "Ana", "score": 81}, {"name": "Ben", "score": 45}]
+  ```
+
+  Write `export_results(json_path, csv_path)` that reads it and writes a CSV file with a
+  header row and one row per student, adding a `result` column (`pass` for 50 or more,
+  otherwise `fail`). It returns how many students it wrote.
+
+  ```
+  name,score,result
+  Ana,81,pass
+  Ben,45,fail
+  ```
+hints:
+  - 'Read with json.load(f) inside with open(json_path, encoding="utf-8") as f:'
+  - 'Open the CSV with open(csv_path, "w", newline="", encoding="utf-8") and make writer = csv.writer(f).'
+  - 'writer.writerow(["name", "score", "result"]) first, then one writerow per student. Return len(students).'
+guide:
+  - md: |
+      Reading JSON records, deciding an extra value for each, and writing them out as CSV
+      rows under a header. Here products get a stock status.
+    code: |
+      import csv
+      import json
+
+      with open("stock.json", "w", encoding="utf-8") as f:
+          json.dump([{"item": "pen", "qty": 40}, {"item": "ink", "qty": 0}], f)
+
+      with open("stock.json", encoding="utf-8") as f:
+          products = json.load(f)
+
+      with open("stock.csv", "w", newline="", encoding="utf-8") as f:
+          out = csv.writer(f)
+          out.writerow(["item", "qty", "status"])
+          for p in products:
+              status = "in stock" if p["qty"] > 0 else "sold out"
+              out.writerow([p["item"], p["qty"], status])
+
+      with open("stock.csv", encoding="utf-8") as f:
+          print(f.read())

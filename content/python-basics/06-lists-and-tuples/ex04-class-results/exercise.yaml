@@ -1,0 +1,36 @@
+id: py.class-results
+title: Class results
+difficulty: 3
+prompt: |
+  Read a line of names and a line of scores (both separated by spaces). Print each
+  student's result (pass is **50 or more**), then the names of everyone who passed.
+
+  ```
+  Names: Ana Ben Cy
+  Scores: 81 45 67
+  Ana: 81 pass
+  Ben: 45 fail
+  Cy: 67 pass
+  Passed: Ana, Cy
+  ```
+hints:
+  - Split both lines, and turn the scores into ints with a comprehension.
+  - 'for name, score in zip(names, scores): walks through both lists together.'
+  - 'passed = [name for name, score in zip(names, scores) if score >= 50]'
+guide:
+  - md: |
+      Pairing two lists with `zip`, printing a line per pair, then filtering pairs with a
+      comprehension.
+    code: |
+      cities = "Oslo Cairo Lima".split()
+      temps = [int(t) for t in "4 31 19".split()]
+      for city, temp in zip(cities, temps):
+          feel = "warm" if temp >= 18 else "cold"
+          print(f"{city}: {temp} {feel}")
+      warm = [c for c, t in zip(cities, temps) if t >= 18]
+      print("Warm:", " & ".join(warm))
+  - md: '`value_if_true if condition else value_if_false` picks one of two values in a single line.'
+    code: |
+      n = 7
+      kind = "even" if n % 2 == 0 else "odd"
+      print(n, "is", kind)

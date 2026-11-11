@@ -1,0 +1,26 @@
+id: py.form-receipt
+title: Receipt from a form
+difficulty: 2
+prompt: |
+  An order form sends everything as **text**. Turn it into numbers and print a receipt.
+
+  1. Set `price` to `price_text` as a float and `quantity` to `quantity_text` as an int.
+  2. Set `total` to price times quantity, rounded to 2 decimal places.
+  3. Print:
+
+  ```
+  3 x 4.25 = 12.75
+  ```
+hints:
+  - float() reads decimal text; int() reads whole-number text.
+  - total = round(price * quantity, 2)
+  - 'print(quantity, "x", price, "=", total)'
+guide:
+  - md: Text from a form becomes numbers, then a calculated line is printed.
+    code: |
+      width_text = "2.5"
+      rooms_text = "4"
+      width = float(width_text)
+      rooms = int(rooms_text)
+      carpet = round(width * rooms, 2)
+      print(rooms, "rooms x", width, "m =", carpet, "m")

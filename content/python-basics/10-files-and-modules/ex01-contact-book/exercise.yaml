@@ -12,3 +12,29 @@ hints:
   - 'add_contact only needs one line: book[name] = phone'
   - 'with open(path, "w") as f: json.dump(book, f)'
   - Catch FileNotFoundError in load_contacts and return {}.
+guide:
+  - md: |
+      Saving a dictionary as JSON and loading it back, with a sensible default when the
+      file doesn't exist yet. Here it's a high-score table.
+    code: |
+      import json
+
+      def record(scores, player, points):
+          scores[player] = points
+
+      def store(scores, filename):
+          with open(filename, "w", encoding="utf-8") as f:
+              json.dump(scores, f)
+
+      def fetch(filename):
+          try:
+              with open(filename, encoding="utf-8") as f:
+                  return json.load(f)
+          except FileNotFoundError:
+              return {}
+
+      table = fetch("highscores.json")
+      print("Before:", table)
+      record(table, "kim", 420)
+      store(table, "highscores.json")
+      print("After:", fetch("highscores.json"))

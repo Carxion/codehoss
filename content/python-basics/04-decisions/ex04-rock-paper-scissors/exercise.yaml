@@ -1,0 +1,33 @@
+id: py.rock-paper-scissors
+title: Rock, paper, scissors
+difficulty: 3
+prompt: |
+  Two players type their moves. Print who wins. Moves may have odd capitals or spaces.
+
+  - rock beats scissors, scissors beats paper, paper beats rock
+  - the same move is a draw
+  - anything else prints `Invalid move`
+
+  ```
+  Player 1: Rock
+  Player 2: scissors
+  Player 1 wins
+  ```
+hints:
+  - Clean both moves with .strip().lower() first.
+  - 'Check for invalid moves first: if p1 not in ("rock", "paper", "scissors") or ...'
+  - 'Player 1 wins if (p1 == "rock" and p2 == "scissors") or (p1 == "scissors" and p2 == "paper") or ...'
+guide:
+  - md: |
+      Validating input before using it, then checking pairs of values. Here two lights on
+      a panel give a status.
+    code: |
+      left = " GREEN".strip().lower()
+      right = "red ".strip().lower()
+
+      if left not in ("green", "red") or right not in ("green", "red"):
+          print("Unknown colour")
+      elif left == right:
+          print("Steady")
+      elif (left == "green" and right == "red") or (left == "red" and right == "green"):
+          print("Mixed signals")

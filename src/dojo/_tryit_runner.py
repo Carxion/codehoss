@@ -19,4 +19,5 @@ buffer = io.StringIO()
 with contextlib.redirect_stdout(buffer):
     exec(compile(code, "main.py", "exec"), namespace)
 namespace["_output"] = buffer.getvalue()
+namespace["_source"] = code
 exec(compile(check, "check", "exec"), namespace)

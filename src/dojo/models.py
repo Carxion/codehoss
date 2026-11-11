@@ -89,7 +89,7 @@ class TryItStep(_Strict):
     """A small typed step, checked instantly.
 
     `check` runs after the learner's code in the same namespace; printed output
-    is available to it as `_output`.
+    is available to it as `_output` and the learner's code as `_source`.
     """
 
     type: Literal["try-it"]
@@ -180,6 +180,14 @@ class Lesson(_Strict):
 # --- exercise.yaml ---------------------------------------------------------
 
 
+class GuideExample(_Strict):
+    """A worked example shown beside an exercise: the technique it needs, applied to a
+    different problem. The validator runs `code` and warns if it repeats solution lines."""
+
+    md: str = ""
+    code: str
+
+
 class Exercise(_Strict):
     id: str = Field(pattern=EXERCISE_ID)
     title: str
@@ -187,3 +195,4 @@ class Exercise(_Strict):
     difficulty: int = Field(ge=1, le=5)
     time_limit_s: float = Field(default=5, gt=0)
     hints: list[str] = Field(min_length=1)
+    guide: list[GuideExample] = []

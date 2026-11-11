@@ -1,14 +1,39 @@
 title: Loops
-summary: Repeat code with for and while loops.
+summary: Repeat code with for and while, count and total things up, and stop exactly when you mean to.
 steps:
   - type: explain
     md: |
       A **for loop** repeats code once for every item in a sequence. `range(1, 6)` gives
       the numbers 1, 2, 3, 4, 5. It stops *before* the second number.
+
+      The indented lines are the **body**: they run once per number, and the loop
+      variable (`number` below) holds the current one each time round.
   - type: example
     code: |
       for number in range(1, 6):
           print(number, "squared is", number * number)
+      print("The loop is over")
+  - type: explain
+    md: |
+      `range` has three forms:
+
+      | Code | Gives |
+      |---|---|
+      | `range(5)` | 0, 1, 2, 3, 4 (starts at 0) |
+      | `range(2, 6)` | 2, 3, 4, 5 |
+      | `range(0, 20, 5)` | 0, 5, 10, 15 (a step of 5) |
+      | `range(10, 0, -2)` | 10, 8, 6, 4, 2 (counting down) |
+
+      A `for` loop also works straight on a **string**, one character at a time:
+      `for letter in "hey":` runs three times.
+  - type: example
+    code: |
+      for n in range(0, 20, 5):
+          print("step", n)
+      for n in range(3, 0, -1):
+          print("countdown", n)
+      for letter in "hey":
+          print(letter.upper())
   - type: try-it
     prompt: Use a for loop to add up the numbers 1 to 10 into `total`.
     starter: |
@@ -25,8 +50,51 @@ steps:
       - "for n in range(1, 11): and inside the loop, total = total + n"
   - type: explain
     md: |
+      That was the **accumulator pattern**, the most common loop of all. Set up a
+      variable **before** the loop, update it **inside**, use it **after**:
+
+      | Goal | Before the loop | Inside the loop |
+      |---|---|---|
+      | a total | `total = 0` | `total += n` |
+      | a count | `count = 0` | `if ...: count += 1` |
+      | the biggest | `biggest = first value` | `if n > biggest: biggest = n` |
+      | build text | `text = ""` | `text += piece` |
+  - type: example
+    code: |
+      sentence = "loops are lovely"
+      vowels = 0
+      shouted = ""
+      for ch in sentence:
+          if ch in "aeiou":
+              vowels += 1
+          shouted += ch.upper()
+      print("Vowels:", vowels)
+      print(shouted)
+  - type: try-it
+    prompt: 'Count how many times the letter `s` appears in `word` using a loop (store it in `count`).'
+    starter: |
+      word = "mississippi"
+      count = 0
+    solution: |
+      word = "mississippi"
+      count = 0
+      for ch in word:
+          if ch == "s":
+              count += 1
+    check: |
+      assert count == 4, f"count is {count}, expected 4"
+      assert "for" in _source, "Use a for loop (not .count) to practise the pattern"
+    hints:
+      - Loop over the word one character at a time, and add 1 when it's an s.
+      - "for ch in word: then if ch == \"s\": count += 1"
+  - type: explain
+    md: |
       A **while loop** repeats as long as its condition stays `True`. Make sure something
-      inside the loop changes, or it will run forever! `break` exits a loop immediately.
+      inside the loop changes, or it will run forever! (DataDojo stops runaway programs
+      after a few seconds.)
+
+      Use `for` when you know how many times to repeat, and `while` when you repeat
+      *until something happens*.
   - type: example
     code: |
       count = 3
@@ -49,10 +117,108 @@ steps:
     hints:
       - "while count > 0: then print count and subtract 1 inside the loop."
       - Print Liftoff! after the loop, without indenting it.
+  - type: explain
+    md: |
+      Two words change a loop's flow:
+
+      - **`break`** leaves the loop immediately.
+      - **`continue`** skips the rest of this round and moves on to the next one.
+
+      `while True:` plus `break` is the classic way to **keep asking until the answer is
+      good**:
+
+      ```python
+      while True:
+          answer = input("Pick 1-3: ")
+          if answer in ("1", "2", "3"):
+              break
+          print("Try again")
+      ```
+  - type: example
+    code: |
+      for n in range(1, 10):
+          if n % 2 == 0:
+              continue          # skip even numbers
+          if n > 7:
+              break             # stop altogether after 7
+          print(n)
+  - type: try-it
+    prompt: 'Loop over `numbers` and set `first_negative` to the first number below zero, then stop the loop with `break`.'
+    starter: |
+      numbers = range(5, -5, -3)
+      first_negative = None
+    solution: |
+      numbers = range(5, -5, -3)
+      first_negative = None
+      for n in numbers:
+          if n < 0:
+              first_negative = n
+              break
+    check: |
+      assert first_negative == -1, f"first_negative is {first_negative}, expected -1 (5, 2, -1, ...)"
+      assert "break" in _source, "Stop the loop with break once you've found it"
+    hints:
+      - Check each number with if n < 0 inside the loop.
+      - "Inside the if: first_negative = n, then break"
+  - type: explain
+    md: |
+      **`enumerate`** gives you a counter alongside each item, so you don't have to keep
+      one yourself:
+
+      ```python
+      for position, letter in enumerate("abc", start=1):
+          print(position, letter)     # 1 a, 2 b, 3 c
+      ```
+
+      **Nested loops** put one loop inside another. The inner loop runs completely for
+      every round of the outer one, handy for grids and tables.
+  - type: example
+    code: |
+      for row in range(1, 4):
+          line = ""
+          for col in range(1, 4):
+              line += f"{row * col:4}"
+          print(line)
+      for i, ch in enumerate("dojo", start=1):
+          print(i, ch)
+  - type: quiz
+    question: 'How many times does `print` run in `for a in range(3):` with `for b in range(4): print(a, b)` inside it?'
+    options: ['7', '12', '4']
+    answer: 1
+    explanation: The inner loop runs 4 times for each of the 3 outer rounds, so 3 x 4 = 12.
+  - type: example
+    md: |
+      **Before the exercises:** a `while True` loop that keeps a counter, gives feedback
+      each round and breaks out on success, then a `for` loop that decides what to
+      print for each number. The exercises use both shapes.
+    code: |
+      target = 50
+      tries = 0
+      for guess in (20, 70, 50, 10):
+          tries += 1
+          if guess < target:
+              print(guess, "is too small")
+          elif guess > target:
+              print(guess, "is too big")
+          else:
+              print("Found it in", tries, "tries")
+              break
+
+      for n in range(1, 8):
+          if n % 7 == 0:
+              print("Week!")
+          elif n % 2 == 0:
+              print(n, "even")
+          else:
+              print(n)
   - type: exercise
     ref: ex01-guessing-game
   - type: exercise
     ref: ex02-fizzbuzz
+  - type: exercise
+    ref: ex03-times-table
+  - type: exercise
+    ref: ex04-pin-check
   - type: quiz
     question: Which numbers does range(1, 5) give?
     options:
@@ -61,3 +227,10 @@ steps:
       - '0, 1, 2, 3, 4'
     answer: 1
     explanation: range stops just before the second number.
+  - type: quiz
+    question: What does `continue` do inside a loop?
+    options:
+      - Ends the loop completely
+      - Skips the rest of this round and goes on to the next one
+      - Restarts the loop from the beginning
+    answer: 1

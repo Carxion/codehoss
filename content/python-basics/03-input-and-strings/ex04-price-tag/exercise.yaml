@@ -1,0 +1,27 @@
+id: py.price-tag
+title: Price tag
+difficulty: 2
+prompt: |
+  Ask for an item, its price and a quantity, then print a neat tag. Money always shows
+  **two decimals**, and the total has **thousands separators**.
+
+  ```
+  Item: laptop
+  Price: 1249.5
+  Quantity: 3
+  LAPTOP
+  Price: $1249.50
+  Total: $3,748.50
+  ```
+hints:
+  - Convert the price with float() and the quantity with int().
+  - ':.2f gives two decimals. :,.2f gives separators and two decimals.'
+  - 'print(f"Total: ${total:,.2f}")'
+guide:
+  - md: Format specs on other numbers. `,` and `.2f` can be combined, comma first.
+    code: |
+      salary = 52000
+      bonus = 1234.5
+      print(f"Salary: ${salary:,}")
+      print(f"Bonus: ${bonus:.2f}")
+      print(f"Both: ${salary + bonus:,.2f}")

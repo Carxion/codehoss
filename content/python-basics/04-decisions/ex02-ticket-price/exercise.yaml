@@ -22,3 +22,22 @@ hints:
   - Work out the normal price first with if/elif/else, then apply the Tuesday discount.
   - 'The discount needs two conditions at once: if tuesday == "yes" and price > 0:'
   - price = price - 2
+guide:
+  - md: |
+      Two separate decisions: first pick a base value from a table, then adjust it only
+      when two things are both true.
+    code: |
+      weight = 3
+      express = "yes"
+
+      if weight < 1:
+          postage = 2
+      elif weight < 5:
+          postage = 6
+      else:
+          postage = 15
+
+      if express == "yes" and weight < 5:
+          postage = postage + 4
+
+      print("Postage:", postage)

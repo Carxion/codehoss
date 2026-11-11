@@ -21,3 +21,22 @@ hints:
   - 'csv.DictReader(f) gives each row as a dictionary like {"item": "tea", "amount": "3.50"}.'
   - Amounts are text in the file. Convert them with float(row["amount"]).
   - 'For best_seller, add up totals per item in a dictionary, then use max(totals, key=totals.get)'
+guide:
+  - md: |
+      Reading a CSV with `DictReader`, converting text to numbers, and adding up totals
+      per group in a dictionary. Here it's hours worked per person.
+    code: |
+      import csv
+      from pathlib import Path
+
+      Path("hours.csv").write_text("person,hours\nana,7.5\nben,6\nana,8\n", encoding="utf-8")
+
+      per_person = {}
+      grand = 0.0
+      with open("hours.csv", newline="", encoding="utf-8") as f:
+          for entry in csv.DictReader(f):
+              hours = float(entry["hours"])
+              grand += hours
+              per_person[entry["person"]] = per_person.get(entry["person"], 0) + hours
+      print("All hours:", grand)
+      print("Most hours:", max(per_person, key=per_person.get))

@@ -6,7 +6,11 @@ the reference solution must pass, and the starter must not.
 
 from __future__ import annotations
 
+import builtins
+import keyword
 import os
+import re
+import sys
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from importlib import metadata
@@ -16,6 +20,7 @@ from dojo.executors import DockerSession, Executor
 from dojo.grader import LOCAL, grade, grade_lab, run_snippet
 from dojo.models import ExerciseStep, TryItStep
 from dojo.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, Problem
+from dojo.tutor import LeakGuard, _norm
 
 # Sandboxes share one container per module, whose pids limit caps parallelism.
 SANDBOX_WORKERS = 4
@@ -42,6 +47,8 @@ def validate(
             )
         for lesson in module.lessons:
             problems += _check_exercise_refs(module, lesson)
+    for ex in content.exercises():
+        problems += _check_guide_overlap(ex)
     if run:
         problems += _check_execution(content, executors)
     return problems
@@ -122,6 +129,52 @@ def _check_exercise_refs(module: LoadedModule, lesson: LoadedLesson) -> list[Pro
     return problems
 
 
+def _check_guide_overlap(ex: LoadedExercise) -> list[Problem]:
+    """A guide shows the technique on another problem; it mustn't hand over the answer.
+    Generic lines (`return None`, `except ValueError as e:`) are the technique itself, so
+    only lines that name something of the solution's own count."""
+    if not ex.spec.guide or ex.is_lab or not ex.solution_path.exists():
+        return []
+    starter = ex.starter_path.read_text(encoding="utf-8") if ex.starter_path.exists() else ""
+    secret = LeakGuard(ex.solution_path.read_text(encoding="utf-8"), allowed=starter).secret
+    problems = []
+    for i, example in enumerate(ex.spec.guide):
+        shared = sorted(
+            {
+                n
+                for line in example.code.splitlines()
+                if (n := _norm(line)) in secret and not _generic(line)
+            }
+        )
+        if shared:
+            problems.append(
+                Problem(
+                    "warning",
+                    f"{_where(ex)} [guide.{i}]",
+                    f"repeats solution lines: {', '.join(shared[:3])}",
+                )
+            )
+    return problems
+
+
+_GENERIC_NAMES = frozenset(keyword.kwlist) | frozenset(dir(builtins))
+
+
+def _generic(line: str) -> bool:
+    """Decorators, or only keywords, built-ins, standard-library calls (`json.load`) and
+    one-letter names: shape, not substance."""
+    if line.lstrip().startswith("@"):
+        return True
+    code = re.sub(r"(['\"]).*?\1", "", line.split("#", 1)[0])
+    code = re.sub(
+        r"\b([A-Za-z_]\w*)(\.\w+)+",
+        lambda m: "" if m.group(1) in sys.stdlib_module_names else m.group(0),
+        code,
+    )
+    names = re.findall(r"[A-Za-z_]\w*", code)
+    return all(name in _GENERIC_NAMES or len(name) == 1 for name in names)
+
+
 def _check_execution(content: Content, executors: dict[str, Executor] | None) -> list[Problem]:
     jobs: list[Callable[[], list[Problem]]] = []
     for module in content.modules.values():
@@ -139,6 +192,10 @@ def _check_execution(content: Content, executors: dict[str, Executor] | None) ->
             for ex in lesson.exercises.values():
                 if all(p.exists() for p in ex.required_files) and not ex.is_lab:
                     jobs.append(lambda e=ex, x=executor: _run_exercise(e, x))
+                for g, example in enumerate(ex.spec.guide):
+                    jobs.append(
+                        lambda e=ex, g=g, c=example.code, x=executor: _run_guide(e, g, c, x)
+                    )
         # Lab exercises share the session's Docker engine, so they run one at a time.
         labs = [
             ex
@@ -163,6 +220,13 @@ def _run_try_it(
     if run_snippet(step.starter, step.check, executor=executor, language=language).passed:
         problems.append(Problem("error", where, "starter already passes the check"))
     return problems
+
+
+def _run_guide(ex: LoadedExercise, index: int, code: str, executor: Executor) -> list[Problem]:
+    ran = run_snippet(code, "", executor=executor, language=ex.language)
+    if ran.passed:
+        return []
+    return [Problem("error", f"{_where(ex)} [guide.{index}]", f"example fails: {ran.message}")]
 
 
 def _run_exercise(ex: LoadedExercise, executor: Executor) -> list[Problem]:

@@ -81,6 +81,7 @@ class TutorContext:
     hints: list[str] = field(default_factory=list)
     solution: str = ""  # never shown to the learner; LeakGuard checks replies against it
     starter: str = ""
+    guide: str = ""  # worked examples the learner can see; quoting them is fine
 
 
 def context_for(
@@ -109,6 +110,7 @@ def context_for(
         exercise = lesson.exercises[step.ref]
         ctx.task = f"Exercise: {exercise.spec.title}\n{exercise.spec.prompt}"
         ctx.hints = exercise.spec.hints
+        ctx.guide = "\n\n".join(f"{g.md}\n```\n{g.code}\n```".strip() for g in exercise.spec.guide)
         ctx.visible_tests = exercise.visible_tests.read_text(encoding="utf-8")
         if exercise.is_lab:
             # Labs are files plus commands typed in a terminal.
@@ -181,6 +183,12 @@ def system_prompt(ctx: TutorContext) -> str:
     if ctx.visible_tests:
         parts.append(
             f"<tests_the_learner_can_see>\n{ctx.visible_tests}\n</tests_the_learner_can_see>"
+        )
+    if ctx.guide:
+        parts.append(
+            "<worked_examples_the_learner_can_see>\nThe same techniques on other problems. "
+            "Point the learner back to them when they help.\n"
+            f"{ctx.guide}\n</worked_examples_the_learner_can_see>"
         )
     if ctx.hints:
         ladder = "\n".join(f"{i}. {h}" for i, h in enumerate(ctx.hints, 1))

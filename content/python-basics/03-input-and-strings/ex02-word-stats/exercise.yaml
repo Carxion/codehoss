@@ -14,3 +14,10 @@ hints:
   - .upper() makes a string uppercase.
   - word[::-1] reverses a string.
   - 'print(f"Reversed: {word[::-1]}")'
+guide:
+  - md: Facts about a different string, using a method, a slice and len inside f-strings.
+    code: |
+      animal = "giraffe"
+      print(f"Letters: {len(animal)}")
+      print(f"Lower: {animal.lower()}")
+      print(f"First three: {animal[:3]}")

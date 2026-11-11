@@ -1,0 +1,27 @@
+id: py.initials
+title: Initials and username
+difficulty: 2
+prompt: |
+  Ask for a first and last name typed on **one line**, then print the initials and a
+  username (lowercase, joined with a dot).
+
+  ```
+  Full name: ada lovelace
+  Initials: A.L.
+  Username: ada.lovelace
+  ```
+
+  Names may arrive with extra spaces or odd capitals, like `  GRACE   hopper `.
+hints:
+  - name.split() splits on any run of spaces and ignores spaces at the ends.
+  - 'first, last = name.split() puts the two words in two variables. first[0] is the first letter.'
+  - 'Username: ".".join([first, last]).lower(), or f"{first}.{last}".lower()'
+guide:
+  - md: |
+      Splitting a line into two parts, taking the first character of each, and joining
+      them back with different glue.
+    code: |
+      pair = "  salt   PEPPER "
+      left, right = pair.split()
+      print(f"Letters: {left[0].upper()}{right[0].upper()}")
+      print("Joined:", "&".join([left, right]).lower())

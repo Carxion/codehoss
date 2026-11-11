@@ -338,13 +338,74 @@ Ollama. Tested by installing into k3s v1.37. M8 is complete.
 - Module authoring tool (live preview + validation) so new modules are easy to add
 - Helm chart for self-hosting
 
-## M9–M12 — More languages, building real projects
-Each language gets a **Basics** module that maps the Programming Basics concepts onto its
-syntax (so learners who did Programming Basics move fast), then a set of **Projects** in
-that language at Guided / Assisted / Solo level, collected in the portfolio. Order is by
-demand and cost (image size, tooling).
+## M9–M11 — The Python track, in depth
+Python is the language every later course leans on, so it gets a full path before any new
+language: deeper basics, then intermediate features, then what people actually build with it.
 
-### M9 — Multi-language platform + JavaScript
+### M9 — Python Basics, deepened ✅ (2026-11-11)
+Shipped: all 12 lessons rewritten at 20–28 steps each (from 6–10), 47 exercises (from 24),
+every exercise with a worked-example `guide`, and an example step before each lesson's
+exercises. New exercises include a mutation-tested "write the tests" exercise (your tests
+must catch five broken versions) and a test-first `slugify`. Try-it checks can read the
+learner's code (`_source`); examples run pytest on themselves to show real reports.
+`scripts/remap_progress.py` moves saved progress when lessons gain or reorder steps.
+Verified: every example run in the sandbox (79), `dojo validate` clean in the sandbox.
+
+Every lesson grows from 6–10 steps to roughly 15–20, with 3–4 exercises instead of 2, and
+covers what was skipped the first time:
+- numbers (`/`, `//`, `%`, `**`, float surprises, rounding), `None`, truthiness, conversions
+- strings: `split`/`join`, `strip`, `replace`, `find`, format specs (`{x:.2f}`, `{n:,}`),
+  escapes, multi-line strings, immutability
+- decisions: `and`/`or`/`not`, `elif` chains, `in`, chained comparisons, `match`
+- loops: `range` in depth, `break`/`continue`, `enumerate`, `zip`, nested loops, accumulators
+- lists: aliasing vs copies, `sorted(key=...)`, list comprehensions, unpacking
+- dicts and sets: `.get`, `.items()`, nested (JSON-shaped) data, comprehensions, set
+  operations, `Counter`/`defaultdict`
+- functions: scope, keyword arguments, `*args`/`**kwargs`, functions as values, `lambda`,
+  docstrings, type hints, the mutable-default trap, a first look at recursion
+- errors: common exception types, `try`/`except`/`else`/`finally`, `raise`, custom
+  exceptions, a debugging routine
+- files: `with`, `pathlib`, JSON, your own modules, `if __name__ == "__main__"`
+- classes: `__str__`/`__repr__`, class vs instance attributes, inheritance, `@property`,
+  `@dataclass`, when a class beats a dict
+- testing: parametrized tests, fixtures, testing for exceptions; venvs and packages explained
+
+**More hand-holding in exercises:** an exercise can carry a `guide`: worked examples of the
+patterns it needs, on a *different* problem, shown beside the prompt while the learner
+codes. Lessons also put an example step right before each exercise that demonstrates the
+technique. The validator runs every guide example and warns if one gives away solution lines.
+
+### M10 — Python Intermediate
+Comprehensions in depth, iterators and generators, decorators, context managers, typing and
+dataclasses, regular expressions, `pathlib` + `argparse` command-line tools, logging,
+concurrency (threads, processes, `asyncio`), packaging a project.
+
+### M11 — Python in Practice
+Applied lessons, each ending in a portfolio project:
+- **Automation and scripting**: organising files, batch jobs, scheduled tasks
+- **Text processing**: log parsing and data extraction with regex
+- **Web scraping**: BeautifulSoup on saved pages (sandboxes have no internet)
+- **Working with APIs**: HTTP, JSON, status codes, pagination, retries against a local mock
+- **Databases**: `sqlite3`, then SQLAlchemy; CRUD and parameterised queries (SQL injection)
+- **Web backends**: Flask/FastAPI routes, templates, a REST API; needs a **preview pane**
+  (built here, reused by JavaScript)
+- **Office automation**: Excel with openpyxl, PDF reports, batch image edits with Pillow
+- **Security basics**: password hashing, `secrets`, input validation
+
+Projects: file organiser CLI, scraper into SQLite, FastAPI to-do API, Excel report generator.
+New image `dojo-python-apps` (~150–250 MB extra).
+
+## M12–M15 — More languages, building real projects
+Each language follows the same path as Python:
+1. **Basics**: maps the Programming Basics concepts onto its syntax (so learners who did
+   Programming Basics move fast), with worked-example guides on every exercise.
+2. **Intermediate**: the language's idioms and the features real code relies on.
+3. **Applications**: what the language is actually used for, hands-on.
+4. **Projects**: Guided / Assisted / Solo, collected in the portfolio.
+
+Order is by demand and cost (image size, tooling).
+
+### M12 — Multi-language platform + JavaScript
 Platform (done once, used by every later language):
 - `language` grows beyond `python`/`pseudo`: each language declares a sandbox image, a run
   command (plus a compile step where needed), a Monaco mode and a language server.
@@ -355,29 +416,40 @@ Platform (done once, used by every later language):
 - Step-through for real languages where a debugger protocol makes it cheap (Node inspector,
   Python's `sys.settrace`), reusing the pseudocode trace view.
 
-JavaScript Basics (image `dojo-node`, Node 22, `typescript-language-server`): values and
-`let`/`const`, strings and template literals, decisions and loops, arrays and objects,
-functions and arrow functions, callbacks, modules, errors, classes, async/`await`, testing.
-Projects: command-line to-do list (JSON file), quiz game, a web page with live preview
-(needs a preview pane), a small REST API (local only, no internet).
+JavaScript (image `dojo-node`, Node 22, `typescript-language-server`):
+- Basics: values and `let`/`const`, strings and template literals, decisions and loops,
+  arrays and objects, functions and arrow functions, errors, classes, testing.
+- Intermediate: callbacks and closures, modules, destructuring/spread, iterators,
+  promises and async/`await`, TypeScript basics.
+- Applications: the DOM and events in the preview pane, fetch against a local mock API,
+  a Node HTTP server, Express.
+- Projects: command-line to-do list (JSON file), quiz game, a web page with live preview,
+  a small REST API (local only, no internet).
 
-### M10 — R
-R Basics (image `dojo-r`, `r-base` plus tidyverse, `languageserver`, notebook view through
-IRkernel): vectors (1-based!), data frames, functions, apply and the pipe, factors, dplyr,
-ggplot2, simple statistics and models. Projects: survey analysis report, A/B test analysis,
-a reproducible notebook report exported to HTML.
+### M13 — R
+R (image `dojo-r`, `r-base` plus tidyverse, `languageserver`, notebook view through IRkernel):
+- Basics: vectors (1-based!), data frames, functions, factors, control flow.
+- Intermediate: apply family and the pipe, dplyr and tidyr, writing functions for data.
+- Applications: ggplot2, statistics and models, R Markdown-style reports.
+- Projects: survey analysis report, A/B test analysis, a reproducible notebook report
+  exported to HTML.
 
-### M11 — C++
-C++ Basics (image `dojo-cpp`, gcc and `clangd`): compiling and the compile-run cycle (with a
-compiler-error explainer), types, control flow, functions, `std::vector` and `std::string`,
-references and pointers, memory and RAII, classes, the STL and algorithms, a first look at
-performance. Projects: text adventure, bank account simulator, a speed race against the
-Python versions of the DSA exercises.
+### M14 — C++
+C++ (image `dojo-cpp`, gcc and `clangd`):
+- Basics: the compile-run cycle (with a compiler-error explainer), types, control flow,
+  functions, `std::vector` and `std::string`.
+- Intermediate: references and pointers, memory and RAII, classes, the STL and algorithms,
+  templates.
+- Applications: performance and profiling, CMake projects, file and binary I/O.
+- Projects: text adventure, bank account simulator, a speed race against the Python
+  versions of the DSA exercises.
 
-### M12 — C#
-C# Basics (image `dojo-dotnet`, .NET SDK, `csharp-ls`): types, control flow, methods,
-`List`/`Dictionary`, classes and interfaces, LINQ, exceptions, async, unit tests with xUnit.
-Projects: inventory manager, console game, a small web API with ASP.NET Core minimal APIs.
+### M15 — C#
+C# (image `dojo-dotnet`, .NET SDK, `csharp-ls`):
+- Basics: types, control flow, methods, `List`/`Dictionary`, classes.
+- Intermediate: interfaces and generics, LINQ, exceptions, async, unit tests with xUnit.
+- Applications: ASP.NET Core minimal APIs, Entity Framework with SQLite, console tools.
+- Projects: inventory manager, console game, a small web API.
 The .NET SDK image is large (~800 MB); see the disk budget.
 
 ## Later / maybe

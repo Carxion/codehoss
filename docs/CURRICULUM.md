@@ -293,3 +293,27 @@ steps:
     options: [first item, last item, an error]
     answer: 1
 ```
+
+`exercise.yaml`:
+
+```yaml
+id: py.shopping-list           # unique across all modules
+title: Shopping list
+difficulty: 2                  # 1-5 stars
+prompt: |
+  Build `basket`, a list with three items, then add "milk" to the end.
+hints:                         # from gentle to specific; "show me" comes after the last
+  - Lists are written with square brackets.
+  - basket.append("milk")
+guide:                         # optional worked examples shown beside the prompt
+  - md: Making a list and adding to it, with **colours** instead of groceries.
+    code: |
+      colours = ["red", "green"]
+      colours.append("blue")
+      print(colours)
+```
+
+A `guide` shows the technique on a *different* problem, so a learner who is stuck can see
+working code without being handed the answer. Lessons also put an `example` step right
+before each exercise that demonstrates what it needs. `dojo validate` runs every guide
+example and warns when one repeats lines from the solution.

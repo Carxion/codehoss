@@ -13,3 +13,11 @@ hints:
   - The bottom line is the same as the top line.
   - The middle line has two spaces on each side of the message.
   - 'print("|  Happy coding!  |")'
+guide:
+  - md: |
+      A box around a different word. The top and bottom lines are the same, and the
+      middle line counts its spaces so the sides line up.
+    code: |
+      print("+--------+")
+      print("|  Hi!   |")
+      print("+--------+")

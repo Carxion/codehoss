@@ -1,5 +1,5 @@
 title: Input and strings
-summary: Ask the user questions and work with text.
+summary: Ask the user questions, then slice, search, split, join and format text.
 steps:
   - type: explain
     md: |
@@ -12,6 +12,23 @@ steps:
       print("Hello", name)
   - type: explain
     md: |
+      Because `input()` always gives text, convert it before doing maths. Wrapping one
+      call inside another is the usual way:
+
+      ```python
+      age = int(input("Age: "))      # read text, turn it into a whole number
+      height = float(input("Height in m: "))
+      ```
+
+      Forget the `int()` and `"5" + "5"` gives `"55"`: `+` joins strings instead of adding.
+  - type: example
+    code: |
+      a = input("First number: ")
+      b = input("Second number: ")
+      print("As text:", a + b)
+      print("As numbers:", int(a) + int(b))
+  - type: explain
+    md: |
       An **f-string** lets you put variables inside text. Put `f` before the quotes and
       wrap each variable in `{ }`:
 
@@ -19,6 +36,8 @@ steps:
       name = "Sam"
       print(f"Hello, {name}!")   # Hello, Sam!
       ```
+
+      Anything can go in the braces, even a calculation: `f"{2 * 21}"` is `"42"`.
   - type: try-it
     prompt: Use an f-string so `message` becomes `Hello, Sam!`
     starter: |
@@ -34,22 +53,71 @@ steps:
       - 'message = f"Hello, {name}!"'
   - type: explain
     md: |
-      Strings come with built-in **methods**, tools you call with a dot:
+      **Format specs** control how a value looks. Add `:` and a spec inside the braces:
+
+      | Code | Result | Meaning |
+      |---|---|---|
+      | `f"{3.14159:.2f}"` | `3.14` | 2 decimal places |
+      | `f"{1234567:,}"` | `1,234,567` | thousands separators |
+      | `f"{0.256:.1%}"` | `25.6%` | as a percentage |
+      | `f"{'hi':>6}"` | `    hi` | right-aligned in 6 spaces |
+      | `f"{'hi':<6}\|"` | `hi    \|` | left-aligned in 6 spaces |
+      | `f"{7:03}"` | `007` | padded with zeros |
+
+      Unlike `round()`, `.2f` always shows both decimals: `f"{2.5:.2f}"` is `2.50`, which is
+      what you want for money.
+  - type: example
+    code: |
+      price = 2.5
+      visitors = 1048576
+      share = 0.4321
+      print(f"Price: ${price:.2f}")
+      print(f"Visitors: {visitors:,}")
+      print(f"Share: {share:.1%}")
+      print(f"{'Item':<8}{'Cost':>6}")
+      print(f"{'Tea':<8}{3.5:>6.2f}")
+  - type: try-it
+    prompt: 'Set `label` to the price shown with exactly two decimals, like `Total: $7.50`.'
+    starter: |
+      total = 7.5
+      label = f"Total: ${total}"
+    solution: |
+      total = 7.5
+      label = f"Total: ${total:.2f}"
+    check: |
+      assert label == "Total: $7.50", f"label is {label!r}, expected 'Total: $7.50'"
+    hints:
+      - Put :.2f after total, inside the braces.
+      - 'label = f"Total: ${total:.2f}"'
+  - type: explain
+    md: |
+      Each character in a string has a **position**, counted from **0**. Negative
+      positions count from the end:
+
+      ```
+       P   y   t   h   o   n
+       0   1   2   3   4   5
+      -6  -5  -4  -3  -2  -1
+      ```
+
+      `word[0]` is the first character, `word[-1]` the last. A **slice** takes a piece:
+      `word[start:end]` goes up to *but not including* `end`.
 
       | Code | Result |
       |---|---|
-      | `"  hi  ".strip()` | `"hi"` (removes spaces at both ends) |
-      | `"hi".upper()` | `"HI"` |
-      | `"ada lovelace".title()` | `"Ada Lovelace"` |
-      | `len("python")` | `6` |
-
-      You can also **slice** a string: `"python"[:3]` is `"pyt"`, the first three
-      characters, and `"python"[::-1]` is the string reversed.
+      | `"python"[0]` | `"p"` |
+      | `"python"[-1]` | `"n"` |
+      | `"python"[1:4]` | `"yth"` |
+      | `"python"[:3]` | `"pyt"` (from the start) |
+      | `"python"[3:]` | `"hon"` (to the end) |
+      | `"python"[::-1]` | `"nohtyp"` (reversed) |
   - type: example
     code: |
-      word = "  Python  "
-      clean = word.strip()
-      print(clean.upper(), len(clean), clean[:3], clean[::-1])
+      word = "Python"
+      print(word[0], word[-1])
+      print(word[1:4], word[:3], word[3:])
+      print(word[::-1])
+      print(len(word))
   - type: try-it
     prompt: Make `first_three` hold the first three letters of `word` using a slice.
     starter: |
@@ -63,12 +131,140 @@ steps:
     hints:
       - "A slice looks like word[start:end]. Leaving out start means: from the beginning."
       - first_three = word[:3]
-  - type: exercise
-    ref: ex01-name-formatter
-  - type: exercise
-    ref: ex02-word-stats
+  - type: explain
+    md: |
+      Strings come with built-in **methods**, tools you call with a dot. They never change
+      the original; they give you back a **new** string.
+
+      | Code | Result |
+      |---|---|
+      | `"  hi  ".strip()` | `"hi"` (removes spaces at both ends) |
+      | `"hi".upper()` / `"HI".lower()` | `"HI"` / `"hi"` |
+      | `"ada lovelace".title()` | `"Ada Lovelace"` |
+      | `"cats".replace("c", "h")` | `"hats"` |
+      | `"banana".count("a")` | `3` |
+      | `"banana".find("n")` | `2` (position of the first match, or -1) |
+      | `"report.pdf".endswith(".pdf")` | `True` (also `startswith`) |
+      | `"nan" in "banana"` | `True` (is it anywhere inside?) |
+  - type: example
+    code: |
+      email = "  Ada.Lovelace@Example.com "
+      clean = email.strip().lower()
+      print(clean)
+      print("Has @:", "@" in clean)
+      print("@ is at position", clean.find("@"))
+      print("Username:", clean[:clean.find("@")])
+      print(clean.replace("example.com", "dojo.dev"))
+  - type: try-it
+    prompt: 'Tidy `raw` so `tidy` is `hello world`: no spaces at the ends and all lowercase.'
+    starter: |
+      raw = "   HeLLo World  "
+      tidy = raw
+    solution: |
+      raw = "   HeLLo World  "
+      tidy = raw.strip().lower()
+    check: |
+      assert tidy == "hello world", f"tidy is {tidy!r}, expected 'hello world'"
+    hints:
+      - Methods can be chained one after another with dots.
+      - tidy = raw.strip().lower()
+  - type: explain
+    md: |
+      **Splitting and joining** turn text into pieces and back again:
+
+      ```python
+      "red green blue".split()        # ['red', 'green', 'blue']  (splits on spaces)
+      "2026-11-11".split("-")         # ['2026', '11', '11']
+      ", ".join(["a", "b", "c"])      # 'a, b, c'
+      ```
+
+      `split` gives a **list** (you'll meet lists properly in lesson 6). For now: the
+      pieces come out in order, `pieces[0]` is the first, and `len(pieces)` counts them.
+      `join` is called on the glue, with the pieces in the brackets.
+  - type: example
+    code: |
+      sentence = "the quick brown fox"
+      words = sentence.split()
+      print(words)
+      print("Word count:", len(words))
+      print("First word:", words[0])
+      print("-".join(words))
+      day, month, year = "11/11/2026".split("/")
+      print(year, month, day)
+  - type: try-it
+    prompt: 'Set `count` to the number of words in `text` (use `split` and `len`).'
+    starter: |
+      text = "practice makes progress every single day"
+      count = 0
+    solution: |
+      text = "practice makes progress every single day"
+      count = len(text.split())
+    check: |
+      assert count == 6, f"count is {count}, expected 6"
+    hints:
+      - text.split() gives the words; len(...) counts them.
+      - count = len(text.split())
+  - type: explain
+    md: |
+      **Special characters** start with a backslash:
+
+      | Code | Meaning |
+      |---|---|
+      | `\n` | new line |
+      | `\t` | tab |
+      | `\"` | a quote inside a string that uses the same quotes |
+
+      Text over **several lines** can go between triple quotes, `"""like this"""`.
+
+      Strings can't be changed in place: `word[0] = "J"` is an error. Build a new string
+      instead, for example `"J" + word[1:]`.
+  - type: example
+    code: |
+      print("Name:\tAda\nRole:\tProgrammer")
+      print("She said \"hi\"")
+      poem = """Roses are red,
+      Python is too,
+      (not really)."""
+      print(poem)
+      word = "Pava"
+      print("J" + word[1:])
   - type: quiz
     question: The user types 42 at an input() prompt. What type of value do you get back?
     options: [int, str, float]
     answer: 1
     explanation: input() always returns a string. Use int(...) to turn it into a number.
+  - type: example
+    md: |
+      **Before the exercises:** a mini program that reads input, cleans it, picks it apart
+      and formats the result. Each exercise uses some of these moves.
+    code: |
+      city = input("City: ")
+      city = city.strip().title()
+      print(f"City: {city}")
+      print(f"Starts with: {city[0]}")
+      print(f"Letters: {len(city)}")
+      print(f"Shouted: {city.upper()}")
+      parts = "Rome Paris Oslo".split()
+      print(" / ".join(parts))
+      print(f"Ticket: ${12.5:.2f}")
+  - type: exercise
+    ref: ex01-name-formatter
+  - type: exercise
+    ref: ex02-word-stats
+  - type: exercise
+    ref: ex03-initials
+  - type: exercise
+    ref: ex04-price-tag
+  - type: quiz
+    question: 'What does `"a,b,c".split(",")` give?'
+    options:
+      - "'abc'"
+      - "['a', 'b', 'c']"
+      - "['a,b,c']"
+    answer: 1
+    explanation: split cuts the string wherever it finds the separator and gives back a list of the pieces.
+  - type: quiz
+    question: 'What does `f"{9.5:.2f}"` give?'
+    options: ["'9.5'", "'9.50'", "'10'"]
+    answer: 1
+    explanation: .2f always shows exactly two decimal places.

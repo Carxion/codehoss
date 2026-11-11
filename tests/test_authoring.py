@@ -70,7 +70,8 @@ def test_preview_points_at_the_broken_line(root):
     text = authoring.read(root, LESSON)
     lines = text.splitlines()
     quiz_line = next(i for i, ln in enumerate(lines, 1) if "type: quiz" in ln)
-    [marker] = authoring.preview(root, LESSON, text.replace("type: quiz", "type: quizz"))["markers"]
+    broken_quiz = text.replace("type: quiz", "type: quizz", 1)
+    [marker] = authoring.preview(root, LESSON, broken_quiz)["markers"]
     assert marker["line"] == quiz_line and "quizz" in marker["message"]
 
     broken = authoring.preview(root, LESSON, "title: [oops\n")["markers"]

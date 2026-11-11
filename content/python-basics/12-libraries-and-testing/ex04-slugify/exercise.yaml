@@ -1,0 +1,40 @@
+id: py.slugify
+title: "Test first: slugify"
+difficulty: 3
+prompt: |
+  Websites turn titles into **slugs** for their addresses: `Hello, World!` becomes
+  `hello-world`. The tests are already written (open **See an example test**, and read
+  the list below); write `slugify(title)` to make them pass.
+
+  - letters and digits are kept, in lowercase
+  - every run of anything else (spaces, punctuation) becomes **one** `-`
+  - no `-` at the start or the end
+
+  | Title | Slug |
+  |---|---|
+  | `Hello, World!` | `hello-world` |
+  | `  Python   3.13 is out ` | `python-3-13-is-out` |
+  | `C++ & C#` | `c-c` |
+  | `!!!` | `` (an empty string) |
+
+  Work test first: run the checks, make one more pass, repeat.
+hints:
+  - Loop over the characters. ch.isalnum() is True for letters and digits.
+  - Keep a list of output characters. For anything else, add "-" only if the last character added isn't already "-".
+  - 'Finish with "".join(chars).strip("-") to remove dashes at the ends.'
+guide:
+  - md: |
+      Building a new string character by character, squashing runs of unwanted characters
+      into one separator. Here phone numbers are tidied into dot-separated groups.
+    code: |
+      def tidy_number(raw):
+          out = []
+          for ch in raw:
+              if ch.isdigit():
+                  out.append(ch)
+              elif out and out[-1] != ".":
+                  out.append(".")
+          return "".join(out).strip(".")
+
+      for raw in ["(555) 123-4567", "  +44  20 7946 0018 ", "--"]:
+          print(repr(raw), "->", repr(tidy_number(raw)))

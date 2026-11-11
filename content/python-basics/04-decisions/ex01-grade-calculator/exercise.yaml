@@ -20,3 +20,18 @@ hints:
   - Check the highest grade first, then work down with elif.
   - 'if score >= 90: grade = "A", then elif score >= 80: grade = "B", and so on.'
   - Use else for F, since it catches everything below 60.
+guide:
+  - md: |
+      Choosing a label from bands of numbers: start with the highest band and work down,
+      so each `elif` only sees what the earlier checks let through.
+    code: |
+      speed = 72
+      if speed >= 100:
+          label = "dangerous"
+      elif speed >= 70:
+          label = "fast"
+      elif speed >= 30:
+          label = "normal"
+      else:
+          label = "slow"
+      print("Speed:", label)

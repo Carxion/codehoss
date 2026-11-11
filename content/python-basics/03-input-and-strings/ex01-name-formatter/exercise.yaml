@@ -16,3 +16,11 @@ hints:
   - You can chain methods, like first.strip().title()
   - 'Ask for the last name the same way: last = input("Last name: ")'
   - 'print(f"Nice to meet you, {first} {last}!")'
+guide:
+  - md: Cleaning up a messy city name and a messy country, then greeting with an f-string.
+    code: |
+      city = "  pARIS "
+      country = "france   "
+      city = city.strip().title()
+      country = country.strip().title()
+      print(f"Welcome to {city}, {country}!")

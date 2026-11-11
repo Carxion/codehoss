@@ -1,0 +1,35 @@
+id: py.pin-check
+title: PIN check
+difficulty: 3
+prompt: |
+  The correct PIN is `"4321"`. The user gets **3 attempts**.
+
+  - A wrong PIN prints `Wrong PIN. Attempts left: N`
+  - The right PIN prints `Access granted` and stops asking
+  - After 3 wrong tries, print `Card blocked`
+
+  ```
+  PIN: 1111
+  Wrong PIN. Attempts left: 2
+  PIN: 4321
+  Access granted
+  ```
+hints:
+  - A for loop over range(3) gives exactly three attempts; break when the PIN is right.
+  - Keep a variable like granted = False and set it to True when the PIN matches.
+  - 'After the loop: if not granted: print("Card blocked")'
+guide:
+  - md: |
+      A limited number of tries with a flag remembering whether we succeeded. The loop
+      ends early with `break`; the check after the loop uses the flag.
+    code: |
+      found = False
+      boxes = ("empty", "empty", "key", "empty")
+      for number, box in enumerate(boxes, start=1):
+          if box == "key":
+              print("Key found in box", number)
+              found = True
+              break
+          print("Box", number, "is empty")
+      if not found:
+          print("No key anywhere")

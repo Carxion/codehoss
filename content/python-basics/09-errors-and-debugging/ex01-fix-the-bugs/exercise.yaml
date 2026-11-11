@@ -14,3 +14,17 @@ hints:
   - Run it and read the last line of the error. Fix that, then run again.
   - Look for a missing colon at the end of the for line.
   - Check every name is spelt the same way each time it is used.
+guide:
+  - md: |
+      The same kinds of mistakes in a different program, fixed. Compare each pair of lines:
+      a missing `:` after `for`, a name spelt two ways, and a misspelt function.
+    code: |
+      prices = [2.5, 4.0, 1.5]
+      # for p in prices          <- SyntaxError: expected ':'
+      cost = 0
+      for p in prices:
+          cost = cost + p
+      # count = len(price)       <- NameError: name 'price' is not defined
+      count = len(prices)
+      # pritn("Cost:", cost)     <- NameError: name 'pritn' is not defined
+      print("Cost:", cost, "for", count, "items")

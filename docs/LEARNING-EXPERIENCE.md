@@ -43,11 +43,18 @@ Lessons are sequences of small steps (explain → example → try-it → exercis
 walls of text. Each `try-it` is a one- or two-line change checked instantly, so learners get
 feedback every minute or two. Progress is saved per step.
 
+Before the exercises, a lesson shows an example that uses every technique they need, so
+nobody meets an exercise cold. Each exercise can also carry its own worked examples (a
+`guide`): working code for a similar problem, open beside the prompt while the learner
+types. The guide shows the pattern without the answer; the validator warns if it repeats
+lines of the solution.
+
 ## 4. Never stuck: escalating help
 
 | Level | What happens | Trigger |
 |---|---|---|
 | 0 | Visible tests show what "correct" looks like | always |
+| 0 | 📘 Worked examples: the same technique on a *different* problem, beside the prompt | always (when the exercise has a `guide`) |
 | 1 | Nudge hint ("What method adds to a list?") | Hint button |
 | 2 | Specific hint ("Use `fruits.append(...)`") | second press |
 | 3 | "Show me" — animated walkthrough of the solution, then reset to try again | third press |

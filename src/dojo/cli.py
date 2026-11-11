@@ -15,6 +15,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 from rich.markdown import Markdown
+from rich.markup import escape
 from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
@@ -106,7 +107,7 @@ def validate(
     warnings = [p for p in problems if p.level == "warning"]
     for p in errors + warnings:
         colour = "red" if p.level == "error" else "yellow"
-        console.print(f"[{colour}]{p.level:7}[/] {p.where}: {p.message}")
+        console.print(f"[{colour}]{p.level:7}[/] {escape(p.where)}: {escape(p.message)}")
 
     exercises = sum(1 for _ in content.exercises())
     console.print(

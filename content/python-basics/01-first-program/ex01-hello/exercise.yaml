@@ -12,3 +12,8 @@ hints:
   - Use one print() for each line.
   - 'Start with: print("Hello, world!")'
   - 'print("Hello, world!") on one line, then print("I am learning Python.") on the next.'
+guide:
+  - md: Two messages, two `print` lines. Each `print` starts a new line.
+    code: |
+      print("Good morning!")
+      print("Today is a good day to code.")

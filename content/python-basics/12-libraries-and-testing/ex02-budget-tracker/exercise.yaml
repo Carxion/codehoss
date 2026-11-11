@@ -26,3 +26,27 @@ hints:
   - 'command.split() turns "add food 12.5" into ["add", "food", "12.5"].'
   - 'Keep totals in a dictionary and use try / except ValueError around float(...).'
   - 'For the report: for category in sorted(totals): print(f"{category}: {totals[category]:.2f}")'
+guide:
+  - md: |
+      A command loop: split each command into words, check its shape, catch bad numbers,
+      and keep totals in a dictionary. Here a tally of steps walked per day, with the
+      typed commands faked so it runs on its own.
+    code: |
+      steps = {}
+      for typed in ["log mon 4000", "log tue lots", "log mon 2500", "show", "dance", "stop"]:
+          words = typed.split()
+          if words == ["stop"]:
+              print("Stopped")
+              break
+          elif words == ["show"]:
+              for day in sorted(steps):
+                  print(f"{day}: {steps[day]:,}")
+          elif len(words) == 3 and words[0] == "log":
+              try:
+                  count = int(words[2])
+              except ValueError:
+                  print("Steps must be a whole number")
+                  continue
+              steps[words[1]] = steps.get(words[1], 0) + count
+          else:
+              print("Unknown command")
