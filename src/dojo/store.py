@@ -1,7 +1,8 @@
 """Accounts and progress, in SQLite.
 
 Progress is keyed by (user, module, "<lesson-slug>/<step-index>"), so every kind of
-step (explain, try-it, exercise, quiz) is tracked the same way.
+step (explain, try-it, exercise, quiz) is tracked the same way. Review cards (spaced
+repetition, see dojo.skills) use the same key; the activity log feeds streaks.
 """
 
 from __future__ import annotations
@@ -67,6 +68,22 @@ CREATE TABLE IF NOT EXISTS progress (
     updated REAL NOT NULL,
     PRIMARY KEY (user_id, module_id, step_ref)
 );
+CREATE TABLE IF NOT EXISTS reviews (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    module_id TEXT NOT NULL,
+    step_ref TEXT NOT NULL,
+    interval_days REAL NOT NULL,
+    due REAL NOT NULL,
+    reps INTEGER NOT NULL DEFAULT 0,
+    lapses INTEGER NOT NULL DEFAULT 0,
+    hinted INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id, module_id, step_ref)
+);
+CREATE TABLE IF NOT EXISTS activity (
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    at REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS activity_user_at ON activity (user_id, at);
 """
 
 # Columns added after a table was first created: (table, column, definition).
@@ -90,6 +107,17 @@ class AISettingsRow:
     provider: str | None = None
     model: str | None = None
     api_key: str | None = None
+
+
+@dataclass
+class ReviewCard:
+    module_id: str
+    step_ref: str
+    interval_days: float
+    due: float
+    reps: int = 0  # successful reviews
+    lapses: int = 0  # times it was forgotten
+    hinted: bool = False  # a hint or the tutor was used since the card fell due
 
 
 @dataclass
@@ -216,6 +244,7 @@ class Store:
                     time.time(),
                 ),
             )
+            db.execute("INSERT INTO activity (user_id, at) VALUES (?, ?)", (user.id, time.time()))
 
     def progress(self, user: User, module_id: str) -> dict[str, StepProgress]:
         with self._db() as db:
@@ -229,6 +258,77 @@ class Store:
             ref: StepProgress(bool(done), attempts, hints, bool(showed), tutor)
             for ref, done, attempts, hints, showed, tutor in rows
         }
+
+    def all_progress(self, user: User) -> dict[str, dict[str, StepProgress]]:
+        """Progress for every module: {module_id: {step_ref: StepProgress}}."""
+        with self._db() as db:
+            rows = db.execute(
+                "SELECT module_id, step_ref, done, attempts, hints_used, showed_solution, "
+                "tutor_questions FROM progress WHERE user_id = ?",
+                (user.id,),
+            ).fetchall()
+        result: dict[str, dict[str, StepProgress]] = {}
+        for module_id, ref, done, attempts, hints, showed, tutor in rows:
+            result.setdefault(module_id, {})[ref] = StepProgress(
+                bool(done), attempts, hints, bool(showed), tutor
+            )
+        return result
+
+    def activity_since(self, user: User, since: float) -> list[float]:
+        with self._db() as db:
+            rows = db.execute(
+                "SELECT at FROM activity WHERE user_id = ? AND at >= ? ORDER BY at",
+                (user.id, since),
+            ).fetchall()
+        return [at for (at,) in rows]
+
+    # --- review cards ----------------------------------------------------------
+
+    def review_cards(self, user: User) -> list[ReviewCard]:
+        with self._db() as db:
+            rows = db.execute(
+                "SELECT module_id, step_ref, interval_days, due, reps, lapses, hinted "
+                "FROM reviews WHERE user_id = ?",
+                (user.id,),
+            ).fetchall()
+        return [
+            ReviewCard(m, r, i, d, reps, lapses, bool(h)) for m, r, i, d, reps, lapses, h in rows
+        ]
+
+    def review_card(self, user: User, module_id: str, step_ref: str) -> ReviewCard | None:
+        with self._db() as db:
+            row = db.execute(
+                "SELECT module_id, step_ref, interval_days, due, reps, lapses, hinted "
+                "FROM reviews WHERE user_id = ? AND module_id = ? AND step_ref = ?",
+                (user.id, module_id, step_ref),
+            ).fetchone()
+        return ReviewCard(*row[:6], bool(row[6])) if row else None
+
+    def save_review_card(self, user: User, card: ReviewCard) -> None:
+        with self._db() as db:
+            db.execute(
+                """
+                INSERT INTO reviews
+                    (user_id, module_id, step_ref, interval_days, due, reps, lapses, hinted)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (user_id, module_id, step_ref) DO UPDATE SET
+                    interval_days = excluded.interval_days,
+                    due = excluded.due,
+                    reps = excluded.reps,
+                    lapses = excluded.lapses,
+                    hinted = excluded.hinted
+                """,
+                (
+                    user.id,
+                    card.module_id,
+                    card.step_ref,
+                    card.interval_days,
+                    card.due,
+                    card.reps,
+                    card.lapses,
+                    int(card.hinted),
+                ),
+            )
 
     # --- projects --------------------------------------------------------------
 

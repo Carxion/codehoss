@@ -199,6 +199,30 @@ a note: one such line is enough when the solution is short, two otherwise. Quizz
 send the answer at all. Each question adds to the step's `tutor_questions` progress
 counter. Conversations live in the browser (sessionStorage), one per step.
 
+## Skill map, spaced review and streaks
+
+All three are computed by `dojo/skills.py` (pure functions) from what the store already
+records, plus two tables: `reviews` (one card per step) and `activity` (one row per
+progress event).
+
+- **Cards.** The first pass of a quiz, try-it or non-lab exercise (not project
+  checkpoints) creates a card due in 1 day (3 for exercises). An answer while it's due
+  multiplies the interval by 2.5, or 1.3 if a hint or the tutor helped since it fell due
+  (`hinted`); a wrong answer or "Show me" sets it to 0.4 days and keeps it due, so one
+  clean pass brings it back tomorrow. Answers before the due date change nothing. Cards
+  whose step has since moved are skipped, not deleted.
+- **Review mode** is the lesson view at `#/review/<module>/<lesson>/<step>`: the step
+  starts from its starter, not the learner's saved draft, and drafts aren't saved.
+- **Mastery** per practice step: 1 for a clean pass, minus 0.12 per hint (max 0.4) and
+  0.05 per tutor question (max 0.15), 0.4 after "Show me"; successful reviews raise it to
+  0.6 + 0.2 × reps; an overdue card fades it towards half. A lesson is the average; its
+  state is new / learning (< 50%) / practising / strong (≥ 85%) / fading (a review due).
+  `GET /api/skills` returns every module with its prerequisite depth so the map can lay
+  courses out in columns and draw the prerequisite lines.
+- **Streaks** group activity by the learner's calendar day: the browser sends its UTC
+  offset (`?tz=` minutes east), so studying at 11 pm in Denver counts for that day. A day
+  with no activity yet doesn't break the current streak until it's over.
+
 ## Interactive runs
 
 The Run button uses a WebSocket: output streams back as it's printed, keystrokes typed in

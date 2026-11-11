@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { navigate } from "../App";
-import { api, type Lesson, type Level, type Step, type StepProgress, type TestResult } from "../api";
+import { api, progressApi, reviewPath, type Lesson, type Level, type Step, type StepProgress, type TestResult } from "../api";
 import { useAI } from "../aiContext";
 import { loadMonaco } from "../monacoSetup";
 import type { WorkspaceHandle } from "../workspace";
@@ -16,6 +16,8 @@ interface Props {
   moduleId: string;
   lessonSlug: string;
   stepIndex: number;
+  /** Review mode: the step again from its starter, answered from memory (spaced review). */
+  review?: boolean;
 }
 
 type Feedback =
@@ -33,7 +35,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
 };
 const BLANK_PROGRESS: StepProgress = { done: false, attempts: 0, hints_used: 0, showed_solution: false };
 
-export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
+export default function LessonView({ moduleId, lessonSlug, stepIndex, review = false }: Props) {
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [loadError, setLoadError] = useState("");
   const [glossary, setGlossary] = useState<Record<string, string>>({});
@@ -119,7 +121,8 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
       if (!workspaceReady || !ws) return;
       if (showingSolution) setShowingSolution(false);
       const fallback = startingCode(step);
-      const code = loadDraft(draftKey(moduleId, lessonSlug, step)) ?? fallback;
+      // In review the step starts fresh: last time's answer would give it away.
+      const code = (review ? null : loadDraft(draftKey(moduleId, lessonSlug, step))) ?? fallback;
       if (code !== null) ws.restore(code);
       else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
       ws.reset();
@@ -133,10 +136,10 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
   const onCodeChange = useCallback(
     (code: string) => {
-      if (!step || showingSolution) return;
+      if (!step || showingSolution || review) return;
       saveDraft(draftKey(moduleId, lessonSlug, step), code);
     },
-    [step, showingSolution, moduleId, lessonSlug],
+    [step, showingSolution, moduleId, lessonSlug, review],
   );
   const onReady = useCallback(() => setWorkspaceReady(true), []);
 
@@ -255,6 +258,11 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
   const go = (i: number) => navigate(`/learn/${moduleId}/${lessonSlug}/${i}`);
 
+  async function nextReview() {
+    const due = await progressApi.reviews().catch(() => []);
+    navigate(due.length ? reviewPath(due[0]) : "/review");
+  }
+
   function openTutor(question: string | null = null) {
     setShowLibrary(false);
     setShowTutor(true);
@@ -283,6 +291,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const done = progress(index).done;
   const Workspace = notebook ? NotebookWorkspace : EditorWorkspace;
   const tutorAllowed = level !== "solo";
+  const passed = feedback[index] !== undefined && (feedback[index].kind === "pass" || (feedback[index].kind === "results" && feedback[index].passed));
   const failing = feedback[index] !== undefined && feedback[index].kind !== "pass" && !(feedback[index].kind === "results" && feedback[index].passed);
 
   return (
@@ -307,6 +316,14 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
         </div>
 
         <div className="step-body">
+          {review && (
+            <div className="banner info review-banner">
+              <span>
+                🔁 <strong>Review:</strong> answer from memory. Hints and the tutor still help, but then it comes back
+                sooner.
+              </span>
+            </div>
+          )}
           <p className="step-kind">
             Step {index + 1} of {lesson.steps.length} · {lesson.project && step.type === "exercise" ? "Checkpoint" : STEP_LABEL[step.type]}
           </p>
@@ -329,6 +346,11 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             </div>
           ))}
           {labSolutions[index] && <LabSolution {...labSolutions[index]} />}
+          {review && passed && (
+            <button className="primary next-review" onClick={nextReview}>
+              Next review →
+            </button>
+          )}
           {feedback[index] && step.type !== "quiz" && (
             <FeedbackView
               feedback={feedback[index]}

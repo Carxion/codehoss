@@ -310,6 +310,13 @@ back every code block and hides any that repeats solution lines. "Ask the tutor 
 a failed Check; suggested questions per step type; tutor questions are recorded as progress
 (feeds spaced review). Checked live with qwen2.5:7b.
 
+Part 2 ✅ (2026-11-10): **skill map, spaced review, streaks**. Passing a quiz, try-it or
+exercise creates a review card (1 day, then x2.5 per remembered review, x1.3 if a hint or
+the tutor helped, back to tomorrow if forgotten). Review queue page, a review mode that
+starts the step fresh, a "Review (n)" badge in the top bar. The skill map lays courses out
+by prerequisites with a chip per lesson coloured by mastery (hints, "Show me", tutor use and
+overdue reviews lower it). Streaks and a 12-week calendar use the learner's time zone.
+
 - Tutor on local Ollama: sees the lesson, the learner's code and failing tests; gives
   Socratic hints, never full solutions
 - Spaced-repetition review, skill map, streaks

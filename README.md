@@ -16,9 +16,10 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > and canaries). **Programming Basics** is a first course that isn't tied to any language:
 > learners write pseudocode that really runs and step through it line by line. M8 adds an
 > **AI tutor** beside every lesson: it sees the step, your code and your failing tests, and
-> nudges you towards the answer without writing it. Next: the rest of M8 (spaced review,
-> skill map, authoring tool, Helm chart), then JavaScript, R, C++ and C# courses with
-> projects. See [ROADMAP.md](ROADMAP.md).
+> nudges you towards the answer without writing it. A **skill map** shows every course and
+> how well you know each lesson, **spaced review** brings back finished quizzes, try-its and
+> exercises just before you'd forget them, and **streaks** count your study days. Next: the
+> authoring tool and a Helm chart, then JavaScript, R, C++ and C# courses with projects. See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 

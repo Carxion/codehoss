@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { api, type ModuleSummary } from "../api";
+import { api, progressApi, type ModuleSummary, type SkillMap } from "../api";
 
 export default function Catalog() {
   const [modules, setModules] = useState<ModuleSummary[] | null>(null);
   const [error, setError] = useState("");
+  const [skills, setSkills] = useState<SkillMap | null>(null);
 
   useEffect(() => {
     api.modules().then(setModules, (e) => setError(e.message));
+    progressApi.skills().then(setSkills, () => {});
   }, []);
 
   if (error) return <main className="page"><p className="error-text">{error}</p></main>;
@@ -15,6 +17,25 @@ export default function Catalog() {
   return (
     <main className="page">
       <h1>Your courses</h1>
+      {skills && (
+        <div className="card today-strip">
+          <span>
+            🔥 <strong>{skills.streak.current}</strong> day{skills.streak.current === 1 ? "" : "s"} in a row
+          </span>
+          <span>
+            🔁 <strong>{skills.reviews_due}</strong> review{skills.reviews_due === 1 ? "" : "s"} due
+          </span>
+          <span className="spacer" />
+          {skills.reviews_due > 0 && (
+            <a className="button primary small" href="#/review">
+              Review now
+            </a>
+          )}
+          <a className="button small" href="#/skills">
+            Skill map
+          </a>
+        </div>
+      )}
       {modules.map((module) => {
         const total = module.lessons.reduce((n, l) => n + l.steps, 0);
         const done = module.lessons.reduce((n, l) => n + l.done, 0);

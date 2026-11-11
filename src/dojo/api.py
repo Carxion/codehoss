@@ -35,7 +35,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from dojo import grader, lab, tutor
+from dojo import grader, lab, skills, tutor
 from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
 from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
@@ -211,6 +211,23 @@ def create_app(
     def language_of(session: Session) -> str:
         return content.modules[session.module_id].spec.language
 
+    def review_answer(user: User, module_id: str, ref: str, passed: bool) -> None:
+        """Schedule the step's review card after an answer (see dojo.skills)."""
+        lesson = lesson_or_404(content.modules[module_id], ref.rpartition("/")[0])
+        kind = skills.review_kind(lesson, lesson.spec.steps[int(ref.rpartition("/")[2])])
+        if kind is None:
+            return
+        card = skills.schedule(
+            db.review_card(user, module_id, ref), module_id, ref, kind, passed, time.time()
+        )
+        if card is not None:
+            db.save_review_card(user, card)
+
+    def review_helped(user: User, module_id: str, ref: str) -> None:
+        card = skills.mark_helped(db.review_card(user, module_id, ref), time.time())
+        if card is not None:
+            db.save_review_card(user, card)
+
     # -- auth --
 
     def _login_response(response: Response, user: User) -> dict:
@@ -341,6 +358,7 @@ def create_app(
                 for text in guard.finish():
                     yield line(type="text", text=text)
                 db.record(user, module.spec.id, f"{lesson.slug}/{body.step}", tutor_questions=1)
+                review_helped(user, module.spec.id, f"{lesson.slug}/{body.step}")
                 yield line(type="done", redactions=guard.redactions)
             except AIError as e:
                 yield line(type="error", message=str(e))
@@ -503,8 +521,10 @@ def create_app(
         ref = f"{slug}/{index}"
         if level <= len(hints):
             db.record(user, module_id, ref, hints_used=level)
+            review_helped(user, module_id, ref)
             return {"level": level, "of": len(hints), "hint": hints[level - 1]}
         db.record(user, module_id, ref, hints_used=len(hints), showed_solution=True)
+        review_answer(user, module_id, ref, passed=False)
         shown = {"level": level, "of": len(hints), "solution": solution}
         if isinstance(step, ExerciseStep) and lesson.exercises[step.ref].is_lab:
             shown["solution_files"] = solution_files
@@ -517,6 +537,7 @@ def create_app(
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "this step is not a quiz")
         correct = body.answer == step.answer
         db.record(user, module_id, f"{slug}/{index}", attempt=True, done=correct)
+        review_answer(user, module_id, f"{slug}/{index}", correct)
         # The right answer is only revealed by getting it right.
         return {"correct": correct, "explanation": step.explanation if correct else ""}
 
@@ -529,6 +550,24 @@ def create_app(
         if not isinstance(step, ExplainStep | ExampleStep | ShowcaseStep):
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "this step is completed by doing it")
         db.record(user, module_id, f"{slug}/{index}", done=True)
+
+    # -- skills, review, streaks --
+
+    @api.get("/skills")
+    def skill_map(user: UserDep, tz: int = 0) -> dict:
+        """The skill map, streaks and how many reviews are due. tz: minutes east of UTC."""
+        now = time.time()
+        cards = db.review_cards(user)
+        return {
+            "streak": skills.streaks(db.activity_since(user, 0), now, max(-840, min(tz, 840))),
+            "reviews_due": len(skills.due_cards(content, cards, now)),
+            "modules": skills.skill_map(content, db.all_progress(user), cards, now),
+        }
+
+    @api.get("/review")
+    def reviews_due(user: UserDep) -> list[dict]:
+        """Review cards due now, oldest first."""
+        return skills.due_cards(content, db.review_cards(user), time.time())
 
     # -- portfolio --
 
@@ -636,6 +675,7 @@ def create_app(
             submitted = body.code
         if (ref := _exercise_step_ref(content, exercise)) is not None:
             db.record(user, exercise.module_id, ref, attempt=True, done=result.passed)
+            review_answer(user, exercise.module_id, ref, result.passed)
         if result.passed:
             db.save_submission(user, exercise.spec.id, submitted)
         return {
@@ -666,6 +706,7 @@ def create_app(
         db.record(
             user, session.module_id, f"{body.lesson}/{body.step}", attempt=True, done=result.passed
         )
+        review_answer(user, session.module_id, f"{body.lesson}/{body.step}", result.passed)
         return {"passed": result.passed, "message": explain_message(result.message, body.code)}
 
     # -- labs --

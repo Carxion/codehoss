@@ -1,25 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
 import { AIProviderRoot, useAI } from "./aiContext";
-import { api } from "./api";
+import { api, progressApi } from "./api";
 import Catalog from "./components/Catalog";
 import LessonView from "./components/LessonView";
 import Login from "./components/Login";
 import Portfolio from "./components/Portfolio";
+import Review from "./components/Review";
+import SkillMap from "./components/SkillMap";
 
 // Hash routes keep the server simple (no SPA fallback needed):
 //   #/                          catalog
 //   #/learn/<module>/<lesson>/<step>
+//   #/review/<module>/<lesson>/<step>   the same step, answered from memory
+//   #/skills, #/review, #/portfolio
 type Route =
   | { page: "catalog" }
   | { page: "portfolio" }
-  | { page: "learn"; module: string; lesson: string; step: number };
+  | { page: "skills" }
+  | { page: "review" }
+  | { page: "learn" | "review-step"; module: string; lesson: string; step: number };
 
 function parseRoute(hash: string): Route {
   const parts = hash.replace(/^#\/?/, "").split("/");
   if (parts[0] === "learn" && parts[1] && parts[2]) {
     return { page: "learn", module: parts[1], lesson: parts[2], step: Number(parts[3] ?? 0) || 0 };
   }
+  if (parts[0] === "review" && parts[1] && parts[2]) {
+    return { page: "review-step", module: parts[1], lesson: parts[2], step: Number(parts[3] ?? 0) || 0 };
+  }
   if (parts[0] === "portfolio") return { page: "portfolio" };
+  if (parts[0] === "skills") return { page: "skills" };
+  if (parts[0] === "review") return { page: "review" };
   return { page: "catalog" };
 }
 
@@ -60,6 +71,10 @@ export default function App() {
           <span className="brand-mark">D</span> DataDojo
         </a>
         <div className="topbar-right">
+          <ReviewLink route={route} />
+          <a href="#/skills" className="small">
+            Skill map
+          </a>
           <a href="#/portfolio" className="small">
             Portfolio
           </a>
@@ -74,16 +89,34 @@ export default function App() {
         <Catalog />
       ) : route.page === "portfolio" ? (
         <Portfolio />
+      ) : route.page === "skills" ? (
+        <SkillMap />
+      ) : route.page === "review" ? (
+        <Review />
       ) : (
         <LessonView
-          key={`${route.module}/${route.lesson}`}
+          key={`${route.page}/${route.module}/${route.lesson}`}
           moduleId={route.module}
           lessonSlug={route.lesson}
           stepIndex={route.step}
+          review={route.page === "review-step"}
         />
       )}
     </div>
     </AIProviderRoot>
+  );
+}
+
+/** "Review" with how many are due; refreshed whenever the page changes. */
+function ReviewLink({ route }: { route: Route }) {
+  const [due, setDue] = useState(0);
+  useEffect(() => {
+    progressApi.reviews().then((r) => setDue(r.length), () => {});
+  }, [route]);
+  return (
+    <a href="#/review" className="small review-link">
+      Review{due > 0 && <span className="count-badge">{due}</span>}
+    </a>
   );
 }
 

@@ -141,12 +141,12 @@ def load_content(root: Path) -> Content:
             content.modules[module.spec.id] = module
     # Courses are listed in the order they're meant to be taken: those with no
     # prerequisites first, then each course after everything it builds on.
-    depth = _prerequisite_depths(content.modules)
+    depth = prerequisite_depths(content.modules)
     content.modules = dict(sorted(content.modules.items(), key=lambda m: (depth[m[0]], m[0])))
     return content
 
 
-def _prerequisite_depths(modules: dict[str, LoadedModule]) -> dict[str, int]:
+def prerequisite_depths(modules: dict[str, LoadedModule]) -> dict[str, int]:
     """Length of each module's longest prerequisite chain (cycles are reported elsewhere)."""
     depths: dict[str, int] = {}
 

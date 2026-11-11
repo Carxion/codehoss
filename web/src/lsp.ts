@@ -139,6 +139,8 @@ export class PythonLanguageClient {
       this.socket.onopen = () => this.initialize().then(resolve, reject);
       this.socket.onerror = () => reject(new Error("language server connection failed"));
     });
+    // Leaving the page before the socket opens rejects `ready` with nobody waiting on it.
+    this.ready.catch(() => {});
     this.registerProviders();
     this.disposables.push(mapping.onDidChange(() => this.scheduleChange()));
   }

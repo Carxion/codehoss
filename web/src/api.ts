@@ -241,6 +241,66 @@ export const api = {
     }),
 };
 
+// --- skills, review, streaks -------------------------------------------------------
+
+export type SkillState = "new" | "learning" | "practising" | "strong" | "fading";
+
+export interface LessonSkill {
+  slug: string;
+  title: string;
+  mastery: number;
+  state: SkillState;
+  due: number;
+  practice: number;
+  practised: number;
+}
+
+export interface ModuleSkill {
+  id: string;
+  title: string;
+  level: string;
+  depth: number;
+  prerequisites: string[];
+  mastery: number;
+  due: number;
+  lessons: LessonSkill[];
+}
+
+export interface Streak {
+  current: number;
+  best: number;
+  today: boolean;
+  calendar: { date: string; count: number }[];
+}
+
+export interface SkillMap {
+  streak: Streak;
+  reviews_due: number;
+  modules: ModuleSkill[];
+}
+
+export interface DueReview {
+  module_id: string;
+  module_title: string;
+  lesson: string;
+  lesson_title: string;
+  step: number;
+  kind: "quiz" | "try-it" | "exercise";
+  title: string;
+  overdue_days: number;
+  reps: number;
+}
+
+/** Minutes east of UTC, so streak days follow the learner's own calendar. */
+const tzOffset = () => -new Date().getTimezoneOffset();
+
+export const progressApi = {
+  skills: () => request<SkillMap>("GET", `/skills?tz=${tzOffset()}`),
+  reviews: () => request<DueReview[]>("GET", "/review"),
+};
+
+export const reviewPath = (r: DueReview) => `/review/${r.module_id}/${r.lesson}/${r.step}`;
+
 // --- tutor ----------------------------------------------------------------------
 
 export interface TutorMessage {
