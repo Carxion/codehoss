@@ -585,7 +585,7 @@ const STEP_LABEL: Record<Step["type"], string> = {
   quiz: "Quiz",
 };
 
-function StepContent({
+export function StepContent({
   step,
   notebook,
   pseudo,

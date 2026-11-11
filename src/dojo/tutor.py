@@ -34,12 +34,13 @@ REDACTED = (
 LANGUAGE_NOTES = {
     "python": "The learner writes Python 3.12.",
     "pseudo": (
-        "The learner writes Dojo pseudocode, a small teaching language: SET x TO 5, "
-        "OUTPUT x, INPUT, IF ... THEN / ELSE / END IF, WHILE ... DO / END WHILE, "
-        "FOR EACH item IN list DO / END FOR, FUNCTION name(a) ... RETURN ... END FUNCTION, "
-        "lists like [1, 2, 3] (positions start at 0), AND / OR / NOT, comments with #. "
-        "Text and numbers never mix without TO_TEXT / TO_NUMBER. Use this language in "
-        "every example, never Python."
+        "The learner writes Dojo pseudocode, a small teaching language: name = 5 stores a "
+        'value, OUTPUT "Hi", name shows it, x = INPUT("prompt") reads text, '
+        "IF ... THEN / ELSE IF / ELSE / END IF, WHILE ... DO / END WHILE, REPEAT ... UNTIL, "
+        "FOR i FROM 1 TO 10 DO / END FOR, FOR EACH item IN list DO / END FOR, "
+        "FUNCTION name(a) ... RETURN ... END FUNCTION, lists [1, 2] (positions start at 0), "
+        'maps {"key": value}, AND / OR / NOT, comments with #. Text and numbers never mix '
+        "without TO_TEXT / TO_NUMBER. Use this language in every example, never Python."
     ),
 }
 

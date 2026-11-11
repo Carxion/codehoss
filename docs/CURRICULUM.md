@@ -231,6 +231,14 @@ manual jobs. The file is unchanged on a real GitLab.
 
 ## Module format
 
+The quickest way to write content is the **Studio** (top bar → Studio, for users listed
+in `DOJO_AUTHORS` or `dojo serve --author <name>`): a file tree of `content/`, an editor
+that marks problems on the line they're on as you type, a preview of the lesson exactly
+as learners will see it, **+ lesson / + exercise** templates, and **▶ Test lesson**, which
+runs every try-it and exercise in the sandbox (solutions must pass, starters must fail),
+all against your unsaved text. Save makes it live. From a terminal, `dojo new module |
+lesson | exercise` creates the same templates and `dojo validate` checks everything.
+
 ```
 content/
   python-basics/

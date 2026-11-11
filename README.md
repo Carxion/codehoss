@@ -18,8 +18,10 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > **AI tutor** beside every lesson: it sees the step, your code and your failing tests, and
 > nudges you towards the answer without writing it. A **skill map** shows every course and
 > how well you know each lesson, **spaced review** brings back finished quizzes, try-its and
-> exercises just before you'd forget them, and **streaks** count your study days. Next: the
-> authoring tool and a Helm chart, then JavaScript, R, C++ and C# courses with projects. See [ROADMAP.md](ROADMAP.md).
+> exercises just before you'd forget them, and **streaks** count your study days. Authors
+> get the **Studio**: edit any course in the browser with live validation, a preview of each
+> lesson as learners see it, and one-click testing of every solution. Next: a Helm chart,
+> then JavaScript, R, C++ and C# courses with projects. See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 
@@ -51,6 +53,8 @@ uv run dojo start py.hello          # read the exercise, get a starter in worksp
 uv run dojo check py.hello          # run the tests against your code (--sandbox: in Docker)
 uv run dojo hint py.hello 2         # escalating hints
 uv run dojo validate                # authors: every exercise solvable (--sandbox: in Docker)
+uv run dojo new lesson python-basics 13-recursion "Recursion"   # authors: start from a template
+uv run dojo serve --author ada      # let user "ada" open the Studio (or DOJO_AUTHORS=ada,bob)
 uv run pytest                       # platform tests (Docker tests skip if Docker is off)
 ```
 

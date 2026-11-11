@@ -231,7 +231,14 @@ def build_images() -> None:
 
 
 @app.command()
-def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
+def serve(
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    author: Annotated[
+        list[str] | None,
+        typer.Option(help="Username allowed to use the Studio (repeatable; * for everyone)."),
+    ] = None,
+) -> None:
     """Start the server: API under /api, the browser app (web/dist) at /."""
     import uvicorn
 
@@ -242,4 +249,66 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
         console.print(
             "[yellow]web/dist not found: API only. Build the app: cd web && npm run build[/]"
         )
-    uvicorn.run(create_app(_load(), static_dir=static), host=host, port=port)
+    authors = ",".join(author) if author else None
+    if authors:
+        console.print(f"Studio authors: {authors}")
+    uvicorn.run(create_app(_load(), static_dir=static, authors=authors), host=host, port=port)
+
+
+new_app = typer.Typer(help="Start a new module, lesson or exercise from a template.")
+app.add_typer(new_app, name="new")
+
+
+def _created(files: list[str]) -> None:
+    for path in files:
+        console.print(f"  [green]+[/] content/{path}")
+    console.print(
+        "Edit them in the Studio (dojo serve --author <you>) or any editor, then dojo validate."
+    )
+
+
+@new_app.command("module")
+def new_module(
+    module_id: str,
+    title: str,
+    language: Annotated[str, typer.Option(help="python or pseudo")] = "python",
+) -> None:
+    """A module folder with module.yaml and a first lesson."""
+    from dojo import authoring
+
+    try:
+        _created(authoring.new_module(_content_root(), module_id, title, language))
+    except authoring.AuthoringError as e:
+        console.print(f"[red]{e}[/]")
+        raise typer.Exit(1) from None
+
+
+@new_app.command("lesson")
+def new_lesson(module_id: str, slug: str, title: str) -> None:
+    """A lesson folder, added to the module's lessons list."""
+    from dojo import authoring
+
+    try:
+        _created(authoring.new_lesson(_content_root(), module_id, slug, title))
+    except authoring.AuthoringError as e:
+        console.print(f"[red]{e}[/]")
+        raise typer.Exit(1) from None
+
+
+@new_app.command("exercise")
+def new_exercise(
+    lesson: Annotated[str, typer.Argument(help="module/lesson")], slug: str, title: str
+) -> None:
+    """An exercise (starter, solution, visible + hidden tests), added as a lesson step."""
+    from dojo import authoring
+
+    module_id, _, lesson_slug = lesson.partition("/")
+    try:
+        _created(authoring.new_exercise(_content_root(), module_id, lesson_slug, slug, title))
+    except authoring.AuthoringError as e:
+        console.print(f"[red]{e}[/]")
+        raise typer.Exit(1) from None
+
+
+def _content_root() -> Path:
+    return Path(os.environ.get("DOJO_CONTENT", "content")).resolve()

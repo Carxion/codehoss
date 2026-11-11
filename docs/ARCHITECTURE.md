@@ -223,6 +223,27 @@ progress event).
   offset (`?tz=` minutes east), so studying at 11 pm in Denver counts for that day. A day
   with no activity yet doesn't break the current streak until it's over.
 
+## Studio (authoring)
+
+`dojo/authoring.py` backs the Studio page and `dojo new`. Only usernames in
+`DOJO_AUTHORS` (or `dojo serve --author`) get the `/api/author/*` routes; it edits files
+on the server, so it's off unless someone is named. It only touches text files (YAML,
+Markdown, code, tests; 200 KB max) inside the content folder.
+
+- **Preview** copies the edited module's text files to a temporary folder, writes the
+  unsaved text over its copy and loads it with the normal loader, so it shows exactly
+  what saving would: problems (YAML errors carry a line; pydantic locations such as
+  `steps.3.md` are found in the YAML node tree) and the lesson rendered with the same
+  `_public_step` JSON the lesson page uses, never solutions.
+- **Test lesson** runs `validate._check_execution` on that temporary copy, limited to
+  the lesson, in the author's sandbox session for the module (labs included).
+- **Save** writes the file and reloads content *in place* (the app and session manager
+  share the `Content` object). A module that stops loading keeps its last good version,
+  so learners never see it vanish mid-edit.
+- **Templates** (`new_module`, `new_lesson`, `new_exercise`) add the lesson to
+  `module.yaml` / the step to `lesson.yaml` by text edit, keeping comments, and each
+  template is tested to pass validation and its own solution/starter check.
+
 ## Interactive runs
 
 The Run button uses a WebSocket: output streams back as it's printed, keystrokes typed in

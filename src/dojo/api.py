@@ -35,7 +35,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from dojo import grader, lab, skills, tutor
+from dojo import authoring, grader, lab, skills, tutor
 from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
 from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
@@ -126,6 +126,20 @@ class TutorRequest(BaseModel):
     messages: list[TutorMessage] = Field(min_length=1, max_length=60)
 
 
+class AuthorFile(BaseModel):
+    path: str = Field(min_length=1, max_length=300)
+    text: str = Field(max_length=authoring.MAX_FILE_BYTES)
+
+
+class AuthorNew(BaseModel):
+    kind: Literal["module", "lesson", "exercise"]
+    module: str = Field(max_length=64)
+    lesson: str | None = Field(default=None, max_length=64)
+    slug: str = Field(max_length=64)
+    title: str = Field(min_length=1, max_length=120)
+    language: Literal["python", "pseudo"] = "python"
+
+
 class LevelBody(BaseModel):
     level: Literal["guided", "assisted", "solo"]
 
@@ -144,7 +158,10 @@ def create_app(
     gateway: Gateway | None = None,
     store: Store | None = None,
     static_dir: Path | None = None,
+    authors: str | None = None,
 ) -> FastAPI:
+    """`authors`: usernames allowed in the Studio (comma-separated, * for all); defaults
+    to DOJO_AUTHORS. Nobody can author unless it's set."""
     if content is None:
         content = load_content(Path(os.environ.get("DOJO_CONTENT", "content")).resolve())
     sessions = manager or SessionManager(content)
@@ -175,6 +192,18 @@ def create_app(
         return user
 
     UserDep = Annotated[User, Depends(current_user)]
+
+    def current_author(request: Request) -> User:
+        user = current_user(request)
+        if not authoring.is_author(user.username, authors):
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN,
+                "The Studio is for authors. Ask whoever runs this DataDojo to add you to "
+                "DOJO_AUTHORS.",
+            )
+        return user
+
+    AuthorDep = Annotated[User, Depends(current_author)]
 
     def module_or_404(module_id: str) -> LoadedModule:
         module = content.modules.get(module_id)
@@ -259,7 +288,7 @@ def create_app(
 
     @api.get("/me")
     def me(user: UserDep) -> dict:
-        return {"username": user.username}
+        return {"username": user.username, "author": authoring.is_author(user.username, authors)}
 
     def ai_settings_for(user: User) -> AISettings:
         row = db.ai_settings(user)
@@ -568,6 +597,67 @@ def create_app(
     def reviews_due(user: UserDep) -> list[dict]:
         """Review cards due now, oldest first."""
         return skills.due_cards(content, db.review_cards(user), time.time())
+
+    # -- studio (authoring) --
+
+    def authoring_call(fn, *args):
+        try:
+            return fn(*args)
+        except authoring.AuthoringError as e:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(e)) from None
+
+    def content_markers() -> list[dict]:
+        return [asdict(m) for m in authoring.markers(content.problems, {}, content.root)]
+
+    @api.get("/author/tree")
+    def author_tree(user: AuthorDep) -> dict:
+        return {"modules": authoring.tree(content.root), "markers": content_markers()}
+
+    @api.get("/author/file")
+    def author_read(path: str, user: AuthorDep) -> dict:
+        return {"path": path, "text": authoring_call(authoring.read, content.root, path)}
+
+    @api.put("/author/file")
+    def author_write(body: AuthorFile, user: AuthorDep) -> dict:
+        authoring_call(authoring.write, content.root, body.path, body.text)
+        authoring.reload(content)
+        return {"saved": body.path, "markers": content_markers()}
+
+    @api.post("/author/preview")
+    def author_preview(body: AuthorFile, user: AuthorDep) -> dict:
+        return authoring_call(authoring.preview, content.root, body.path, body.text)
+
+    @api.post("/author/test")
+    def author_test(body: AuthorFile, user: AuthorDep) -> dict:
+        """Run the lesson's solutions and starters in the module's sandbox."""
+        module_id = body.path.split("/")[0]
+        if module_id not in content.modules:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Save the module once before testing.")
+        session = sessions.find(user.id, module_id)
+        if session is None:
+            try:
+                session = sessions.create(module_id, owner=user.id)
+            except SandboxError as e:
+                raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(e)) from None
+        return authoring_call(
+            authoring.test_lesson, content.root, body.path, body.text, session.executor
+        )
+
+    @api.post("/author/new", status_code=status.HTTP_201_CREATED)
+    def author_new(body: AuthorNew, user: AuthorDep) -> dict:
+        root = content.root
+        if body.kind == "module":
+            files = authoring_call(authoring.new_module, root, body.slug, body.title, body.language)
+        elif body.kind == "lesson":
+            files = authoring_call(authoring.new_lesson, root, body.module, body.slug, body.title)
+        else:
+            if not body.lesson:
+                raise HTTPException(status.HTTP_400_BAD_REQUEST, "Which lesson is it for?")
+            files = authoring_call(
+                authoring.new_exercise, root, body.module, body.lesson, body.slug, body.title
+            )
+        authoring.reload(content)
+        return {"files": files, "markers": content_markers()}
 
     # -- portfolio --
 

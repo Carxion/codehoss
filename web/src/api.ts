@@ -188,7 +188,7 @@ export interface LibraryIndex {
 const lessonPath = (moduleId: string, slug: string) => `/modules/${moduleId}/lessons/${slug}`;
 
 export const api = {
-  me: () => request<{ username: string }>("GET", "/me"),
+  me: () => request<{ username: string; author?: boolean }>("GET", "/me"),
   login: (username: string, password: string) =>
     request<{ username: string }>("POST", "/auth/login", { username, password }),
   register: (username: string, password: string) =>
@@ -300,6 +300,41 @@ export const progressApi = {
 };
 
 export const reviewPath = (r: DueReview) => `/review/${r.module_id}/${r.lesson}/${r.step}`;
+
+// --- studio (authoring) ------------------------------------------------------------
+
+export interface AuthorMarker {
+  level: "error" | "warning";
+  path: string;
+  line: number | null;
+  message: string;
+}
+
+export interface AuthorPreview {
+  markers: AuthorMarker[];
+  module: { id: string; title: string; language: Language; view: string; lessons: string[] } | null;
+  lesson: { slug: string; title: string; summary: string; steps: (Step | { index: number; type: "missing"; ref: string })[] } | null;
+}
+
+export interface AuthorNew {
+  kind: "module" | "lesson" | "exercise";
+  module: string;
+  lesson?: string;
+  slug: string;
+  title: string;
+  language?: Language;
+}
+
+export const authorApi = {
+  tree: () => request<{ modules: { id: string; files: string[] }[]; markers: AuthorMarker[] }>("GET", "/author/tree"),
+  read: (path: string) => request<{ path: string; text: string }>("GET", `/author/file?path=${encodeURIComponent(path)}`),
+  save: (path: string, text: string) =>
+    request<{ saved: string; markers: AuthorMarker[] }>("PUT", "/author/file", { path, text }),
+  preview: (path: string, text: string) => request<AuthorPreview>("POST", "/author/preview", { path, text }),
+  test: (path: string, text: string) =>
+    request<{ checks: number; markers: AuthorMarker[] }>("POST", "/author/test", { path, text }),
+  create: (body: AuthorNew) => request<{ files: string[]; markers: AuthorMarker[] }>("POST", "/author/new", body),
+};
 
 // --- tutor ----------------------------------------------------------------------
 

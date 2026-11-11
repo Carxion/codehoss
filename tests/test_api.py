@@ -63,7 +63,7 @@ def test_login_and_logout(app, client):
             ).status_code
             == 200
         )
-        assert other.get("/api/me").json() == {"username": "ada"}
+        assert other.get("/api/me").json() == {"username": "ada", "author": False}
         other.post("/api/auth/logout")
         assert other.get("/api/me").status_code == 401
 

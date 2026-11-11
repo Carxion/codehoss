@@ -7,17 +7,19 @@ import Login from "./components/Login";
 import Portfolio from "./components/Portfolio";
 import Review from "./components/Review";
 import SkillMap from "./components/SkillMap";
+import Studio from "./components/Studio";
 
 // Hash routes keep the server simple (no SPA fallback needed):
 //   #/                          catalog
 //   #/learn/<module>/<lesson>/<step>
 //   #/review/<module>/<lesson>/<step>   the same step, answered from memory
-//   #/skills, #/review, #/portfolio
+//   #/skills, #/review, #/portfolio, #/studio (authors)
 type Route =
   | { page: "catalog" }
   | { page: "portfolio" }
   | { page: "skills" }
   | { page: "review" }
+  | { page: "studio" }
   | { page: "learn" | "review-step"; module: string; lesson: string; step: number };
 
 function parseRoute(hash: string): Route {
@@ -31,6 +33,7 @@ function parseRoute(hash: string): Route {
   if (parts[0] === "portfolio") return { page: "portfolio" };
   if (parts[0] === "skills") return { page: "skills" };
   if (parts[0] === "review") return { page: "review" };
+  if (parts[0] === "studio") return { page: "studio" };
   return { page: "catalog" };
 }
 
@@ -40,6 +43,7 @@ export function navigate(path: string) {
 
 export default function App() {
   const [user, setUser] = useState<string | null | undefined>(undefined);
+  const [author, setAuthor] = useState(false);
   const [route, setRoute] = useState<Route>(() => parseRoute(location.hash));
 
   useEffect(() => {
@@ -51,7 +55,10 @@ export default function App() {
   useEffect(() => {
     api
       .me()
-      .then((me) => setUser(me.username))
+      .then((me) => {
+        setUser(me.username);
+        setAuthor(Boolean(me.author));
+      })
       .catch(() => setUser(null));
   }, []);
 
@@ -61,7 +68,16 @@ export default function App() {
   }, []);
 
   if (user === undefined) return <div className="splash">Loading…</div>;
-  if (user === null) return <Login onLogin={setUser} />;
+  if (user === null) {
+    return (
+      <Login
+        onLogin={(name) => {
+          setUser(name);
+          api.me().then((me) => setAuthor(Boolean(me.author)), () => {});
+        }}
+      />
+    );
+  }
 
   return (
     <AIProviderRoot>
@@ -71,6 +87,11 @@ export default function App() {
           <span className="brand-mark">D</span> DataDojo
         </a>
         <div className="topbar-right">
+          {author && (
+            <a href="#/studio" className="small">
+              Studio
+            </a>
+          )}
           <ReviewLink route={route} />
           <a href="#/skills" className="small">
             Skill map
@@ -93,6 +114,8 @@ export default function App() {
         <SkillMap />
       ) : route.page === "review" ? (
         <Review />
+      ) : route.page === "studio" ? (
+        <Studio />
       ) : (
         <LessonView
           key={`${route.page}/${route.module}/${route.lesson}`}

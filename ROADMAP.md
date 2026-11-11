@@ -317,6 +317,13 @@ starts the step fresh, a "Review (n)" badge in the top bar. The skill map lays c
 by prerequisites with a chip per lesson coloured by mastery (hints, "Show me", tutor use and
 overdue reviews lower it). Streaks and a 12-week calendar use the learner's time zone.
 
+Part 3 ✅ (2026-11-10): the **Studio**, a module authoring tool for users in
+`DOJO_AUTHORS`: content file tree, editor with live problem markers on the right line,
+a preview of the lesson as learners see it (from the unsaved text, via a temporary copy),
+**▶ Test lesson** (solutions pass, starters fail, in the sandbox), Save goes live at once
+(a module that breaks keeps its last good version), and templates for new modules, lessons
+and exercises, also as `dojo new module|lesson|exercise`.
+
 - Tutor on local Ollama: sees the lesson, the learner's code and failing tests; gives
   Socratic hints, never full solutions
 - Spaced-repetition review, skill map, streaks
