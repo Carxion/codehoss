@@ -5,6 +5,7 @@
 A free, open-source project for hands-on coding lessons that run on your own desktop.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors)](https://github.com/sponsors/Carxion)
+[![Patreon](https://img.shields.io/badge/Patreon-Carxion-f96854?logo=patreon)](https://patreon.com/Carxion)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Mission
@@ -121,7 +122,8 @@ sandbox.
 ## Support the project
 
 CodeHoss is free and always will be. If it helps you or your team, you can support its
-development through [GitHub Sponsors](https://github.com/sponsors/Carxion).
+development through [GitHub Sponsors](https://github.com/sponsors/Carxion) or
+[Patreon](https://patreon.com/Carxion).
 
 ## License
 
