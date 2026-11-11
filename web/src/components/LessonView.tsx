@@ -10,6 +10,7 @@ import Markdown from "./Markdown";
 import NotebookWorkspace from "./NotebookWorkspace";
 import LabWorkspace, { type LabHandle } from "./LabWorkspace";
 import ShowcaseView from "../showcase/ShowcaseView";
+import TutorPanel from "./TutorPanel";
 
 interface Props {
   moduleId: string;
@@ -43,6 +44,8 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const [checking, setChecking] = useState(false);
   const [running, setRunning] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [showTutor, setShowTutor] = useState(false);
+  const [tutorQuestion, setTutorQuestion] = useState<string | null>(null);
   const [showingSolution, setShowingSolution] = useState(false);
   const [workspaceReady, setWorkspaceReady] = useState(false);
   const [monacoLoaded, setMonacoLoaded] = useState(false);
@@ -252,6 +255,22 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
 
   const go = (i: number) => navigate(`/learn/${moduleId}/${lessonSlug}/${i}`);
 
+  function openTutor(question: string | null = null) {
+    setShowLibrary(false);
+    setShowTutor(true);
+    setTutorQuestion(question);
+  }
+
+  /** What the tutor sees, gathered when the learner sends a question. */
+  const tutorContext = () => ({
+    module_id: moduleId,
+    lesson: lessonSlug,
+    step: index,
+    code: isLab || showingSolution ? (isLab ? "" : savedCode.current) : (workspace.current?.getCode() ?? ""),
+    session_id: sessionId,
+    feedback: feedbackForTutor(feedback[index]),
+  });
+
   // --- render ------------------------------------------------------------------
 
   if (loadError) return <main className="page"><p className="error-text">{loadError}</p></main>;
@@ -263,9 +282,11 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
   const isLast = index === lesson.steps.length - 1;
   const done = progress(index).done;
   const Workspace = notebook ? NotebookWorkspace : EditorWorkspace;
+  const tutorAllowed = level !== "solo";
+  const failing = feedback[index] !== undefined && feedback[index].kind !== "pass" && !(feedback[index].kind === "results" && feedback[index].passed);
 
   return (
-    <div className={`lesson-layout ${showLibrary ? "with-library" : ""}`}>
+    <div className={`lesson-layout ${showLibrary || (showTutor && tutorAllowed) ? "with-side" : ""}`}>
       <section className="lesson-panel">
         <div className="lesson-head">
           <a href="#/" className="small">← All lessons</a>
@@ -308,7 +329,12 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
             </div>
           ))}
           {labSolutions[index] && <LabSolution {...labSolutions[index]} />}
-          {feedback[index] && step.type !== "quiz" && <FeedbackView feedback={feedback[index]} />}
+          {feedback[index] && step.type !== "quiz" && (
+            <FeedbackView
+              feedback={feedback[index]}
+              onAskTutor={tutorAllowed && failing ? () => openTutor(WHY_FAILING) : undefined}
+            />
+          )}
         </div>
 
         <div className="step-nav">
@@ -370,6 +396,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
                 </button>
               )}
               <span className="spacer" />
+              {tutorAllowed && <TutorButton open={showTutor} onClick={() => (showTutor ? setShowTutor(false) : openTutor())} />}
               {isLab && (
                 <button onClick={() => resetLab(true)} disabled={!sessionId || step.type !== "exercise"} title="Remove your containers, networks, volumes and Kubernetes objects">
                   🧹 Clean up lab
@@ -382,7 +409,14 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
                 ↺ Reset
               </button>
               <span className="spacer" />
-              <button onClick={() => setShowLibrary(!showLibrary)} aria-pressed={showLibrary}>
+              {tutorAllowed && <TutorButton open={showTutor} onClick={() => (showTutor ? setShowTutor(false) : openTutor())} />}
+              <button
+                onClick={() => {
+                  setShowLibrary(!showLibrary);
+                  setShowTutor(false);
+                }}
+                aria-pressed={showLibrary}
+              >
                 📚 Library
               </button>
             </>
@@ -444,6 +478,16 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex }: Props) {
         </div>
       </section>
 
+      {showTutor && tutorAllowed && (
+        <TutorPanel
+          conversationKey={`${moduleId}/${lessonSlug}/${index}`}
+          context={tutorContext}
+          suggestions={tutorSuggestions(step, failing)}
+          pending={tutorQuestion}
+          onPendingSent={() => setTutorQuestion(null)}
+          onClose={() => setShowTutor(false)}
+        />
+      )}
       {showLibrary && (
         <LibraryExplorer
           moduleId={moduleId}
@@ -603,17 +647,64 @@ function StepContent({
   }
 }
 
-function FeedbackView({ feedback }: { feedback: Feedback }) {
+const WHY_FAILING = "My check didn't pass. Can you help me understand why?";
+
+function TutorButton({ open, onClick }: { open: boolean; onClick: () => void }) {
+  return (
+    <button onClick={onClick} aria-pressed={open} title="Ask the AI tutor about this step">
+      🧑‍🏫 Tutor
+    </button>
+  );
+}
+
+function tutorSuggestions(step: Step, failing: boolean): string[] {
+  switch (step.type) {
+    case "exercise":
+    case "try-it":
+      return failing
+        ? [WHY_FAILING, "What should I try next?"]
+        : ["Where do I start?", "Explain the task in simpler words", "Is my approach on the right track?"];
+    case "quiz":
+      return ["Help me think this question through"];
+    default:
+      return ["Explain this in simpler words", "Give me a quick question to test myself"];
+  }
+}
+
+/** The last Check in the shape the tutor endpoint expects. */
+function feedbackForTutor(feedback: Feedback | undefined) {
+  if (!feedback) return null;
+  if (feedback.kind === "results") {
+    return {
+      passed: feedback.passed,
+      timed_out: feedback.timedOut,
+      results: feedback.results.map((r) => ({ label: r.label, outcome: r.outcome, message: r.explanation || r.message })),
+    };
+  }
+  return { message: feedback.message };
+}
+
+function FeedbackView({ feedback, onAskTutor }: { feedback: Feedback; onAskTutor?: () => void }) {
+  const ask = onAskTutor && (
+    <button className="small ask-tutor" onClick={onAskTutor}>
+      🧑‍🏫 Ask the tutor why
+    </button>
+  );
   if (feedback.kind !== "results") {
     return (
       <div className={`feedback feedback-line ${feedback.kind}`} role="status">
         <strong className="feedback-icon">{feedback.kind === "pass" ? "✓" : "✗"}</strong>
         <Markdown>{feedback.message}</Markdown>
+        {ask}
       </div>
     );
   }
   if (feedback.timedOut) {
-    return <div className="feedback fail">Your program took too long. Is there a loop that never ends?</div>;
+    return (
+      <div className="feedback fail">
+        Your program took too long. Is there a loop that never ends? {ask}
+      </div>
+    );
   }
   return (
     <div className={`feedback ${feedback.passed ? "pass" : "fail"}`} role="status">
@@ -633,6 +724,7 @@ function FeedbackView({ feedback }: { feedback: Feedback }) {
           </li>
         ))}
       </ul>
+      {ask}
     </div>
   );
 }

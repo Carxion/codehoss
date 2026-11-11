@@ -63,10 +63,16 @@ CREATE TABLE IF NOT EXISTS progress (
     attempts INTEGER NOT NULL DEFAULT 0,
     hints_used INTEGER NOT NULL DEFAULT 0,
     showed_solution INTEGER NOT NULL DEFAULT 0,
+    tutor_questions INTEGER NOT NULL DEFAULT 0,
     updated REAL NOT NULL,
     PRIMARY KEY (user_id, module_id, step_ref)
 );
 """
+
+# Columns added after a table was first created: (table, column, definition).
+MIGRATIONS = [
+    ("progress", "tutor_questions", "INTEGER NOT NULL DEFAULT 0"),
+]
 
 
 class AuthError(ValueError):
@@ -92,6 +98,7 @@ class StepProgress:
     attempts: int
     hints_used: int
     showed_solution: bool
+    tutor_questions: int = 0
 
 
 class Store:
@@ -102,6 +109,10 @@ class Store:
         self._fernet = Fernet(secret_key or _load_secret(Path(self.path)))
         with self._db() as db:
             db.executescript(SCHEMA)
+            for table, column, definition in MIGRATIONS:
+                columns = {row[1] for row in db.execute(f"PRAGMA table_info({table})")}
+                if column not in columns:
+                    db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
     @contextmanager
     def _db(self):
@@ -175,6 +186,7 @@ class Store:
         attempt: bool = False,
         hints_used: int = 0,
         showed_solution: bool = False,
+        tutor_questions: int = 0,
     ) -> None:
         """Merge an event into a step's progress. Nothing is ever un-done."""
         with self._db() as db:
@@ -182,13 +194,14 @@ class Store:
                 """
                 INSERT INTO progress
                     (user_id, module_id, step_ref, done, attempts, hints_used,
-                     showed_solution, updated)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                     showed_solution, tutor_questions, updated)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (user_id, module_id, step_ref) DO UPDATE SET
                     done = MAX(done, excluded.done),
                     attempts = attempts + excluded.attempts,
                     hints_used = MAX(hints_used, excluded.hints_used),
                     showed_solution = MAX(showed_solution, excluded.showed_solution),
+                    tutor_questions = tutor_questions + excluded.tutor_questions,
                     updated = excluded.updated
                 """,
                 (
@@ -199,6 +212,7 @@ class Store:
                     int(attempt),
                     hints_used,
                     int(showed_solution),
+                    tutor_questions,
                     time.time(),
                 ),
             )
@@ -206,13 +220,14 @@ class Store:
     def progress(self, user: User, module_id: str) -> dict[str, StepProgress]:
         with self._db() as db:
             rows = db.execute(
-                "SELECT step_ref, done, attempts, hints_used, showed_solution FROM progress "
+                "SELECT step_ref, done, attempts, hints_used, showed_solution, tutor_questions "
+                "FROM progress "
                 "WHERE user_id = ? AND module_id = ?",
                 (user.id, module_id),
             ).fetchall()
         return {
-            ref: StepProgress(bool(done), attempts, hints, bool(showed))
-            for ref, done, attempts, hints, showed in rows
+            ref: StepProgress(bool(done), attempts, hints, bool(showed), tutor)
+            for ref, done, attempts, hints, showed, tutor in rows
         }
 
     # --- projects --------------------------------------------------------------

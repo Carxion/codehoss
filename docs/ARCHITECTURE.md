@@ -14,7 +14,7 @@ API (FastAPI, src/dojo/api.py)
    ├── grader            — runs hidden tests / try-it checks inside the sandbox
    ├── error explainer   — traceback → plain-English message + did-you-mean
    ├── store             — accounts, tokens, per-step progress: SQLite (→ Postgres later)
-   └── tutor (M8)        — Ollama client
+   └── tutor (M8)        — Socratic help on the learner's AI backend, with a leak guard
    │
    ▼
 Sandbox containers (image chosen by module.yaml, same lockdown for all)
@@ -174,6 +174,30 @@ Outside a kernel (grading, try-its, editor runs) `dojo_ai` runs in **practice mo
 and records every call in `dojo_ai.calls`. The grader resets it before each test.
 Exercises therefore check what learners control (prompts, history, parsing, retrieval,
 loops) without paying for or depending on a real model.
+
+## Tutor
+
+The 🧑‍🏫 Tutor panel sits beside every lesson step (off in Solo projects). It runs on the
+same backend the learner picked for AI lessons, through the gateway's `chat_stream`.
+
+```
+TutorPanel: question + the step's code and last Check (gathered at send time)
+  → POST /api/tutor
+  → tutor.context_for: lesson text so far, the step's task, visible tests, author hints,
+    the reference solution, the learner's code (numbered) or lab files, the last Check
+  → tutor.system_prompt: Socratic rules + that context; last 12 turns of the chat
+  → Gateway.chat_stream (Ollama /api/chat stream, or Claude messages.stream)
+  → LeakGuard → JSON lines back: meta (model), text chunks, done / error
+```
+
+The model sees the solution so its nudges point the right way. The prompt tells it never
+to write it, and `LeakGuard` checks what comes out anyway: prose streams straight
+through, but code (fenced blocks, inline spans) is held until it closes and compared
+line by line, ignoring whitespace and comments, with the solution. A block that repeats
+solution lines the learner hasn't written and that weren't in the starter is replaced by
+a note: one such line is enough when the solution is short, two otherwise. Quizzes never
+send the answer at all. Each question adds to the step's `tutor_questions` progress
+counter. Conversations live in the browser (sessionStorage), one per step.
 
 ## Interactive runs
 

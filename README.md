@@ -14,9 +14,11 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 > learner), 12-lesson **Kubernetes** (a private k3s cluster with registry, ingress and
 > storage) and the **MLOps** capstone (train, serve, release, deploy, GitLab CI, monitoring
 > and canaries). **Programming Basics** is a first course that isn't tied to any language:
-> learners write pseudocode that really runs and step through it line by line. Next: the AI
-> tutor (M8), then JavaScript, R, C++ and C# courses with projects. See
-> [ROADMAP.md](ROADMAP.md).
+> learners write pseudocode that really runs and step through it line by line. M8 adds an
+> **AI tutor** beside every lesson: it sees the step, your code and your failing tests, and
+> nudges you towards the answer without writing it. Next: the rest of M8 (spaced review,
+> skill map, authoring tool, Helm chart), then JavaScript, R, C++ and C# courses with
+> projects. See [ROADMAP.md](ROADMAP.md).
 
 ## Run it (needs Docker running)
 
@@ -62,7 +64,8 @@ sandbox.
   **Data Science**, **AI**, **Data Structures & Algorithms** and **Projects** (guided build
   plans), plus hands-on **Docker**, **Kubernetes** and **MLOps** labs. See [docs/CURRICULUM.md](docs/CURRICULUM.md).
 - **Hand-holding** — bite-sized guided steps, escalating hints, a friendly error explainer,
-  and scaffolding that fades as you improve. See
+  an AI tutor that asks guiding questions instead of handing out answers, and scaffolding
+  that fades as you improve. See
   [docs/LEARNING-EXPERIENCE.md](docs/LEARNING-EXPERIENCE.md).
 - **An IDE that shows you what's possible** — live IntelliSense from the libraries actually
   installed for your module (type `df.` and see every DataFrame method with docs), plus a

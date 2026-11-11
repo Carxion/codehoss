@@ -302,6 +302,14 @@ Original plan:
 - Session orchestration moves onto Kubernetes (one pod per session)
 
 ## M8 — AI tutor & polish
+Part 1 ✅ (2026-11-10): the **AI tutor**, a 🧑‍🏫 panel beside every step (off in Solo
+projects) on the learner's own backend (Ollama or Claude), streamed. It sees the lesson so
+far, the step, visible tests, author hints, the learner's code or lab files and the last
+Check; it's given the reference solution so its nudges are accurate, and a leak guard holds
+back every code block and hides any that repeats solution lines. "Ask the tutor why" under
+a failed Check; suggested questions per step type; tutor questions are recorded as progress
+(feeds spaced review). Checked live with qwen2.5:7b.
+
 - Tutor on local Ollama: sees the lesson, the learner's code and failing tests; gives
   Socratic hints, never full solutions
 - Spaced-repetition review, skill map, streaks

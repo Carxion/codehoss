@@ -13,7 +13,7 @@ import json
 import os
 import threading
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterator
 from dataclasses import asdict
 from pathlib import Path
 from typing import Annotated, Literal
@@ -30,11 +30,12 @@ from fastapi import (
     status,
 )
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from dojo import grader, lab
+from dojo import grader, lab, tutor
 from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
 from dojo.executors import StdinFeed
 from dojo.explain import explain_message, explain_traceback
@@ -106,6 +107,23 @@ class AISettingsBody(BaseModel):
     model: str | None = Field(default=None, max_length=100)
     api_key: str | None = Field(default=None, max_length=300)
     clear_key: bool = False
+
+
+class TutorMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(max_length=20_000)
+
+
+class TutorRequest(BaseModel):
+    module_id: str
+    lesson: str
+    step: int
+    code: str = Field(default="", max_length=MAX_CODE)
+    # Labs: the tutor reads the learner's files from this session.
+    session_id: str | None = None
+    # The last Check, as shown to the learner (results, or a try-it message).
+    feedback: dict | None = None
+    messages: list[TutorMessage] = Field(min_length=1, max_length=60)
 
 
 class LevelBody(BaseModel):
@@ -280,6 +298,54 @@ def create_app(
             return ai.test(ai_settings_for(user))
         except AIError as e:
             return {"ok": False, "error": str(e)}
+
+    @api.post("/tutor")
+    def ask_tutor(body: TutorRequest, user: UserDep) -> StreamingResponse:
+        """Stream a tutor reply as JSON lines: meta (which model), text chunks, done/error."""
+        module = module_or_404(body.module_id)
+        lesson = lesson_or_404(module, body.lesson)
+        step_or_404(lesson, body.step)
+        if lesson.spec.project and db.project_level(user, module.spec.id, lesson.slug) == "solo":
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN,
+                "The tutor is off in Solo. Switch to Assisted or Guided for help.",
+            )
+        lab_files = None
+        step = lesson.spec.steps[body.step]
+        if body.session_id and isinstance(step, ExerciseStep) and lesson.exercises[step.ref].is_lab:
+            session = own_session(body.session_id, user)
+            lab_files = lab.read_files(session.container, lab.lab_dir(lesson.exercises[step.ref]))
+        ctx = tutor.context_for(
+            module, lesson, body.step, code=body.code, lab_files=lab_files, feedback=body.feedback
+        )
+        messages = tutor.trim_messages([m.model_dump() for m in body.messages])
+        if not messages:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Ask the tutor something first.")
+        settings = ai_settings_for(user)
+
+        def events() -> Iterator[str]:
+            def line(**event) -> str:
+                return json.dumps(event) + "\n"
+
+            guard = tutor.LeakGuard(ctx.solution, allowed=f"{ctx.starter}\n{ctx.code}")
+            try:
+                ai.limiter.check(user.id)
+                chunks = ai.chat_stream(
+                    settings, tutor.system_prompt(ctx), messages, tutor.MAX_REPLY_TOKENS
+                )
+                model = next(chunks)
+                yield line(type="meta", provider=settings.provider, model=model)
+                for chunk in chunks:
+                    for text in guard.feed(chunk):
+                        yield line(type="text", text=text)
+                for text in guard.finish():
+                    yield line(type="text", text=text)
+                db.record(user, module.spec.id, f"{lesson.slug}/{body.step}", tutor_questions=1)
+                yield line(type="done", redactions=guard.redactions)
+            except AIError as e:
+                yield line(type="error", message=str(e))
+
+        return StreamingResponse(events(), media_type="application/x-ndjson")
 
     @api.get("/health")
     def health() -> dict:

@@ -202,7 +202,7 @@ input {
   display: grid;
   grid-template-columns: minmax(320px, 38%) 1fr;
 }
-.lesson-layout.with-library { grid-template-columns: minmax(300px, 32%) 1fr 300px; }
+.lesson-layout.with-side { grid-template-columns: minmax(300px, 32%) 1fr 300px; }
 
 .lesson-panel {
   display: flex;
@@ -360,16 +360,46 @@ input {
 .signature { background: var(--code-bg); padding: 0.5rem; border-radius: 6px; white-space: pre-wrap; font-size: 0.82rem; }
 .pill { font-size: 0.7rem; background: var(--info-bg); padding: 0 0.4rem; border-radius: 999px; margin-left: auto; }
 
+/* --- tutor ------------------------------------------------------------- */
+
+.lesson-layout.with-side:has(.tutor) { grid-template-columns: minmax(300px, 30%) 1fr 340px; }
+.tutor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0.75rem;
+  gap: 0.5rem;
+}
+.tutor-head { display: flex; align-items: center; gap: 0.5rem; }
+.tutor-model { align-self: flex-start; border-radius: 999px; padding: 0.1rem 0.6rem; background: var(--info-bg); border: none; }
+.tutor-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; min-height: 120px; }
+.tutor-intro p { margin: 0 0 0.5rem; color: var(--muted); }
+.tutor-turn { padding: 0.5rem 0.65rem; border-radius: var(--radius); font-size: 0.9rem; max-width: 92%; }
+.tutor-turn p { margin: 0; white-space: pre-wrap; }
+.tutor-turn .markdown > :first-child { margin-top: 0; }
+.tutor-turn .markdown > :last-child { margin-bottom: 0; }
+.tutor-turn.user { align-self: flex-end; background: var(--accent); color: var(--accent-text); }
+.tutor-turn.assistant { align-self: flex-start; background: var(--code-bg); }
+.tutor-turn.error { background: var(--danger-bg); color: var(--danger); }
+.tutor-via { display: block; margin-top: 0.3rem; font-size: 0.7rem; color: var(--muted); }
+.tutor-suggestions { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.tutor-suggestions button { border-radius: 999px; padding: 0.15rem 0.6rem; }
+.tutor-input { display: flex; gap: 0.4rem; align-items: flex-end; }
+.tutor-input textarea { flex: 1; resize: vertical; font: inherit; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.ask-tutor { margin-top: 0.5rem; }
+
 /* --- small screens ------------------------------------------------------- */
 
 @media (max-width: 860px) {
-  .lesson-layout, .lesson-layout.with-library { display: flex; flex-direction: column; overflow-y: auto; }
+  .lesson-layout, .lesson-layout.with-side { display: flex; flex-direction: column; overflow-y: auto; }
   /* In the scrolling column every pane keeps its natural height instead of shrinking. */
-  .lesson-panel, .workspace, .library { flex: none; }
+  .lesson-panel, .workspace, .library, .tutor { flex: none; }
   .lesson-panel { border-right: none; border-bottom: 1px solid var(--border); }
   .step-body { overflow: visible; }
   .editor-wrap { min-height: 300px; }
-  .library { border-left: none; border-top: 1px solid var(--border); max-height: 60vh; }
+  .library, .tutor { border-left: none; border-top: 1px solid var(--border); max-height: 60vh; }
   .module-head { flex-direction: column; }
 }
 

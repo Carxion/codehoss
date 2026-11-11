@@ -99,6 +99,7 @@ export interface StepProgress {
   attempts: number;
   hints_used: number;
   showed_solution: boolean;
+  tutor_questions?: number;
 }
 
 export interface Lesson {
@@ -239,6 +240,61 @@ export const api = {
       code,
     }),
 };
+
+// --- tutor ----------------------------------------------------------------------
+
+export interface TutorMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface TutorRequest {
+  module_id: string;
+  lesson: string;
+  step: number;
+  code: string;
+  session_id: string | null;
+  /** The last Check, as the learner saw it. */
+  feedback: unknown;
+  messages: TutorMessage[];
+}
+
+export type TutorEvent =
+  | { type: "meta"; provider: AIProvider; model: string }
+  | { type: "text"; text: string }
+  | { type: "done"; redactions: number }
+  | { type: "error"; message: string };
+
+/** Ask the tutor; the reply streams back as JSON lines, one event per line. */
+export async function askTutor(body: TutorRequest, onEvent: (e: TutorEvent) => void, signal: AbortSignal) {
+  const response = await fetch("/api/tutor", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!response.ok || !response.body) {
+    let detail = response.statusText;
+    try {
+      detail = (await response.json()).detail ?? detail;
+    } catch {
+      /* not JSON */
+    }
+    throw new ApiError(response.status, typeof detail === "string" ? detail : JSON.stringify(detail));
+  }
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buffer += value;
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) if (line.trim()) onEvent(JSON.parse(line));
+  }
+  if (buffer.trim()) onEvent(JSON.parse(buffer));
+}
 
 export function wsUrl(path: string): string {
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";

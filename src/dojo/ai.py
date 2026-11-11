@@ -12,6 +12,7 @@ to enforce limits, keep keys safe, and report which model answered.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import threading
@@ -19,6 +20,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import defaultdict, deque
+from collections.abc import Iterator
 from dataclasses import dataclass
 
 import anthropic
@@ -135,6 +137,21 @@ class Gateway:
             "ms": round((time.monotonic() - started) * 1000),
         }
 
+    def chat_stream(
+        self, settings: AISettings, system: str, messages: list[dict], max_tokens: int
+    ) -> Iterator[str]:
+        """Stream a reply as text chunks (the tutor). The first item is the model name."""
+        size = sum(len(m.get("content", "")) for m in messages) + len(system)
+        if size > MAX_PROMPT_CHARS:
+            raise AIError(
+                f"That conversation is too long for DataDojo ({size:,} characters). Start a new one."
+            )
+        if settings.provider == "ollama":
+            return self._ollama_stream(settings, system, messages, max_tokens)
+        if settings.provider == "anthropic":
+            return self._anthropic_stream(settings, system, messages, max_tokens)
+        raise AIError(NOT_SET_UP)
+
     def embed(self, settings: AISettings, payload: dict) -> dict:
         texts = payload.get("texts") or []
         if len(texts) > MAX_EMBED_TEXTS:
@@ -190,41 +207,81 @@ class Gateway:
         data = self._ollama("POST", "/api/chat", body, timeout=300)
         return model, data.get("message", {}).get("content", "")
 
-    def _anthropic_chat(self, settings, payload, messages, system, max_tokens) -> tuple[str, str]:
+    def _ollama_stream(self, settings, system, messages, max_tokens) -> Iterator[str]:
+        model = settings.model or (self.ollama_status()["models"] or [None])[0]
+        if not model:
+            raise AIError("Ollama has no chat models yet. In a terminal, run: ollama pull llama3.2")
+        body = {
+            "model": model,
+            "messages": [{"role": "system", "content": system}, *messages],
+            "stream": True,
+            "options": {"num_predict": max_tokens},
+        }
+        request = urllib.request.Request(
+            self.ollama_url + "/api/chat",
+            data=json.dumps(body).encode("utf-8"),
+            method="POST",
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            response = urllib.request.urlopen(request, timeout=300)
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", errors="replace")[:300]
+            raise AIError(f"Ollama returned an error: {detail}") from None
+        except (urllib.error.URLError, TimeoutError, ConnectionError):
+            raise AIError(
+                f"Ollama isn't running at {self.ollama_url}. Start the Ollama app."
+            ) from None
+
+        def chunks() -> Iterator[str]:
+            yield model
+            with response:
+                for line in response:  # one JSON object per line
+                    if not line.strip():
+                        continue
+                    data = json.loads(line)
+                    if data.get("error"):
+                        raise AIError(f"Ollama returned an error: {data['error']}")
+                    if text := data.get("message", {}).get("content"):
+                        yield text
+                    if data.get("done"):
+                        break
+
+        return chunks()
+
+    def _anthropic_stream(self, settings, system, messages, max_tokens) -> Iterator[str]:
+        client, kwargs = self._anthropic_request(settings, system, messages, max_tokens)
+
+        def chunks() -> Iterator[str]:
+            yield kwargs["model"]
+            with _anthropic_errors(kwargs["model"]):
+                with client.beta.messages.stream(**kwargs, **REFUSAL_FALLBACKS) as stream:
+                    yield from stream.text_stream
+                    if stream.get_final_message().stop_reason == "refusal":
+                        raise AIError("The model declined to answer that request.")
+
+        return chunks()
+
+    def _anthropic_request(self, settings, system, messages, max_tokens) -> tuple:
         if not settings.api_key:
             raise AIError("Add your Anthropic API key in AI settings (top bar → AI).")
-        model = settings.model or ANTHROPIC_MODELS[0]
+        client = anthropic.Anthropic(api_key=settings.api_key, max_retries=2, timeout=120)
+        kwargs: dict = {
+            "model": settings.model or ANTHROPIC_MODELS[0],
+            "max_tokens": max_tokens,
+            "messages": messages,
+        }
+        if system:
+            kwargs["system"] = system
+        return client, kwargs
+
+    def _anthropic_chat(self, settings, payload, messages, system, max_tokens) -> tuple[str, str]:
         if payload.get("json"):
             extra = "Reply with valid JSON only: no prose and no code fences."
             system = f"{system}\n\n{extra}" if system else extra
-        client = anthropic.Anthropic(api_key=settings.api_key, max_retries=2, timeout=120)
-        kwargs: dict = {"model": model, "max_tokens": max_tokens, "messages": messages}
-        if system:
-            kwargs["system"] = system
-        try:
-            # Opt in to refusal fallbacks: if the model declines on policy grounds, the
-            # API re-runs the request on a fallback model instead of returning nothing.
-            response = client.beta.messages.create(
-                **kwargs, betas=["server-side-fallback-2026-07-01"], fallbacks="default"
-            )
-        except anthropic.AuthenticationError:
-            raise AIError("Anthropic rejected the API key. Check it in AI settings.") from None
-        except anthropic.PermissionDeniedError:
-            raise AIError("This API key isn't allowed to use that model.") from None
-        except anthropic.NotFoundError:
-            raise AIError(f"Anthropic doesn't recognise the model {model!r}.") from None
-        except anthropic.RateLimitError:
-            raise AIError(
-                "Anthropic says you're sending requests too fast. Wait a moment and try again."
-            ) from None
-        except anthropic.BadRequestError as e:
-            raise AIError(f"Anthropic couldn't process the request: {e.message}") from None
-        except anthropic.APIStatusError as e:
-            raise AIError(
-                f"Anthropic had a problem ({e.status_code}). Try again shortly."
-            ) from None
-        except anthropic.APIConnectionError:
-            raise AIError("Couldn't reach Anthropic. Is this computer online?") from None
+        client, kwargs = self._anthropic_request(settings, system, messages, max_tokens)
+        with _anthropic_errors(kwargs["model"]):
+            response = client.beta.messages.create(**kwargs, **REFUSAL_FALLBACKS)
         if response.stop_reason == "refusal":
             raise AIError("The model declined to answer that request.")
         text = "".join(block.text for block in response.content if block.type == "text")
@@ -252,6 +309,33 @@ class Gateway:
 
 
 NOT_SET_UP = "Choose an AI model first: top bar → AI → pick Local (Ollama) or Hosted (your key)."
+
+# Opt in to refusal fallbacks: if the model declines on policy grounds, the API re-runs
+# the request on a fallback model instead of returning nothing.
+REFUSAL_FALLBACKS = {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
+
+
+@contextlib.contextmanager
+def _anthropic_errors(model: str) -> Iterator[None]:
+    """Turn SDK errors into messages a learner can act on."""
+    try:
+        yield
+    except anthropic.AuthenticationError:
+        raise AIError("Anthropic rejected the API key. Check it in AI settings.") from None
+    except anthropic.PermissionDeniedError:
+        raise AIError("This API key isn't allowed to use that model.") from None
+    except anthropic.NotFoundError:
+        raise AIError(f"Anthropic doesn't recognise the model {model!r}.") from None
+    except anthropic.RateLimitError:
+        raise AIError(
+            "Anthropic says you're sending requests too fast. Wait a moment and try again."
+        ) from None
+    except anthropic.BadRequestError as e:
+        raise AIError(f"Anthropic couldn't process the request: {e.message}") from None
+    except anthropic.APIStatusError as e:
+        raise AIError(f"Anthropic had a problem ({e.status_code}). Try again shortly.") from None
+    except anthropic.APIConnectionError:
+        raise AIError("Couldn't reach Anthropic. Is this computer online?") from None
 
 
 def _is_embedding_model(name: str) -> bool:
