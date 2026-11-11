@@ -4,6 +4,15 @@
 
 A free, open-source project for hands-on coding lessons that run on your own desktop.
 
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors)](https://github.com/sponsors/Carxion)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Mission
+
+CodeHoss exists to provide a free and open-source platform for learning to code. Our goal
+is to democratize education for all: anyone, anywhere, should be able to learn real
+programming skills without paying for a course or a subscription.
+
 An interactive, self-hosted learning platform for Python, data structures & algorithms, and
 data science — with a browser IDE, auto-graded hands-on exercises, interactive showcases, and
 real infrastructure labs (Docker, Kubernetes, databases) that learners actually run.
@@ -108,3 +117,12 @@ sandbox.
 - Docker Desktop (or Rancher Desktop — pick one; running both wastes disk)
 - Node 20+ (frontend)
 - Later: `kubectl` + `kind` (Kubernetes module, M7)
+
+## Support the project
+
+CodeHoss is free and always will be. If it helps you or your team, you can support its
+development through [GitHub Sponsors](https://github.com/sponsors/Carxion).
+
+## License
+
+[MIT](LICENSE)

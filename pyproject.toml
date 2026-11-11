@@ -3,6 +3,8 @@ name = "codehoss"
 version = "0.0.1"
 description = "Interactive platform for learning Python, data science and AI"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
     "pydantic>=2.7",
