@@ -303,7 +303,7 @@ reviewed like code.
 | Area | Choice | Why |
 |---|---|---|
 | Backend | FastAPI + Pydantic | async, WebSockets, typed |
-| Package mgmt | uv | fast, already in use on this machine |
+| Package mgmt | uv | fast, reproducible installs from one lockfile |
 | Frontend | React + Vite + Monaco | Monaco = VS Code editor |
 | IntelliSense | basedpyright + own small LSP client | real completions from installed packages |
 | Terminal | xterm.js | standard |

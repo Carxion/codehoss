@@ -450,15 +450,17 @@ C# (image `hoss-dotnet`, .NET SDK, `csharp-ls`):
 - Intermediate: interfaces and generics, LINQ, exceptions, async, unit tests with xUnit.
 - Applications: ASP.NET Core minimal APIs, Entity Framework with SQLite, console tools.
 - Projects: inventory manager, console game, a small web API.
-The .NET SDK image is large (~800 MB); see the disk budget.
+The .NET SDK image is large (~800 MB); see the size goals.
 
 ## Later / maybe
 - Classrooms (instructor dashboard, cohorts)
 - Pyodide offline mode for Python Basics (no backend)
 - Community module registry
 
-## Disk budget (this machine)
-C: has ~100 GB free. Keep per-module images lean (AI/DL image is the big one — CPU
-PyTorch only), use one Docker runtime, and have `hoss clean` prune images.
-Target: whole dev setup < 15 GB. The language milestones add roughly: Node ~180 MB,
-R with tidyverse ~1.2 GB, gcc ~400 MB, .NET SDK ~800 MB.
+## Size goals
+
+CodeHoss should run on an ordinary laptop. Keep each module's image lean (the AI/DL image
+is the big one, so it uses CPU-only PyTorch), build only the images a learner's courses
+need, and add a `hoss clean` command that prunes old ones. Goal: a full install with every course stays
+under 15 GB of disk. The language milestones add roughly: Node ~180 MB, R with tidyverse
+~1.2 GB, gcc ~400 MB, .NET SDK ~800 MB.
