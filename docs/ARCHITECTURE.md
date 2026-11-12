@@ -6,7 +6,7 @@
 Browser (React + Monaco + console + Library Explorer; notebook view M3, showcases M6)
    │  HTTP + WebSockets (interactive runs, LSP), all under /api, cookie auth
    ▼
-API (FastAPI, src/dojo/api.py)
+API (FastAPI, src/hoss/api.py)
    ├── module registry   — discovers modules in /content, resolves prerequisites
    ├── content service   — lessons/steps with answers stripped; hints one level at a time
    ├── session manager   — one sandbox per (user, module), reused across page loads
@@ -29,7 +29,7 @@ Sandbox containers (image chosen by module.yaml, same lockdown for all)
 The platform has no course content baked in. On startup the module registry scans
 `content/*/module.yaml`, validates each module, and builds:
 - the catalog and prerequisite graph
-- the per-module sandbox image spec (`dojo-python`, `dojo-ds`, `dojo-ai`, …)
+- the per-module sandbox image spec (`hoss-python`, `hoss-ds`, `hoss-ai`, …)
 - the Library Explorer index — generated at image build time by introspecting the
   installed packages (module → classes/functions → signatures + docstrings), stored as
   JSON so the panel loads instantly without a live session
@@ -42,7 +42,7 @@ new capability (notebook view, sidecar services, network allowlist, labs).
 basedpyright runs from the **module's own image**, in its own locked-down container
 (not the session's, so learner code can't starve or kill it), so it sees exactly the
 packages the learner's code will run with. The API relays LSP JSON messages between a
-WebSocket and the server's stdio (`src/dojo/lsp.py`).
+WebSocket and the server's stdio (`src/hoss/lsp.py`).
 
 In the browser, `web/src/lsp.ts` is a small purpose-built LSP client (completion +
 resolve, hover, signature help, diagnostics) rather than `monaco-languageclient`. It
@@ -55,7 +55,7 @@ are planned for M3.
 
 Notebook modules (`default_view: notebook`) run cells on a kernel: one long-lived
 IPython process inside the learner's session container, started with
-`docker exec -i ... python -c <dojo/_kernel.py>`, so images need no extra files. It
+`docker exec -i ... python -c <hoss/_kernel.py>`, so images need no extra files. It
 speaks JSON lines over stdio and uses IPython's `InteractiveShell` for real notebook
 behaviour (last expression shown, rich reprs, inline matplotlib). The API bridges it to
 the browser over `/api/sessions/<id>/kernel`; each cell gets a 60 s limit (interrupt,
@@ -63,7 +63,7 @@ then restart). Errors come back with the same plain-English explanation as runs.
 
 Notebook content is stored as Python with `# %%` cell markers, so grading is
 unchanged: the whole notebook runs as one script against hidden tests. Test helpers in
-`dojo_checks` (copied into each grading run) give friendly failures for DataFrames,
+`hoss_checks` (copied into each grading run) give friendly failures for DataFrames,
 Series, numbers and charts.
 
 For IntelliSense the client stitches the cells into one virtual document (plus a
@@ -84,7 +84,7 @@ also converted to `.ipynb`).
 ## Labs
 
 Modules with `sandbox.lab: docker` get a second container per session: `docker:dind`
-(privileged, or `DOJO_LAB_RUNTIME` such as sysbox) on a per-session `--internal` network,
+(privileged, or `HOSS_LAB_RUNTIME` such as sysbox) on a per-session `--internal` network,
 reachable from the session as `tcp://docker:2375` and from nowhere else. The session
 container keeps its lockdown (read-only root, no capabilities, uid 1000) and gains only that
 network plus the Docker CLI (copied from `docker:cli`). `sandbox.lab_images` are piped in
@@ -95,7 +95,7 @@ networks are cleaned at server start.
 Lab exercises live in `/work/<name>` in the session: seeded from `files/` on first open
 (never over the learner's work; emptied in place on reset so an open shell stays valid),
 edited through `/api/sessions/{id}/lab/{exercise}/files`, and graded by `grade_lab`, which
-runs the tests in the session with `LAB_DIR` set. The terminal is `dojo._term` (a PTY around
+runs the tests in the session with `LAB_DIR` set. The terminal is `hoss._term` (a PTY around
 bash, JSON-lines input so resizes travel with keystrokes) bridged to xterm.js by
 `/api/sessions/{id}/terminal`.
 
@@ -104,7 +104,7 @@ Kubernetes labs (`sandbox.lab: kubernetes`) also start `rancher/k3s` on that net
 (k3s system images plus `lab_images`) and a `registries.yaml` through `docker cp -`, then
 started with a dummy default route (k3s won't pick a node IP without one; the network has
 no way out regardless). The engine runs with `--insecure-registry docker:5000` and a
-`registry` container labelled `dojo.keep=1`, which lab resets leave alone; resets also
+`registry` container labelled `hoss.keep=1`, which lab resets leave alone; resets also
 delete the learner's namespaces (waiting, so the next exercise can reuse a name) and
 objects. The session gets a kubeconfig pointing at `https://k3s:6443`; `kubectl` is the k3s
 multi-call binary and `helm` is copied from `alpine/helm`.
@@ -112,23 +112,23 @@ multi-call binary and `helm` is copied from `alpine/helm`.
 k3s's bundled Traefik installs through its Helm controller, which would mean more images and
 a slower start, so the cluster gets a plain Traefik instead: a manifest dropped into k3s's
 auto-applied `server/manifests` folder (RBAC, a default IngressClass, a Deployment with
-`hostPort: 80`). Ingress rules answer at `http://k3s/`; `dojo_checks.ingress_get` waits out
+`hostPort: 80`). Ingress rules answer at `http://k3s/`; `hoss_checks.ingress_get` waits out
 the moment a new rule isn't picked up yet. The local-path provisioner's helper image is
 preloaded too, so PersistentVolumeClaims bind without internet.
 
 ## Pseudocode and step-through
 
-A module with `language: pseudo` (Programming Basics) is written in Dojo pseudocode,
-run by `src/dojo/_dojo_pseudo.py`: a tokenizer, a recursive-descent parser and a
+A module with `language: pseudo` (Programming Basics) is written in Hoss pseudocode,
+run by `src/hoss/_hoss_pseudo.py`: a tokenizer, a recursive-descent parser and a
 tree-walking interpreter in one standard-library file. It's copied into each run as
-`dojo_pseudo.py` next to the learner's `main.pseudo` and a two-line `main.py` that runs it
+`hoss_pseudo.py` next to the learner's `main.pseudo` and a two-line `main.py` that runs it
 and copies its variables into `main.py`'s globals. Everything built for Python (interactive
 runs, the pytest `run_program` fixture, try-it checks) works unchanged: tests read
 variables and call pseudocode functions as Python callables. Mistakes raise `PseudoError`
 (message already written for beginners, plus a line number); an excepthook prints it in
 traceback shape so the explainer and "Go to line" work.
 
-`POST /sessions/{id}/trace` runs `dojo_pseudo.py --trace` in the sandbox. The interpreter
+`POST /sessions/{id}/trace` runs `hoss_pseudo.py --trace` in the sandbox. The interpreter
 records a step before each statement and each loop check: the line, every active
 function's variables (rendered as shown values), and how much output existed. The output
 is sent once, not per step. Traces stop at 1,000 steps so an endless loop still returns.
@@ -144,7 +144,7 @@ grid, each with a message). `ShowcaseView` is the player and renderers. Recordin
 browser means no sandbox round trip, instant replays, and safe custom input (recorders clamp
 sizes). The editor stays mounted but hidden during a showcase, so code isn't lost.
 
-Speed tests call `dojo_checks.assert_fast(fn, *args, budget=…, size=…, hint=…)`. In the
+Speed tests call `hoss_checks.assert_fast(fn, *args, budget=…, size=…, hint=…)`. In the
 sandbox it arms `setitimer(ITIMER_REAL)`; SIGALRM raises an `AssertionError` that says
 which input was too slow, so an O(n²) attempt fails within the budget instead of running
 until the exercise's `time_limit_s`.
@@ -154,7 +154,7 @@ until the exercise's `time_limit_s`.
 Sandboxes have no network, yet AI lessons call models. The path:
 
 ```
-notebook cell: dojo_ai.chat(...)          (dojo_ai is installed in every image)
+notebook cell: hoss_ai.chat(...)          (hoss_ai is installed in every image)
   → kernel sends {"type": "ai_request"} on its protocol channel
   → Kernel host (notebook.py) calls the API's ai_handler
   → Gateway (ai.py): rate limit, size caps, then Ollama (HTTP on the host)
@@ -169,9 +169,9 @@ for a model doesn't count against the cell's 60 s limit. Claude requests opt in 
 server-side refusal fallbacks. Embeddings use Ollama's `nomic-embed-text` when
 available, else the deterministic built-in `simple_embed` (Claude has no embeddings API).
 
-Outside a kernel (grading, try-its, editor runs) `dojo_ai` runs in **practice mode**:
-`chat` returns a practice reply or whatever a test scripts with `dojo_ai.fake(...)`,
-and records every call in `dojo_ai.calls`. The grader resets it before each test.
+Outside a kernel (grading, try-its, editor runs) `hoss_ai` runs in **practice mode**:
+`chat` returns a practice reply or whatever a test scripts with `hoss_ai.fake(...)`,
+and records every call in `hoss_ai.calls`. The grader resets it before each test.
 Exercises therefore check what learners control (prompts, history, parsing, retrieval,
 loops) without paying for or depending on a real model.
 
@@ -201,7 +201,7 @@ counter. Conversations live in the browser (sessionStorage), one per step.
 
 ## Skill map, spaced review and streaks
 
-All three are computed by `dojo/skills.py` (pure functions) from what the store already
+All three are computed by `hoss/skills.py` (pure functions) from what the store already
 records, plus two tables: `reviews` (one card per step) and `activity` (one row per
 progress event).
 
@@ -225,8 +225,8 @@ progress event).
 
 ## Studio (authoring)
 
-`dojo/authoring.py` backs the Studio page and `dojo new`. Only usernames in
-`DOJO_AUTHORS` (or `dojo serve --author`) get the `/api/author/*` routes; it edits files
+`hoss/authoring.py` backs the Studio page and `hoss new`. Only usernames in
+`HOSS_AUTHORS` (or `hoss serve --author`) get the `/api/author/*` routes; it edits files
 on the server, so it's off unless someone is named. It only touches text files (YAML,
 Markdown, code, tests; 200 KB max) inside the content folder.
 
@@ -256,7 +256,7 @@ sidecar** (an init container with `restartPolicy: Always`, so it's up before the
 after it) listening only on a unix socket in a pod-local `emptyDir`, never TCP (the
 image's default entrypoint would also open an unauthenticated 2375, so the chart runs
 `dind dockerd` directly, with its networks' MTU taken from the pod's interface, since
-overlay networks are often below Docker's 1500); `build-images` (init) runs `dojo build-images`, cached on the
+overlay networks are often below Docker's 1500); `build-images` (init) runs `hoss build-images`, cached on the
 docker volume; then the server. Course data is bind-mounted into sandboxes by path, and
 a bind source resolves on the engine's filesystem, so the engine mounts the content
 volume at the same `/app/content` path as the server. One replica, `Recreate`: SQLite and

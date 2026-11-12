@@ -7,7 +7,7 @@ prompt: |
   - `keyword_score(answer, keywords)`: the fraction of `keywords` that appear in
     `answer` (case-insensitive)
   - `run_eval(cases)`: for each case `{"question": ..., "keywords": [...]}`, ask the
-    model the question with `dojo_ai.chat`, score the reply with `keyword_score`, and
+    model the question with `hoss_ai.chat`, score the reply with `keyword_score`, and
     return the **average** score (0.0 for no cases)
 hints:
   - sum(k.lower() in answer.lower() for k in keywords) / len(keywords)

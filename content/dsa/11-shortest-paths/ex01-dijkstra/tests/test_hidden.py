@@ -1,4 +1,4 @@
-from dojo_checks import assert_fast
+from hoss_checks import assert_fast
 
 
 def test_unreachable_left_out():

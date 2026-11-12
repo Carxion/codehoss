@@ -1,4 +1,4 @@
-import dojo_ai
+import hoss_ai
 
 
 def test_cp1_chunks():
@@ -20,9 +20,9 @@ def test_cp2_one_embed_call():
 
     def counting(texts):
         calls.append(texts)
-        return [dojo_ai.simple_embed(t) for t in texts]
+        return [hoss_ai.simple_embed(t) for t in texts]
 
-    dojo_ai.fake(embed=counting)
+    hoss_ai.fake(embed=counting)
     chunks = [{"source": "a", "text": "red apples"}, {"source": "b", "text": "blue cars"}]
     assert retrieve("apples", chunks, k=1) == [chunks[0]]
     assert len(calls) == 1
@@ -31,14 +31,14 @@ def test_cp2_one_embed_call():
 def test_cp3_prompt():
     from main import answer
 
-    dojo_ai.fake(chat=lambda messages, **kw: "ok")
+    hoss_ai.fake(chat=lambda messages, **kw: "ok")
     chunks = [
         {"source": "b.md", "text": "alpha beta"},
         {"source": "a.md", "text": "alpha gamma"},
         {"source": "c.md", "text": "zzz"},
     ]
     got = answer("alpha", chunks, k=2)
-    prompt = dojo_ai.calls[-1]["messages"][-1]["content"]
+    prompt = hoss_ai.calls[-1]["messages"][-1]["content"]
     assert prompt.startswith("Context:\n[") and prompt.endswith("\n\nQuestion: alpha"), prompt
     assert "[a.md] alpha gamma" in prompt and "[b.md] alpha beta" in prompt and "zzz" not in prompt
     assert got["sources"] == ["a.md", "b.md"]
@@ -47,7 +47,7 @@ def test_cp3_prompt():
 def test_cp4_partial():
     from main import evaluate
 
-    dojo_ai.fake(chat=lambda messages, **kw: "Express costs $49")
+    hoss_ai.fake(chat=lambda messages, **kw: "Express costs $49")
     chunks = [
         {"source": "shipping.md", "text": "express shipping costs"},
         {"source": "warranty.md", "text": "battery years"},

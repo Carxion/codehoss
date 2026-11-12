@@ -6,7 +6,7 @@ level: intermediate
 prerequisites:
 - docker
 sandbox:
-  image: dojo-lab
+  image: hoss-lab
   packages: []
   memory: 512m
   lab: kubernetes

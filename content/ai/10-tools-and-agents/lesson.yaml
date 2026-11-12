@@ -23,7 +23,7 @@ steps:
       # %%
       import json
 
-      import dojo_ai
+      import hoss_ai
 
       SYSTEM = """You can use these tools:
       - add(a, b): add two numbers
@@ -31,7 +31,7 @@ steps:
       Reply with JSON only: {"tool": name, "args": {...}} to use a tool,
       or {"answer": text} when you know the final answer."""
 
-      reply = dojo_ai.chat("What is 12.5 times 8?", system=SYSTEM, json=True)
+      reply = hoss_ai.chat("What is 12.5 times 8?", system=SYSTEM, json=True)
       json.loads(reply)
   - type: try-it
     prompt: Call the function named in `call["tool"]` from `TOOLS` with `call["args"]` as keyword arguments, storing the result in `result`.

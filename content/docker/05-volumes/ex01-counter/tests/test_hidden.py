@@ -1,4 +1,4 @@
-from dojo_checks import assert_image, containers, docker
+from hoss_checks import assert_image, containers, docker
 
 
 def test_counter_image_counts():

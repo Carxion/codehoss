@@ -23,7 +23,7 @@ def module_yaml(module_id: str, lessons=("01-intro",), prerequisites=()) -> str:
     return (
         f"id: {module_id}\ntitle: {module_id}\nlevel: beginner\n"
         f"prerequisites: [{', '.join(prerequisites)}]\n"
-        f"sandbox: {{image: dojo-python}}\nlessons: [{', '.join(lessons)}]\n"
+        f"sandbox: {{image: hoss-python}}\nlessons: [{', '.join(lessons)}]\n"
     )
 
 

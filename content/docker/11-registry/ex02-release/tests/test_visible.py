@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import http_get
+from hoss_checks import http_get
 
 
 def test_both_tags_pushed():

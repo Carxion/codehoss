@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import sh
+from hoss_checks import sh
 
 
 def tags():

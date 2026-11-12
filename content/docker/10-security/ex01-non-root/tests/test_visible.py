@@ -1,4 +1,4 @@
-from dojo_checks import assert_image, docker
+from hoss_checks import assert_image, docker
 
 
 def test_runs_as_app():

@@ -6,7 +6,7 @@ prompt: |
 
   1. Refuses prompts that try to override instructions: if the lowercased prompt
      contains any phrase in `BLOCKED`, return `REFUSAL` **without calling the model**.
-  2. Otherwise redacts personal data from the prompt, then calls `dojo_ai.chat` with
+  2. Otherwise redacts personal data from the prompt, then calls `hoss_ai.chat` with
      the redacted prompt and returns the reply.
 hints:
   - 'if any(phrase in prompt.lower() for phrase in BLOCKED): return REFUSAL'

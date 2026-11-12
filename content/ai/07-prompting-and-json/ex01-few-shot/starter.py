@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 INSTRUCTION = "Classify the sentiment as positive, negative or neutral."
 EXAMPLES = [("I love it!", "positive"), ("It broke after a day.", "negative")]

@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 CASES = [
     {"question": "How long is the bike return window?", "keywords": ["30", "days"]},
@@ -16,7 +16,7 @@ def keyword_score(answer, keywords):
 def run_eval(cases):
     if not cases:
         return 0.0
-    scores = [keyword_score(dojo_ai.chat(c["question"]), c["keywords"]) for c in cases]
+    scores = [keyword_score(hoss_ai.chat(c["question"]), c["keywords"]) for c in cases]
     return sum(scores) / len(scores)
 
 

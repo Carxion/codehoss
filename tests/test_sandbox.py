@@ -1,17 +1,17 @@
-"""Sandbox security and behaviour. Needs Docker and `dojo build-images`."""
+"""Sandbox security and behaviour. Needs Docker and `hoss build-images`."""
 
 import pytest
 from conftest import REPO
 
-from dojo.grader import grade, run_program, run_snippet
-from dojo.registry import load_content
-from dojo.sandbox import SessionManager, docker_available, image_exists
+from hoss.grader import grade, run_program, run_snippet
+from hoss.registry import load_content
+from hoss.sandbox import SessionManager, docker_available, image_exists
 
 pytestmark = [
     pytest.mark.docker,
     pytest.mark.skipif(
-        not (docker_available() and image_exists("dojo-python")),
-        reason="needs Docker and the dojo-python image (run `dojo build-images`)",
+        not (docker_available() and image_exists("hoss-python")),
+        reason="needs Docker and the hoss-python image (run `hoss build-images`)",
     ),
 ]
 

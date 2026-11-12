@@ -1,7 +1,7 @@
 from conftest import REPO, exercise_files, module_yaml
 
-from dojo.registry import load_content
-from dojo.validate import _generic, validate
+from hoss.registry import load_content
+from hoss.validate import _generic, validate
 
 PASSING_TEST = "def test_x(run_program):\n    assert run_program().vars.get('x') == 1\n"
 LESSON = "title: Intro\nsteps:\n  - type: exercise\n    ref: ex01\n"

@@ -22,7 +22,7 @@ def test_edges():
 
 
 def test_big():
-    from dojo_checks import assert_fast
+    from hoss_checks import assert_fast
     from main import merge_sorted
 
     lists = [list(range(i, 200_000, 1000)) for i in range(1000)]

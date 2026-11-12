@@ -1,6 +1,6 @@
 import time
 
-from dojo_checks import assert_rolled_out, k8s_list, kubectl, wait_until
+from hoss_checks import assert_rolled_out, k8s_list, kubectl, wait_until
 
 
 def test_data_survives_a_new_pod():

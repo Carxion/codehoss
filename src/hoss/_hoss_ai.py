@@ -1,8 +1,8 @@
-"""dojo_ai: talk to an AI model from CodeHoss notebooks.
+"""hoss_ai: talk to an AI model from CodeHoss notebooks.
 
-    import dojo_ai
-    dojo_ai.chat("Explain recursion in one sentence.")
-    dojo_ai.embed(["first text", "second text"])
+    import hoss_ai
+    hoss_ai.chat("Explain recursion in one sentence.")
+    hoss_ai.embed(["first text", "second text"])
 
 The same code works with whichever model you picked in CodeHoss (top bar, "AI"):
 a local model through Ollama, or a hosted model with your own API key. Requests go

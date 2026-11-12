@@ -282,7 +282,7 @@ export default NotebookWorkspace;
 
 const PROVIDER_NAME: Record<string, string> = { ollama: "Ollama", anthropic: "Claude", builtin: "built-in" };
 
-/** Which model answered each dojo_ai call in a cell (summarised when there are many). */
+/** Which model answered each hoss_ai call in a cell (summarised when there are many). */
 function AICallBadges({ calls }: { calls: AICall[] | undefined }) {
   if (!calls?.length) return null;
   const failed = calls.filter((c) => !c.ok);

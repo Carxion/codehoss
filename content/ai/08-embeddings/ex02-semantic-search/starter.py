@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 DOCS = [
     "Our bikes ship free and arrive in 5 to 8 days.",

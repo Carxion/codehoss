@@ -1,14 +1,14 @@
 # %%
 import json
 
-import dojo_ai
+import hoss_ai
 
 PROMPT = 'Return JSON with keys "name" and "email" for the person in this text: {text}'
 
 
 def extract_contact(text):
     for _ in range(2):
-        reply = dojo_ai.chat(PROMPT.format(text=text), json=True)
+        reply = hoss_ai.chat(PROMPT.format(text=text), json=True)
         try:
             data = json.loads(reply)
         except json.JSONDecodeError:

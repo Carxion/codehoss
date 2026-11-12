@@ -1,11 +1,11 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 
 def summarize_reviews(reviews):
     lines = [f"{i}. {review}" for i, review in enumerate(reviews, start=1)]
     prompt = "Summarize these reviews in one sentence:\n" + "\n".join(lines)
-    return dojo_ai.chat(prompt)
+    return hoss_ai.chat(prompt)
 
 
 # %%

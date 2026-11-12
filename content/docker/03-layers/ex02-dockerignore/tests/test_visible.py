@@ -1,4 +1,4 @@
-from dojo_checks import assert_image, docker
+from hoss_checks import assert_image, docker
 
 
 def test_secrets_not_in_image():

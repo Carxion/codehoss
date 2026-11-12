@@ -8,10 +8,10 @@ import pytest
 from conftest import REPO
 from fastapi.testclient import TestClient
 
-from dojo.api import create_app
-from dojo.portfolio import to_ipynb
-from dojo.registry import load_content
-from dojo.store import Store
+from hoss.api import create_app
+from hoss.portfolio import to_ipynb
+from hoss.registry import load_content
+from hoss.store import Store
 
 CONTENT = load_content(REPO / "content")
 PROJECT = "/api/modules/projects/lessons/expense-tracker"

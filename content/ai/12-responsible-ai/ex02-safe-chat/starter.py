@@ -1,7 +1,7 @@
 # %%
 import re
 
-import dojo_ai
+import hoss_ai
 
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(\.[\w-]+)+")
 PHONE = re.compile(r"\+?\d[\d\s().-]{7,}\d")

@@ -1,4 +1,4 @@
-// Typed client for the CodeHoss API (see src/dojo/api.py).
+// Typed client for the CodeHoss API (see src/hoss/api.py).
 
 export class ApiError extends Error {
   constructor(
@@ -32,7 +32,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 // --- types -------------------------------------------------------------------
 
 export type Level = "guided" | "assisted" | "solo";
-/** What learners write in a module: Python, or Dojo pseudocode (Programming Basics). */
+/** What learners write in a module: Python, or Hoss pseudocode (Programming Basics). */
 export type Language = "python" | "pseudo";
 
 export interface LessonSummary {

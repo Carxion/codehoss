@@ -17,8 +17,8 @@ steps:
       CodeHoss gives you one function to talk to a model:
 
       ```python
-      import dojo_ai
-      dojo_ai.chat("Explain recursion in one sentence.")
+      import hoss_ai
+      hoss_ai.chat("Explain recursion in one sentence.")
       ```
 
       **Which model answers is up to you**: pick it with **🤖 AI** in the top bar.
@@ -32,42 +32,42 @@ steps:
     md: Run these cells. The badge under each one shows which model answered.
     code: |
       # %%
-      import dojo_ai
+      import hoss_ai
 
-      dojo_ai.backend()
-
-      # %%
-      dojo_ai.chat("In one sentence, what is machine learning?")
+      hoss_ai.backend()
 
       # %%
-      dojo_ai.chat(
+      hoss_ai.chat("In one sentence, what is machine learning?")
+
+      # %%
+      hoss_ai.chat(
           "What is a neural network?",
           system="You are a friendly teacher. Answer in two short sentences for a 12-year-old.",
       )
   - type: try-it
     prompt: |
-      Ask the model any question about **Python** using `dojo_ai.chat`, and store the
+      Ask the model any question about **Python** using `hoss_ai.chat`, and store the
       reply in `reply`.
     starter: |
       # %%
-      import dojo_ai
+      import hoss_ai
 
       reply = ""  # TODO: ask a question about Python
       reply
     solution: |
       # %%
-      import dojo_ai
+      import hoss_ai
 
-      reply = dojo_ai.chat("What is Python mostly used for?")
+      reply = hoss_ai.chat("What is Python mostly used for?")
       reply
     check: |
-      import dojo_ai
-      asked = [c["messages"][-1]["content"].lower() for c in dojo_ai.calls]
-      assert any("python" in q for q in asked), "Call dojo_ai.chat with a question that mentions Python"
+      import hoss_ai
+      asked = [c["messages"][-1]["content"].lower() for c in hoss_ai.calls]
+      assert any("python" in q for q in asked), "Call hoss_ai.chat with a question that mentions Python"
       assert isinstance(reply, str) and reply, "Store the reply in reply"
     hints:
-      - "dojo_ai.chat(\"your question\") returns the model's answer as text."
-      - reply = dojo_ai.chat("What is Python mostly used for?")
+      - "hoss_ai.chat(\"your question\") returns the model's answer as text."
+      - reply = hoss_ai.chat("What is Python mostly used for?")
   - type: exercise
     ref: ex01-explain-simply
   - type: exercise

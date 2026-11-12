@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 
 class Chatbot:
@@ -10,7 +10,7 @@ class Chatbot:
 
     def send(self, text):
         self.history.append({"role": "user", "content": text})
-        reply = dojo_ai.chat(self.history, system=self.system)
+        reply = hoss_ai.chat(self.history, system=self.system)
         self.history.append({"role": "assistant", "content": reply})
         self.history = self.history[-self.max_messages :]
         return reply

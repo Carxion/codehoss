@@ -8,6 +8,6 @@ prompt: |
 
   The prompt should be `Explain <topic>.`, for example `Explain gravity.`
 hints:
-  - 'Pass the instructions with system=SYSTEM: dojo_ai.chat(prompt, system=SYSTEM)'
+  - 'Pass the instructions with system=SYSTEM: hoss_ai.chat(prompt, system=SYSTEM)'
   - 'Build the prompt with an f-string: f"Explain {topic}."'
   - Call .strip() on the reply before returning it.

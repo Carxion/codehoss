@@ -1,6 +1,6 @@
 import pytest
 
-from dojo.explain import explain_message, explain_traceback
+from hoss.explain import explain_message, explain_traceback
 
 TRACEBACK = """Traceback (most recent call last):
   File "/work/run-abc/main.py", line 3, in <module>

@@ -1,10 +1,10 @@
-import dojo_ai
+import hoss_ai
 
 
 def test_history_and_system():
     from main import Chatbot
 
-    dojo_ai.fake(chat=lambda messages, **kw: "ok")
+    hoss_ai.fake(chat=lambda messages, **kw: "ok")
 
     bot = Chatbot("be nice")
     bot.send("one")
@@ -12,13 +12,13 @@ def test_history_and_system():
         {"role": "user", "content": "one"},
         {"role": "assistant", "content": "ok"},
     ]
-    assert dojo_ai.calls[-1]["system"] == "be nice"
+    assert hoss_ai.calls[-1]["system"] == "be nice"
 
 
 def test_trims():
     from main import Chatbot
 
-    dojo_ai.fake(chat=lambda messages, **kw: "ok")
+    hoss_ai.fake(chat=lambda messages, **kw: "ok")
 
     bot = Chatbot("s", max_messages=4)
     for word in ["a", "b", "c"]:

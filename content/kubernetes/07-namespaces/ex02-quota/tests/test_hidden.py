@@ -1,4 +1,4 @@
-from dojo_checks import k8s, k8s_list, wait_until
+from hoss_checks import k8s, k8s_list, wait_until
 
 
 def test_only_three_pods():

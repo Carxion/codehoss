@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_series_matches, first_axes
+from hoss_checks import assert_series_matches, first_axes
 
 DF = pd.read_csv("/data/movies.csv")
 EXPECTED = DF.groupby("genre")["rating"].mean().sort_values(ascending=False)

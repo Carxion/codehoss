@@ -1,4 +1,4 @@
-from dojo_checks import assert_rolled_out, ingress_get, k8s
+from hoss_checks import assert_rolled_out, ingress_get, k8s
 
 
 def test_api_path():

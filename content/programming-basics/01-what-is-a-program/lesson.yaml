@@ -50,20 +50,20 @@ steps:
 
     - Keywords like `OUTPUT` are written in CAPITALS.'
 - type: try-it
-  prompt: Change the program so it shows exactly `Hello, Dojo!`
+  prompt: Change the program so it shows exactly `Hello, CodeHoss!`
   starter: 'OUTPUT "Hello"
 
     '
-  solution: 'OUTPUT "Hello, Dojo!"
+  solution: 'OUTPUT "Hello, CodeHoss!"
 
     '
-  check: 'assert _output == "Hello, Dojo!\n", f"It showed {_output!r}. Check the comma, the capital D
+  check: 'assert _output == "Hello, CodeHoss!\n", f"It showed {_output!r}. Check the comma, the capital C and H
     and the !"
 
     '
   hints:
   - Change the text between the quotes.
-  - OUTPUT "Hello, Dojo!"
+  - OUTPUT "Hello, CodeHoss!"
 - type: example
   code: 'OUTPUT 2 + 3
 

@@ -5,7 +5,7 @@ import pytest
     ("word", "expected"),
     [
         ("python", ["Length: 6", "Upper: PYTHON", "Reversed: nohtyp"]),
-        ("Dojo", ["Length: 4", "Upper: DOJO", "Reversed: ojoD"]),
+        ("Hoss", ["Length: 4", "Upper: HOSS", "Reversed: ssoH"]),
     ],
 )
 def test_all_three_facts(run_program, word, expected):

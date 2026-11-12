@@ -1,4 +1,4 @@
-from dojo_checks import assert_image, inspect_container
+from hoss_checks import assert_image, inspect_container
 
 
 def test_env_default_in_image():

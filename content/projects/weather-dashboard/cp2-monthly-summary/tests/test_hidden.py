@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_frame_matches
+from hoss_checks import assert_frame_matches
 
 
 def expected_weather():

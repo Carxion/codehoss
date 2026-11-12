@@ -1,4 +1,4 @@
-import dojo_ai
+import hoss_ai
 
 
 def test_ranking_and_k():
@@ -14,11 +14,11 @@ def test_one_embed_call():
 
     def counting_embed(texts):
         calls.append(texts)
-        return [dojo_ai.simple_embed(t) for t in texts]
+        return [hoss_ai.simple_embed(t) for t in texts]
 
     from main import search
 
-    dojo_ai.fake(embed=counting_embed)
+    hoss_ai.fake(embed=counting_embed)
 
     search("q", ["a", "b", "c"])
     assert len(calls) == 1, f"Embed everything in one call, not {len(calls)}"

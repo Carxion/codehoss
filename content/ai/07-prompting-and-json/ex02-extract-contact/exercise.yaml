@@ -11,6 +11,6 @@ prompt: |
   - if the reply isn't valid JSON, or lacks `name` or `email`, **ask once more**
   - if the second reply is also bad, return `None`
 hints:
-  - 'reply = dojo_ai.chat(PROMPT.format(text=text), json=True)'
+  - 'reply = hoss_ai.chat(PROMPT.format(text=text), json=True)'
   - json.loads raises json.JSONDecodeError for bad JSON; catch it with try/except.
   - Loop twice (for attempt in range(2)) and return as soon as a reply is good.

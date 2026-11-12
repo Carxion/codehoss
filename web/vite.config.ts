@@ -1,7 +1,7 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
-// In dev, Vite serves the app and forwards /api (HTTP + WebSockets) to `dojo serve`.
+// In dev, Vite serves the app and forwards /api (HTTP + WebSockets) to `hoss serve`.
 export default defineConfig({
   plugins: [react()],
   server: {

@@ -1,10 +1,10 @@
-"""Host side of notebook kernels (see dojo._kernel for the side in the sandbox).
+"""Host side of notebook kernels (see hoss._kernel for the side in the sandbox).
 
 A Kernel is one long-lived Python process inside the learner's session container.
 Variables persist between cells until it is restarted. Each cell gets a wall-clock
 limit: past it the kernel is interrupted, and if that doesn't work, restarted.
 
-Cells that call dojo_ai send "ai_request" messages; the kernel answers them through
+Cells that call hoss_ai send "ai_request" messages; the kernel answers them through
 `ai_handler` (the API binds it to the learner's chosen model). Time spent waiting for
 a model doesn't count against the cell's limit.
 """
@@ -21,7 +21,7 @@ import uuid
 from collections.abc import Callable
 from pathlib import Path
 
-from dojo.explain import explain
+from hoss.explain import explain
 
 KERNEL_SOURCE = (Path(__file__).parent / "_kernel.py").read_text(encoding="utf-8")
 CELL_TIMEOUT_S = 60

@@ -2,25 +2,25 @@ import pytest
 from conftest import REPO
 from fastapi.testclient import TestClient
 
-from dojo.api import create_app
-from dojo.registry import load_content
-from dojo.sandbox import docker_available, image_exists
-from dojo.store import Store
+from hoss.api import create_app
+from hoss.registry import load_content
+from hoss.sandbox import docker_available, image_exists
+from hoss.store import Store
 
 CONTENT = load_content(REPO / "content")
 LESSON = "/api/modules/python-basics/lessons/01-first-program"
 needs_docker = [
     pytest.mark.docker,
     pytest.mark.skipif(
-        not (docker_available() and image_exists("dojo-python")),
-        reason="needs Docker and the dojo-python image (run `dojo build-images`)",
+        not (docker_available() and image_exists("hoss-python")),
+        reason="needs Docker and the hoss-python image (run `hoss build-images`)",
     ),
 ]
 
 
 @pytest.fixture(scope="module")
 def app(tmp_path_factory):
-    store = Store(tmp_path_factory.mktemp("db") / "dojo.db")
+    store = Store(tmp_path_factory.mktemp("db") / "hoss.db")
     return create_app(CONTENT, store=store)
 
 
@@ -89,7 +89,7 @@ def test_hints_escalate_to_show_me_and_are_recorded(client):
     # Step 2 of lesson 1 is a try-it with 2 hints; level 3 is "show me".
     assert client.get(f"{LESSON}/steps/2/hints/1").json()["hint"].startswith("Only the text")
     show_me = client.get(f"{LESSON}/steps/2/hints/3").json()
-    assert show_me["solution"] == 'print("Hello, Dojo!")\n'
+    assert show_me["solution"] == 'print("Hello, CodeHoss!")\n'
     assert client.get(f"{LESSON}/steps/2/hints/4").status_code == 404
     progress = client.get(LESSON).json()["progress"]["2"]
     assert progress["hints_used"] == 2 and progress["showed_solution"] is True
@@ -148,13 +148,13 @@ class TestSandboxed:
     def test_try_it(self, client, session_id):
         url = f"/api/sessions/{session_id}/try-it"
         good = client.post(
-            url, json={"lesson": "01-first-program", "step": 2, "code": 'print("Hello, Dojo!")'}
+            url, json={"lesson": "01-first-program", "step": 2, "code": 'print("Hello, CodeHoss!")'}
         ).json()
         bad = client.post(
             url, json={"lesson": "01-first-program", "step": 2, "code": 'print("nope")'}
         ).json()
         assert good["passed"] is True
-        assert bad == {"passed": False, "message": "Print exactly: Hello, Dojo!"}
+        assert bad == {"passed": False, "message": "Print exactly: Hello, CodeHoss!"}
 
     def test_interactive_stream(self, client, session_id):
         code = 'name = input("Name? ")\nprint("Hi", name)'
@@ -210,8 +210,8 @@ class TestNotebookKernel:
     pytestmark = [
         pytest.mark.docker,
         pytest.mark.skipif(
-            not (docker_available() and image_exists("dojo-ds")),
-            reason="needs Docker and the dojo-ds image (run `dojo build-images`)",
+            not (docker_available() and image_exists("hoss-ds")),
+            reason="needs Docker and the hoss-ds image (run `hoss build-images`)",
         ),
     ]
 

@@ -1,4 +1,4 @@
-"""Notebook kernels in the Data Science sandbox. Needs Docker + `dojo build-images`."""
+"""Notebook kernels in the Data Science sandbox. Needs Docker + `hoss build-images`."""
 
 import queue
 import time
@@ -6,16 +6,16 @@ import time
 import pytest
 from conftest import REPO
 
-from dojo.grader import grade
-from dojo.notebook import Kernel
-from dojo.registry import load_content
-from dojo.sandbox import SessionManager, docker_available, image_exists
+from hoss.grader import grade
+from hoss.notebook import Kernel
+from hoss.registry import load_content
+from hoss.sandbox import SessionManager, docker_available, image_exists
 
 pytestmark = [
     pytest.mark.docker,
     pytest.mark.skipif(
-        not (docker_available() and image_exists("dojo-ds")),
-        reason="needs Docker and the dojo-ds image (run `dojo build-images`)",
+        not (docker_available() and image_exists("hoss-ds")),
+        reason="needs Docker and the hoss-ds image (run `hoss build-images`)",
     ),
 ]
 
@@ -141,7 +141,7 @@ def test_ai_calls_leave_the_sandbox_through_the_kernel(session):
     inbox: queue.Queue[dict] = queue.Queue()
     kernel = Kernel(session.container, inbox.put, ai_handler=handler)
     try:
-        kernel.execute("import dojo_ai, time\nreply = dojo_ai.chat('hello')\nreply", "a")
+        kernel.execute("import hoss_ai, time\nreply = hoss_ai.chat('hello')\nreply", "a")
         kernel.execute("1 + 1", "b")  # queued while "a" waits for the model
         messages = {"a": [], "b": []}
         done = set()
@@ -169,7 +169,7 @@ def test_ai_errors_reach_the_learner(session):
     inbox: queue.Queue[dict] = queue.Queue()
     kernel = Kernel(session.container, inbox.put, ai_handler=handler)
     try:
-        kernel.execute("import dojo_ai\ndojo_ai.chat('hello')", "a")
+        kernel.execute("import hoss_ai\nhoss_ai.chat('hello')", "a")
         messages = []
         while (message := inbox.get(timeout=60))["type"] != "done":
             messages.append(message)

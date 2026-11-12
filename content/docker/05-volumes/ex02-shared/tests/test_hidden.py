@@ -1,6 +1,6 @@
 import time
 
-from dojo_checks import docker
+from hoss_checks import docker
 
 
 def test_another_container_sees_updates():

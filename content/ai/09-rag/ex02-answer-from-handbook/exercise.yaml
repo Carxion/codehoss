@@ -6,7 +6,7 @@ prompt: |
   `answer(question, chunks, k=3)`:
 
   1. Find the `k` chunks most similar to the question (embed the question and the
-     chunks with one `dojo_ai.embed` call, rank with `dojo_ai.cosine_similarity`).
+     chunks with one `hoss_ai.embed` call, rank with `hoss_ai.cosine_similarity`).
   2. Build the prompt:
 
      ```
@@ -20,7 +20,7 @@ prompt: |
      Question: <question>
      ```
 
-  3. Call `dojo_ai.chat(prompt, system=SYSTEM)` and return the reply.
+  3. Call `hoss_ai.chat(prompt, system=SYSTEM)` and return the reply.
 hints:
   - Rank like the semantic search exercise and keep the top k chunks.
   - '"Context:\n" + "\n\n".join(top) + f"\n\nQuestion: {question}"'

@@ -44,9 +44,9 @@ real infrastructure labs (Docker, Kubernetes, databases) that learners actually 
 
 ```bash
 uv sync
-uv run dojo build-images            # sandbox images + Library Explorer indexes (~1.8 GB)
+uv run hoss build-images            # sandbox images + Library Explorer indexes (~1.8 GB)
 cd web && npm install && npm run build && cd ..
-uv run dojo serve                   # open http://127.0.0.1:8000 and create an account
+uv run hoss serve                   # open http://127.0.0.1:8000 and create an account
 ```
 
 **On Kubernetes:** build the image (`docker build -t <registry>/codehoss .`) and install
@@ -56,11 +56,11 @@ Docker engine for sandboxes, persistent storage, optional Ingress and optional O
 **AI lessons:** pick a model with **🤖 AI** in the top bar. For the local option,
 install [Ollama](https://ollama.com) and run `ollama pull llama3.2` (and
 `ollama pull nomic-embed-text` for better embeddings). For the hosted option, paste an
-Anthropic API key; it's stored encrypted (key in `DOJO_SECRET_KEY`, or `var/secret.key`
-is generated) and never enters the sandbox. `DOJO_OLLAMA_URL` points at a non-default
+Anthropic API key; it's stored encrypted (key in `HOSS_SECRET_KEY`, or `var/secret.key`
+is generated) and never enters the sandbox. `HOSS_OLLAMA_URL` points at a non-default
 Ollama.
 
-For frontend work, run `uv run dojo serve` and `cd web && npm run dev` side by side;
+For frontend work, run `uv run hoss serve` and `cd web && npm run dev` side by side;
 Vite (http://localhost:5173) forwards `/api` to the server.
 
 Keep the server on localhost for now: accounts exist, but there's no HTTPS, rate
@@ -69,17 +69,17 @@ limiting, or admin tooling yet.
 ## Terminal tools
 
 ```bash
-uv run dojo list                    # browse modules, lessons, exercises
-uv run dojo start py.hello          # read the exercise, get a starter in workspace/
-uv run dojo check py.hello          # run the tests against your code (--sandbox: in Docker)
-uv run dojo hint py.hello 2         # escalating hints
-uv run dojo validate                # authors: every exercise solvable (--sandbox: in Docker)
-uv run dojo new lesson python-basics 13-recursion "Recursion"   # authors: start from a template
-uv run dojo serve --author ada      # let user "ada" open the Studio (or DOJO_AUTHORS=ada,bob)
+uv run hoss list                    # browse modules, lessons, exercises
+uv run hoss start py.hello          # read the exercise, get a starter in workspace/
+uv run hoss check py.hello          # run the tests against your code (--sandbox: in Docker)
+uv run hoss hint py.hello 2         # escalating hints
+uv run hoss validate                # authors: every exercise solvable (--sandbox: in Docker)
+uv run hoss new lesson python-basics 13-recursion "Recursion"   # authors: start from a template
+uv run hoss serve --author ada      # let user "ada" open the Studio (or HOSS_AUTHORS=ada,bob)
 uv run pytest                       # platform tests (Docker tests skip if Docker is off)
 ```
 
-`dojo check` and `dojo validate` without `--sandbox` run code directly on your machine.
+`hoss check` and `hoss validate` without `--sandbox` run code directly on your machine.
 That's fine for your own code and authored content; the browser app always uses the
 sandbox.
 

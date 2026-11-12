@@ -5,10 +5,10 @@ import time
 import pytest
 from conftest import REPO
 
-from dojo import lab
-from dojo.grader import grade_lab
-from dojo.registry import load_content
-from dojo.sandbox import (
+from hoss import lab
+from hoss.grader import grade_lab
+from hoss.registry import load_content
+from hoss.sandbox import (
     Limits,
     SessionManager,
     docker_available,
@@ -53,9 +53,9 @@ def test_lab_image_gets_docker_cli_only_when_asked():
 
 
 def test_lockdown_keeps_everything_but_the_network():
-    default, labbed = lockdown_flags(Limits()), lockdown_flags(Limits(), "dojo-x-net")
+    default, labbed = lockdown_flags(Limits()), lockdown_flags(Limits(), "hoss-x-net")
     assert default[default.index("--network") + 1] == "none"
-    assert labbed[labbed.index("--network") + 1] == "dojo-x-net"
+    assert labbed[labbed.index("--network") + 1] == "hoss-x-net"
     for flag in ("--read-only", "--cap-drop", "--security-opt", "--pids-limit"):
         assert flag in labbed
 
@@ -63,8 +63,8 @@ def test_lockdown_keeps_everything_but_the_network():
 # --- a real lab -------------------------------------------------------------------
 
 needs_lab = pytest.mark.skipif(
-    not (docker_available() and image_exists("dojo-lab") and image_exists(lab.DIND_IMAGE)),
-    reason="needs Docker, dojo-lab and docker:dind (run `dojo build-images`)",
+    not (docker_available() and image_exists("hoss-lab") and image_exists(lab.DIND_IMAGE)),
+    reason="needs Docker, hoss-lab and docker:dind (run `hoss build-images`)",
 )
 
 
@@ -138,7 +138,7 @@ def test_terminal_runs_commands(lab_session):
 
 def test_closing_a_lab_removes_engine_and_network():
     # Unit-level: engine names are derived from the session container name.
-    assert lab.engine_names("dojo-abc") == ("dojo-abc-docker", "dojo-abc-net")
+    assert lab.engine_names("hoss-abc") == ("hoss-abc-docker", "hoss-abc-net")
 
 
 def test_images_to_pull():
@@ -150,8 +150,8 @@ def test_images_to_pull():
 
 
 needs_cluster = pytest.mark.skipif(
-    not (docker_available() and image_exists("dojo-lab") and image_exists(lab.K3S_IMAGE)),
-    reason="needs Docker, dojo-lab and the k3s images (run `dojo build-images`)",
+    not (docker_available() and image_exists("hoss-lab") and image_exists(lab.K3S_IMAGE)),
+    reason="needs Docker, hoss-lab and the k3s images (run `hoss build-images`)",
 )
 
 

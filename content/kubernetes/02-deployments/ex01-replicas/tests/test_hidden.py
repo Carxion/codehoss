@@ -1,4 +1,4 @@
-from dojo_checks import k8s_list, kubectl, wait_until
+from hoss_checks import k8s_list, kubectl, wait_until
 
 
 def test_heals_itself():

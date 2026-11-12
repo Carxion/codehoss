@@ -23,7 +23,7 @@ interface Turn extends TutorMessage {
   error?: boolean;
 }
 
-const STORE = "dojo.tutor.";
+const STORE = "hoss.tutor.";
 
 function load(key: string): Turn[] {
   try {

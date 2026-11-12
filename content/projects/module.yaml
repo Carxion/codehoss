@@ -6,7 +6,7 @@ level: all levels
 prerequisites:
 - python-basics
 sandbox:
-  image: dojo-ds
+  image: hoss-ds
   packages:
   - ipython
   - numpy
@@ -20,7 +20,7 @@ library_explorer:
   featured:
   - pandas
   - numpy
-  - dojo_ai
+  - hoss_ai
   modules:
   - matplotlib.pyplot
   - sklearn.linear_model

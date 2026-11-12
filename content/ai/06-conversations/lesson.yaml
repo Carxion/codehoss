@@ -12,7 +12,7 @@ steps:
           {"role": "assistant", "content": "Nice to meet you, Ada!"},
           {"role": "user", "content": "What's my name?"},
       ]
-      dojo_ai.chat(messages)
+      hoss_ai.chat(messages)
       ```
 
       `user` is you, `assistant` is the model. The **system** prompt (instructions) is
@@ -20,9 +20,9 @@ steps:
   - type: example
     code: |
       # %%
-      import dojo_ai
+      import hoss_ai
 
-      dojo_ai.chat("What's my name?")  # it can't know
+      hoss_ai.chat("What's my name?")  # it can't know
 
       # %%
       history = [
@@ -30,7 +30,7 @@ steps:
           {"role": "assistant", "content": "Nice to meet you, Ada!"},
           {"role": "user", "content": "What's my name?"},
       ]
-      dojo_ai.chat(history)
+      hoss_ai.chat(history)
   - type: try-it
     prompt: Add the model's reply to `history` as an **assistant** message.
     starter: |

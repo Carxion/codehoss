@@ -1,13 +1,13 @@
-import dojo_ai
+import hoss_ai
 
 
 def prompt_for(question, chunks, k=3):
     from main import answer
 
-    dojo_ai.fake(chat=lambda messages, **kw: "ok")
+    hoss_ai.fake(chat=lambda messages, **kw: "ok")
 
     answer(question, chunks, k=k)
-    return dojo_ai.calls[-1]["messages"][-1]["content"]
+    return hoss_ai.calls[-1]["messages"][-1]["content"]
 
 
 def test_prompt_layout():

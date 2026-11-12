@@ -10,7 +10,7 @@ One pod with:
 |---|---|
 | `seed-content` (init) | copies the courses from the image onto the content volume (first start only, by default) |
 | `docker` (native sidecar) | a private **privileged** Docker engine (`docker:dind`) that runs every learner sandbox, notebook kernel and lab; reachable only through a unix socket inside the pod |
-| `build-images` (init) | `dojo build-images`: the sandbox images, cached on the docker volume |
+| `build-images` (init) | `hoss build-images`: the sandbox images, cached on the docker volume |
 | `server` | CodeHoss itself (API, browser app) on port 8000 |
 
 Plus a Service, an optional Ingress, a Secret (the key that encrypts learners' saved API
@@ -28,14 +28,14 @@ example your GitLab project's container registry:
 docker build -t registry.gitlab.com/<you>/codehoss:0.3.0 .
 docker push registry.gitlab.com/<you>/codehoss:0.3.0
 
-helm install dojo deploy/helm/codehoss -n dojo --create-namespace \
+helm install hoss deploy/helm/codehoss -n hoss --create-namespace \
   --set image.repository=registry.gitlab.com/<you>/codehoss --set image.tag=0.3.0 \
   --set authors=<your-username> \
-  --set ingress.enabled=true --set ingress.host=dojo.example.com
+  --set ingress.enabled=true --set ingress.host=hoss.example.com
 ```
 
 The first start builds the sandbox images (several minutes; follow it with
-`kubectl -n dojo logs deploy/dojo-codehoss -c build-images -f`). Later starts reuse them.
+`kubectl -n hoss logs deploy/hoss-codehoss -c build-images -f`). Later starts reuse them.
 To start faster, build only some courses' images: `--set 'sandbox.buildModules={programming-basics,python-basics}'`.
 
 ## Values worth knowing

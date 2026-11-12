@@ -7,7 +7,7 @@ interface Props {
   onClose: () => void;
 }
 
-/** Pick the model that answers dojo_ai calls: local Ollama or Claude with your key. */
+/** Pick the model that answers hoss_ai calls: local Ollama or Claude with your key. */
 export default function AISettings({ status, onSaved, onClose }: Props) {
   const [provider, setProvider] = useState<AIProvider | null>(status?.provider ?? null);
   const [ollamaModel, setOllamaModel] = useState(
@@ -73,7 +73,7 @@ export default function AISettings({ status, onSaved, onClose }: Props) {
   return (
     <Shell dialog={dialog} onClose={onClose}>
       <p className="muted">
-        AI lessons call a model with <code>dojo_ai.chat(...)</code>. Choose which one answers. Your code stays the
+        AI lessons call a model with <code>hoss_ai.chat(...)</code>. Choose which one answers. Your code stays the
         same either way, and you can switch at any time.
       </p>
       <form onSubmit={save}>

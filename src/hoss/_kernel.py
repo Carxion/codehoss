@@ -144,7 +144,7 @@ _ai_requests = itertools.count(1)
 
 
 def _ai_transport(kind, payload):
-    """dojo_ai -> the CodeHoss server, which calls the learner's chosen model.
+    """hoss_ai -> the CodeHoss server, which calls the learner's chosen model.
 
     The sandbox has no network: the request goes out on the protocol channel and the
     reply comes back on stdin, interleaved with any cells queued in the meantime.
@@ -164,9 +164,9 @@ def _ai_transport(kind, payload):
 
 
 try:
-    import dojo_ai
+    import hoss_ai
 
-    dojo_ai._transport = _ai_transport
+    hoss_ai._transport = _ai_transport
 except ImportError:
     pass
 

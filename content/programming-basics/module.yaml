@@ -9,7 +9,7 @@ level: beginner
 prerequisites: []
 language: pseudo
 sandbox:
-  image: dojo-python
+  image: hoss-python
   packages: []
   network: none
 default_view: editor

@@ -39,9 +39,9 @@ test-sandbox:
     - pip install --quiet --break-system-packages uv
     - uv sync --locked
   script:
-    - uv run dojo build-images
+    - uv run hoss build-images
     - uv run pytest -m docker
-    - uv run dojo validate --sandbox   # Data Science and lab content only run in sandboxes
+    - uv run hoss validate --sandbox   # Data Science and lab content only run in sandboxes
 
 web:
   stage: test
@@ -60,4 +60,4 @@ validate-content:
   stage: validate
   script:
     # Runs every reference solution and starter against its tests.
-    - uv run dojo validate
+    - uv run hoss validate

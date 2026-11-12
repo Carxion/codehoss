@@ -6,7 +6,7 @@ level: intermediate
 prerequisites:
 - python-basics
 sandbox:
-  image: dojo-python
+  image: hoss-python
   packages: []
 default_view: editor
 library_explorer:

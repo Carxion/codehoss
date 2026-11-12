@@ -1,6 +1,6 @@
 import time
 
-from dojo_checks import inspect_container
+from hoss_checks import inspect_container
 
 
 def test_becomes_healthy():

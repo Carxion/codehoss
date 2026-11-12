@@ -1,7 +1,7 @@
 # %%
 from pathlib import Path
 
-import dojo_ai
+import hoss_ai
 
 SYSTEM = "Answer using only the context. If the answer isn't there, say you don't know."
 CHUNKS = []

@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import assert_rolled_out, k8s, sh
+from hoss_checks import assert_rolled_out, k8s, sh
 
 
 def test_release_installed():

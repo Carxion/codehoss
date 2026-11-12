@@ -59,6 +59,6 @@ steps:
 
     **Stretch goals:** weight genre more than year, recommend from a *list* of liked
 
-    movies (average their vectors), or use `dojo_ai.embed` on plot descriptions.
+    movies (average their vectors), or use `hoss_ai.embed` on plot descriptions.
 
     '

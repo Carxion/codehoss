@@ -1,5 +1,5 @@
-// Dojo pseudocode in Monaco: colours, auto-indent, and beginner completions with notes.
-// The language itself lives in src/dojo/_dojo_pseudo.py; keep these lists in step with it.
+// Hoss pseudocode in Monaco: colours, auto-indent, and beginner completions with notes.
+// The language itself lives in src/hoss/_hoss_pseudo.py; keep these lists in step with it.
 
 import type * as Monaco from "monaco-editor";
 

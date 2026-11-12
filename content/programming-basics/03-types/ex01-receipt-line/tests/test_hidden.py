@@ -1,4 +1,4 @@
-from dojo_checks import run_pseudo
+from hoss_checks import run_pseudo
 
 
 def test_other_item():

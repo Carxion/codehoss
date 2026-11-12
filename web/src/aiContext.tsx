@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { aiApi, PROVIDER_LABEL, type AIStatus } from "./api";
 import AISettings from "./components/AISettings";
 
-// Which AI model answers dojo_ai calls is shown in the top bar and in AI lessons, and
+// Which AI model answers hoss_ai calls is shown in the top bar and in AI lessons, and
 // both open the same settings panel. This context keeps them in sync.
 
 interface AIContextValue {

@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_close
+from hoss_checks import assert_close
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split

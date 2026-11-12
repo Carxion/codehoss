@@ -1,4 +1,4 @@
-from dojo_checks import lab_file
+from hoss_checks import lab_file
 
 
 def test_listens_on_all_interfaces():

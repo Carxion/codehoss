@@ -2,7 +2,7 @@ import shutil
 import subprocess
 
 import pytest
-from dojo_checks import lab_dir
+from hoss_checks import lab_dir
 
 
 @pytest.fixture

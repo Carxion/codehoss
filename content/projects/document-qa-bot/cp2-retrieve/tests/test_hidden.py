@@ -1,4 +1,4 @@
-import dojo_ai
+import hoss_ai
 
 
 def test_cp1_chunks():
@@ -20,9 +20,9 @@ def test_cp2_one_embed_call():
 
     def counting(texts):
         calls.append(texts)
-        return [dojo_ai.simple_embed(t) for t in texts]
+        return [hoss_ai.simple_embed(t) for t in texts]
 
-    dojo_ai.fake(embed=counting)
+    hoss_ai.fake(embed=counting)
     chunks = [{"source": "a", "text": "red apples"}, {"source": "b", "text": "blue cars"}]
     assert retrieve("apples", chunks, k=1) == [chunks[0]]
     assert len(calls) == 1

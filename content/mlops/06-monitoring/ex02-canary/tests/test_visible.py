@@ -1,7 +1,7 @@
 import json
 import urllib.request
 
-from dojo_checks import assert_rolled_out, ingress_get
+from hoss_checks import assert_rolled_out, ingress_get
 
 
 def predict_through_ingress(values):

@@ -1,4 +1,4 @@
-"""Spaced review, mastery and streaks (dojo.skills), and their API."""
+"""Spaced review, mastery and streaks (hoss.skills), and their API."""
 
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -7,11 +7,11 @@ import pytest
 from conftest import REPO
 from fastapi.testclient import TestClient
 
-from dojo import skills
-from dojo.api import create_app
-from dojo.registry import load_content
-from dojo.skills import DAY
-from dojo.store import ReviewCard, StepProgress, Store
+from hoss import skills
+from hoss.api import create_app
+from hoss.registry import load_content
+from hoss.skills import DAY
+from hoss.store import ReviewCard, StepProgress, Store
 
 NOW = datetime(2026, 11, 10, 18, 0, tzinfo=UTC).timestamp()
 

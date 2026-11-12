@@ -1,7 +1,7 @@
 # %%
 from pathlib import Path
 
-import dojo_ai
+import hoss_ai
 
 SYSTEM = "Answer using only the context. If the answer isn't there, say you don't know."
 CHUNKS = []
@@ -11,15 +11,15 @@ for path in sorted(Path("/data/handbook").glob("*.md")):
 
 
 def answer(question, chunks, k=3):
-    query, *vectors = dojo_ai.embed([question] + chunks)
+    query, *vectors = hoss_ai.embed([question] + chunks)
     ranked = sorted(
         zip(chunks, vectors),
-        key=lambda pair: dojo_ai.cosine_similarity(query, pair[1]),
+        key=lambda pair: hoss_ai.cosine_similarity(query, pair[1]),
         reverse=True,
     )
     top = [chunk for chunk, _ in ranked[:k]]
     prompt = "Context:\n" + "\n\n".join(top) + f"\n\nQuestion: {question}"
-    return dojo_ai.chat(prompt, system=SYSTEM)
+    return hoss_ai.chat(prompt, system=SYSTEM)
 
 
 # %%

@@ -4,7 +4,7 @@ An executor takes a set of files plus a command, runs it, and hands back the
 output and any files asked for. The grader doesn't care which one it gets:
 
 - LocalExecutor: a temp folder on this machine (fast; tests and authoring only)
-- DockerSession: a locked-down per-learner container (see dojo.sandbox)
+- DockerSession: a locked-down per-learner container (see hoss.sandbox)
 """
 
 from __future__ import annotations
@@ -104,7 +104,7 @@ class LocalExecutor:
         cpu_seconds: int | None = None,  # not enforced locally (no ulimit on Windows)
         cancel: threading.Event | None = None,
     ) -> ExecResult:
-        with tempfile.TemporaryDirectory(prefix="dojo-") as tmp:
+        with tempfile.TemporaryDirectory(prefix="hoss-") as tmp:
             work = Path(tmp)
             for name, data in files.items():
                 (work / name).write_bytes(data)

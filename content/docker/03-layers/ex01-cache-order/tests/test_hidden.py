@@ -3,7 +3,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from dojo_checks import lab_dir, sh
+from hoss_checks import lab_dir, sh
 
 
 def test_code_change_keeps_setup_cached():

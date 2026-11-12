@@ -1,4 +1,4 @@
-"""Copied into grading runs as dojo_checks.py: friendly assertions for data exercises.
+"""Copied into grading runs as hoss_checks.py: friendly assertions for data exercises.
 
 Exercise tests import these instead of writing raw comparisons, so failures read like
 advice ("column 'total' is missing") rather than a pandas stack trace.
@@ -335,7 +335,7 @@ def run_pseudo(source=None, inputs=(), replace=None):
     import contextlib
     import io
 
-    import dojo_pseudo
+    import hoss_pseudo
 
     source = pseudo_source() if source is None else source
     for old, new in (replace or {}).items():
@@ -356,7 +356,7 @@ def run_pseudo(source=None, inputs=(), replace=None):
     builtins.input = fake_input
     try:
         with contextlib.redirect_stdout(buffer):
-            variables = dojo_pseudo.run_source(source)
+            variables = hoss_pseudo.run_source(source)
     finally:
         builtins.input = real_input
     return buffer.getvalue(), variables

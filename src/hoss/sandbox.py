@@ -3,9 +3,9 @@
 Every session is one long-lived container started from its module's image with:
 no network, a read-only root filesystem, a small writable tmpfs workspace, a
 non-root user with no capabilities, and CPU / memory / process limits.
-Code runs inside it via `docker exec` (see dojo.executors.DockerSession).
-The language server (dojo.lsp) gets its own container with the same lockdown.
-Lab modules add a private Docker engine on an internal network (see dojo.lab).
+Code runs inside it via `docker exec` (see hoss.executors.DockerSession).
+The language server (hoss.lsp) gets its own container with the same lockdown.
+Lab modules add a private Docker engine on an internal network (see hoss.lab).
 """
 
 from __future__ import annotations
@@ -21,12 +21,12 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from dojo import lab
-from dojo.executors import DockerSession
-from dojo.registry import Content
+from hoss import lab
+from hoss.executors import DockerSession
+from hoss.registry import Content
 
 BASE_IMAGE = "python:3.12-slim"
-LABEL = "dojo.session"
+LABEL = "hoss.session"
 # Every image needs pytest (grading) and basedpyright (IntelliSense), whatever the
 # module declares.
 PLATFORM_PACKAGES = ["pytest>=8", "basedpyright>=1.20"]
@@ -102,7 +102,7 @@ def image_specs(content: Content) -> dict[str, list[str]]:
     return specs
 
 
-DOJO_AI_SOURCE = Path(__file__).parent / "_dojo_ai.py"
+HOSS_AI_SOURCE = Path(__file__).parent / "_hoss_ai.py"
 
 
 def lab_images(content: Content) -> dict[str, list[str]]:
@@ -133,18 +133,18 @@ LAB_TOOLS = (
 
 def dockerfile(packages: list[str], *, with_lab: bool = False) -> str:
     quoted = " ".join(f"'{p}'" for p in packages)
-    # dojo_ai is installed into site-packages so imports, IntelliSense and hover docs
+    # hoss_ai is installed into site-packages so imports, IntelliSense and hover docs
     # all work. Inlined as base64 because images build without a context directory.
-    dojo_ai = base64.b64encode(DOJO_AI_SOURCE.read_bytes()).decode("ascii")
-    install_dojo_ai = (
+    hoss_ai = base64.b64encode(HOSS_AI_SOURCE.read_bytes()).decode("ascii")
+    install_hoss_ai = (
         "import base64, sysconfig, pathlib; "
-        "pathlib.Path(sysconfig.get_paths()['purelib'], 'dojo_ai.py')"
-        f".write_bytes(base64.b64decode('{dojo_ai}'))"
+        "pathlib.Path(sysconfig.get_paths()['purelib'], 'hoss_ai.py')"
+        f".write_bytes(base64.b64decode('{hoss_ai}'))"
     )
     return (
         f"FROM {BASE_IMAGE}\n"
         f"RUN pip install --no-cache-dir {quoted}\n"
-        f'RUN python -c "{install_dojo_ai}"\n'
+        f'RUN python -c "{install_hoss_ai}"\n'
         + (LAB_TOOLS if with_lab else "")
         + "RUN useradd --uid 1000 --create-home learner\n"
         # Agg: charts render to images; there is no display in a sandbox.
@@ -228,17 +228,17 @@ class SessionManager:
         if sandbox.network != "none":
             raise SandboxError("network allowlists are not supported yet (planned for M4)")
         if not image_exists(sandbox.image):
-            raise SandboxError(f"image '{sandbox.image}' not found; run `dojo build-images`")
+            raise SandboxError(f"image '{sandbox.image}' not found; run `hoss build-images`")
         with self._lock:
             if len(self._sessions) >= self.max_sessions:
                 raise SandboxError("too many active sessions; try again later")
 
         session_id = uuid.uuid4().hex
-        container = f"dojo-{session_id[:12]}"
+        container = f"hoss-{session_id[:12]}"
         # The module decides how much memory its sessions need (pandas needs far more
         # than print statements).
         limits = dataclasses.replace(self.limits, memory=sandbox.memory)
-        labels = ["--label", f"{LABEL}={session_id}", "--label", f"dojo.module={module_id}"]
+        labels = ["--label", f"{LABEL}={session_id}", "--label", f"hoss.module={module_id}"]
         network = "none"
         if sandbox.lab:
             limits = dataclasses.replace(limits, workspace=LAB_WORKSPACE)

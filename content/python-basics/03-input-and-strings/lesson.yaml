@@ -154,7 +154,7 @@ steps:
       print("Has @:", "@" in clean)
       print("@ is at position", clean.find("@"))
       print("Username:", clean[:clean.find("@")])
-      print(clean.replace("example.com", "dojo.dev"))
+      print(clean.replace("example.com", "hoss.dev"))
   - type: try-it
     prompt: 'Tidy `raw` so `tidy` is `hello world`: no spaces at the ends and all lowercase.'
     starter: |

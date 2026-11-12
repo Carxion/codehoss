@@ -1,4 +1,4 @@
-from dojo_checks import k8s
+from hoss_checks import k8s
 
 
 def test_config_unchanged_and_probe_fixed():

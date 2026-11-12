@@ -1,6 +1,6 @@
 // Algorithm "recorders": each runs an algorithm on an input and returns the frames to
 // animate. A frame is a snapshot of what to draw plus a sentence explaining the step.
-// Names must match SHOWCASES in src/dojo/models.py.
+// Names must match SHOWCASES in src/hoss/models.py.
 
 export type CellState = "compare" | "swap" | "done" | "found" | "active" | "dim";
 

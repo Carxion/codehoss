@@ -1,4 +1,4 @@
-from dojo_checks import assert_rolled_out, http_get, k8s
+from hoss_checks import assert_rolled_out, http_get, k8s
 
 
 def test_app_reads_secret():

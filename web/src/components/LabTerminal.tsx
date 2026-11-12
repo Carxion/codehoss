@@ -16,7 +16,7 @@ interface Props {
 const LIGHT = { background: "#ffffff", foreground: "#1f2328", cursor: "#1f2328", selectionBackground: "#b6d4fe" };
 const DARK = { background: "#0d1117", foreground: "#e6edf3", cursor: "#e6edf3", selectionBackground: "#264f78" };
 
-/** A real bash shell in the lab session (dojo._term on the other end). */
+/** A real bash shell in the lab session (hoss._term on the other end). */
 export default function LabTerminal({ sessionId, dir, beforeCommand }: Props) {
   const before = useRef(beforeCommand);
   before.current = beforeCommand;

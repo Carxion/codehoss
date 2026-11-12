@@ -4,14 +4,14 @@ import queue
 
 import pytest
 
-from dojo.lsp import LanguageServer
-from dojo.sandbox import docker_available, image_exists
+from hoss.lsp import LanguageServer
+from hoss.sandbox import docker_available, image_exists
 
 pytestmark = [
     pytest.mark.docker,
     pytest.mark.skipif(
-        not (docker_available() and image_exists("dojo-python")),
-        reason="needs Docker and the dojo-python image (run `dojo build-images`)",
+        not (docker_available() and image_exists("hoss-python")),
+        reason="needs Docker and the hoss-python image (run `hoss build-images`)",
     ),
 ]
 
@@ -21,7 +21,7 @@ URI = "file:///work/main.py"
 class Client:
     def __init__(self):
         self.inbox: queue.Queue[dict] = queue.Queue()
-        self.server = LanguageServer("dojo-python", self.inbox.put)
+        self.server = LanguageServer("hoss-python", self.inbox.put)
         self.next_id = 0
 
     def request(self, method, params, timeout=60):

@@ -1,4 +1,4 @@
-from dojo_checks import assert_rolled_out, k8s
+from hoss_checks import assert_rolled_out, k8s
 
 
 def test_claim_bound():

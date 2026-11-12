@@ -1,4 +1,4 @@
-from dojo_checks import docker, sh
+from hoss_checks import docker, sh
 
 
 def test_latest_is_the_new_version():

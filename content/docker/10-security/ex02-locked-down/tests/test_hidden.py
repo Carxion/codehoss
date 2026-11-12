@@ -1,6 +1,6 @@
 import time
 
-from dojo_checks import docker, inspect_container, sh
+from hoss_checks import docker, inspect_container, sh
 
 
 def test_still_working():

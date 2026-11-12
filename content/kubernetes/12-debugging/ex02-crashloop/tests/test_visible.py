@@ -1,4 +1,4 @@
-from dojo_checks import assert_rolled_out, kubectl
+from hoss_checks import assert_rolled_out, kubectl
 
 
 def test_worker_ready():

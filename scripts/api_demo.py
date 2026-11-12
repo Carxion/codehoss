@@ -1,6 +1,6 @@
 """End-to-end demo of the API without the browser.
 
-uv run dojo serve            # in one terminal
+uv run hoss serve            # in one terminal
 uv run python scripts/api_demo.py
 """
 

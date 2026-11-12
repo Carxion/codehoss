@@ -84,7 +84,7 @@ export default function Studio() {
     if (!model || !monaco.current) return;
     monaco.current.editor.setModelMarkers(
       model,
-      "dojo",
+      "hoss",
       fileMarkers.map((m) => {
         const line = Math.min(m.line ?? 1, model.getLineCount());
         return {
@@ -152,7 +152,7 @@ export default function Studio() {
     if (!slug) return;
     const title = window.prompt(`Title for ${slug}`)?.trim();
     if (!title) return;
-    const language = kind === "module" && window.confirm("Write it in Dojo pseudocode? (Cancel for Python)") ? "pseudo" : "python";
+    const language = kind === "module" && window.confirm("Write it in Hoss pseudocode? (Cancel for Python)") ? "pseudo" : "python";
     try {
       const result = await authorApi.create({ kind, module: kind === "module" ? slug : module, lesson, slug, title, language });
       await refreshTree();
@@ -430,7 +430,7 @@ function LessonPreview({ preview, markers, onJump }: { preview: AuthorPreview | 
             <h2>{preview.module.title}</h2>
             <p className="muted small">
               {preview.module.lessons.length} lesson{preview.module.lessons.length === 1 ? "" : "s"} · written in{" "}
-              {preview.module.language === "pseudo" ? "Dojo pseudocode" : "Python"} · opens in the {preview.module.view} view
+              {preview.module.language === "pseudo" ? "Hoss pseudocode" : "Python"} · opens in the {preview.module.view} view
             </p>
             <ol className="small">
               {preview.module.lessons.map((l) => (

@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 CASES = [
     {"question": "How long is the bike return window?", "keywords": ["30", "days"]},

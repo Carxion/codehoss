@@ -6,7 +6,7 @@ description: >
 level: beginner
 prerequisites: []
 sandbox:
-  image: dojo-python
+  image: hoss-python
   packages: []        # standard library only
   network: none
 default_view: editor

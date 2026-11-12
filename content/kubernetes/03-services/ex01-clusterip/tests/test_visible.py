@@ -1,4 +1,4 @@
-from dojo_checks import assert_rolled_out, k8s, kubectl, wait_until
+from hoss_checks import assert_rolled_out, k8s, kubectl, wait_until
 
 
 def test_service_reaches_pods():

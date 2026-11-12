@@ -5,7 +5,7 @@ prompt: |
   `run_tool` and `SYSTEM` are given. Write `agent(question, max_steps=5)`:
 
   1. Start the conversation with the question as a user message.
-  2. Each step, call `dojo_ai.chat(messages, system=SYSTEM, json=True)` and parse the
+  2. Each step, call `hoss_ai.chat(messages, system=SYSTEM, json=True)` and parse the
      reply with `json.loads`. Add the reply to the messages as an assistant message.
   3. If it has `"answer"`, return that answer.
   4. If it has `"tool"`, run it with `run_tool` and add a user message

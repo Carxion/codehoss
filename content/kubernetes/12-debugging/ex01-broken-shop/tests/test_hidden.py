@@ -1,4 +1,4 @@
-from dojo_checks import k8s
+from hoss_checks import k8s
 
 
 def test_fixed_in_the_files():

@@ -2,7 +2,7 @@ id: project.document-qa-bot.answer
 title: 'Checkpoint 3: Answer with sources'
 prompt: "\nWrite `answer(question, chunks, k=3)` that:\n\n1. retrieves the top `k` chunks\n2. builds the\
   \ prompt: `Context:` then each chunk as `[source] text` separated by blank\n   lines, then a blank line\
-  \ and `Question: <question>`\n3. calls `dojo_ai.chat(prompt, system=SYSTEM)`\n4. returns `{\"answer\"\
+  \ and `Question: <question>`\n3. calls `hoss_ai.chat(prompt, system=SYSTEM)`\n4. returns `{\"answer\"\
   : reply, \"sources\": sorted list of the distinct sources used}`\n"
 difficulty: 3
 hints:

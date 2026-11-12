@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 
 def summarize_reviews(reviews):

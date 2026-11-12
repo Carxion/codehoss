@@ -6,11 +6,11 @@ import pytest
 from conftest import REPO
 from fastapi.testclient import TestClient
 
-from dojo import tutor
-from dojo.ai import AIError, Gateway
-from dojo.api import create_app
-from dojo.registry import load_content
-from dojo.store import Store
+from hoss import tutor
+from hoss.ai import AIError, Gateway
+from hoss.api import create_app
+from hoss.registry import load_content
+from hoss.store import Store
 
 SOLUTION = """\
 score = int(input("Score: "))
@@ -157,7 +157,7 @@ def test_quiz_context_never_includes_the_answer(content):
 def test_pseudocode_lessons_tell_the_tutor_the_language(content):
     module, lesson, i = lesson_with(content, "programming-basics", "exercise")
     prompt = tutor.system_prompt(tutor.context_for(module, lesson, i))
-    assert "Dojo pseudocode" in prompt and "never Python" in prompt
+    assert "Hoss pseudocode" in prompt and "never Python" in prompt
 
 
 def test_lab_context_uses_files_and_the_solution_commands(content):

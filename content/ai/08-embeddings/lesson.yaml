@@ -8,7 +8,7 @@ steps:
       good embedding model).
 
       ```python
-      vectors = dojo_ai.embed(["cats purr", "kittens meow", "oil change"])
+      vectors = hoss_ai.embed(["cats purr", "kittens meow", "oil change"])
       ```
 
       **Cosine similarity** compares two embeddings: 1 means the same direction, 0
@@ -23,10 +23,10 @@ steps:
   - type: example
     code: |
       # %%
-      import dojo_ai
+      import hoss_ai
 
-      cats, kittens, car = dojo_ai.embed(["cats purr loudly", "kittens meow softly", "my car needs an oil change"])
-      dojo_ai.cosine_similarity(cats, kittens), dojo_ai.cosine_similarity(cats, car)
+      cats, kittens, car = hoss_ai.embed(["cats purr loudly", "kittens meow softly", "my car needs an oil change"])
+      hoss_ai.cosine_similarity(cats, kittens), hoss_ai.cosine_similarity(cats, car)
   - type: try-it
     prompt: Make `length` the length (magnitude) of vector `v`, `np.sqrt(np.dot(v, v))`.
     starter: |

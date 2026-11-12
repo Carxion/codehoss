@@ -1,4 +1,4 @@
-from dojo_checks import inspect_container
+from hoss_checks import inspect_container
 
 
 def test_both_on_appnet():

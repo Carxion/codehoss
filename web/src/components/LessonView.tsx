@@ -448,7 +448,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex, review = f
           <div className={`banner ai-banner ${ai.status?.current ? "" : "warn"}`}>
             {ai.status?.current ? (
               <span>
-                🤖 <code>dojo_ai</code> calls go to <strong>{ai.label.replace("AI: ", "")}</strong>
+                🤖 <code>hoss_ai</code> calls go to <strong>{ai.label.replace("AI: ", "")}</strong>
               </span>
             ) : (
               <span>🤖 Choose an AI model to run this lesson's AI cells: local (Ollama) or hosted (your key).</span>
@@ -797,8 +797,8 @@ function focusNamesFor(step: Step): Set<string> {
 
 function draftKey(moduleId: string, lessonSlug: string, step: Step) {
   return defaultCode(step) === null
-    ? `dojo:draft:${moduleId}/playground`
-    : `dojo:draft:${moduleId}/${lessonSlug}/${step.index}`;
+    ? `hoss:draft:${moduleId}/playground`
+    : `hoss:draft:${moduleId}/${lessonSlug}/${step.index}`;
 }
 
 // Drafts are a per-browser convenience; storage can be unavailable (private mode etc.).

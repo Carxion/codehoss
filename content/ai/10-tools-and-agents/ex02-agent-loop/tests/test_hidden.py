@@ -1,4 +1,4 @@
-import dojo_ai
+import hoss_ai
 
 
 def scripted(*replies):
@@ -7,7 +7,7 @@ def scripted(*replies):
 
 
 def test_full_conversation():
-    dojo_ai.fake(
+    hoss_ai.fake(
         chat=scripted(
             '{"tool": "add", "args": {"a": 3, "b": 4}}',
             "oops, not json",
@@ -18,7 +18,7 @@ def test_full_conversation():
     from main import SYSTEM, agent
 
     assert agent("What is (3 + 4) times 6?") == "42"
-    last = dojo_ai.calls[-1]
+    last = hoss_ai.calls[-1]
     assert last["system"] == SYSTEM and last["json"] is True
     assert [m["role"] for m in last["messages"]] == [
         "user",
@@ -36,7 +36,7 @@ def test_full_conversation():
 def test_step_limit():
     from main import agent
 
-    dojo_ai.fake(chat=lambda messages, **kw: '{"tool": "add", "args": {"a": 1, "b": 1}}')
+    hoss_ai.fake(chat=lambda messages, **kw: '{"tool": "add", "args": {"a": 1, "b": 1}}')
 
     assert agent("loop forever", max_steps=3) == "I couldn't finish."
-    assert len(dojo_ai.calls) == 3, "Stop after max_steps calls"
+    assert len(hoss_ai.calls) == 3, "Stop after max_steps calls"

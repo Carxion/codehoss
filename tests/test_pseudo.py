@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from dojo import _dojo_pseudo as pseudo
-from dojo import grader
-from dojo.explain import explain_traceback
+from hoss import _hoss_pseudo as pseudo
+from hoss import grader
+from hoss.explain import explain_traceback
 
 PROGRAM = """// every statement once
 scores = [72, 95, 58]

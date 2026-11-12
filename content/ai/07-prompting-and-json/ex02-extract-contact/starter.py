@@ -1,7 +1,7 @@
 # %%
 import json
 
-import dojo_ai
+import hoss_ai
 
 PROMPT = 'Return JSON with keys "name" and "email" for the person in this text: {text}'
 

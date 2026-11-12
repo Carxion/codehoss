@@ -4,12 +4,12 @@ difficulty: 3
 prompt: |
   Finish the `Chatbot` class:
 
-  - `send(text)`: add `text` as a user message, call `dojo_ai.chat` with the **whole
+  - `send(text)`: add `text` as a user message, call `hoss_ai.chat` with the **whole
     history** and the bot's `system` prompt, add the reply as an assistant message,
     and return the reply.
   - Keep at most `max_messages` messages: after each reply, drop the oldest until it
     fits.
 hints:
   - 'self.history.append({"role": "user", "content": text})'
-  - reply = dojo_ai.chat(self.history, system=self.system)
+  - reply = hoss_ai.chat(self.history, system=self.system)
   - 'After appending the reply: self.history = self.history[-self.max_messages:]'

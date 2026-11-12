@@ -1,7 +1,7 @@
 # %%
 import json
 
-import dojo_ai
+import hoss_ai
 
 TOOLS = {
     "add": lambda a, b: a + b,
@@ -28,7 +28,7 @@ def run_tool(call):
 def agent(question, max_steps=5):
     messages = [{"role": "user", "content": question}]
     for _ in range(max_steps):
-        reply = dojo_ai.chat(messages, system=SYSTEM, json=True)
+        reply = hoss_ai.chat(messages, system=SYSTEM, json=True)
         messages.append({"role": "assistant", "content": reply})
         try:
             action = json.loads(reply)

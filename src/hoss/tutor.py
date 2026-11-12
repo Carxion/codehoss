@@ -1,6 +1,6 @@
 """The AI tutor: Socratic help that sees the lesson, the learner's code and failing tests.
 
-The tutor runs on the learner's chosen AI backend (dojo.ai). It's told the reference
+The tutor runs on the learner's chosen AI backend (hoss.ai). It's told the reference
 solution so its nudges point the right way, and two things keep that solution out of
 its replies:
 
@@ -17,8 +17,8 @@ from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from dojo.models import ExampleStep, ExerciseStep, ExplainStep, QuizStep, ShowcaseStep, TryItStep
-from dojo.registry import LoadedLesson, LoadedModule
+from hoss.models import ExampleStep, ExerciseStep, ExplainStep, QuizStep, ShowcaseStep, TryItStep
+from hoss.registry import LoadedLesson, LoadedModule
 
 MAX_REPLY_TOKENS = 700
 MAX_TURNS = 12  # earlier turns are dropped: the context, not the chat, matters most
@@ -34,7 +34,7 @@ REDACTED = (
 LANGUAGE_NOTES = {
     "python": "The learner writes Python 3.12.",
     "pseudo": (
-        "The learner writes Dojo pseudocode, a small teaching language: name = 5 stores a "
+        "The learner writes Hoss pseudocode, a small teaching language: name = 5 stores a "
         'value, OUTPUT "Hi", name shows it, x = INPUT("prompt") reads text, '
         "IF ... THEN / ELSE IF / ELSE / END IF, WHILE ... DO / END WHILE, REPEAT ... UNTIL, "
         "FOR i FROM 1 TO 10 DO / END FOR, FOR EACH item IN list DO / END FOR, "

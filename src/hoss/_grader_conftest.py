@@ -34,16 +34,16 @@ class ProgramResult:
 
 @pytest.fixture(autouse=True)
 def practice_ai():
-    """Every test starts with dojo_ai in plain practice mode: no transport, no script."""
+    """Every test starts with hoss_ai in plain practice mode: no transport, no script."""
     try:
-        import dojo_ai
+        import hoss_ai
     except ImportError:
         yield
         return
-    dojo_ai._transport = None
-    dojo_ai.fake()
+    hoss_ai._transport = None
+    hoss_ai.fake()
     yield
-    dojo_ai.fake()
+    hoss_ai.fake()
 
 
 @pytest.fixture

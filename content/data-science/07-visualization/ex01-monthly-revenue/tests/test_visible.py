@@ -1,4 +1,4 @@
-from dojo_checks import first_axes
+from hoss_checks import first_axes
 
 
 def test_line_chart(run_program):

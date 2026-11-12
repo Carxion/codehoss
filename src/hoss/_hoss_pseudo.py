@@ -1,6 +1,6 @@
-"""Dojo pseudocode: the small teaching language of the Programming Basics course.
+"""Hoss pseudocode: the small teaching language of the Programming Basics course.
 
-Copied into sandbox runs as dojo_pseudo.py. Standard library only.
+Copied into sandbox runs as hoss_pseudo.py. Standard library only.
 
 It reads like the pseudocode in textbooks and exam papers, and every idea in it maps
 directly onto Python, JavaScript, R, C++ and C#:
@@ -19,8 +19,8 @@ Values are numbers, text, TRUE/FALSE, lists [1, 2], maps {"key": value} and NOTH
 It is deliberately strict (no mixing text and numbers, conditions must be TRUE or
 FALSE) and its errors explain what went wrong in plain words.
 
-    python dojo_pseudo.py main.pseudo           run it (INPUT reads the keyboard)
-    python dojo_pseudo.py --trace main.pseudo   run it and print a JSON trace: each step's
+    python hoss_pseudo.py main.pseudo           run it (INPUT reads the keyboard)
+    python hoss_pseudo.py --trace main.pseudo   run it and print a JSON trace: each step's
                                                 line, variables and output so far
     run_file(path) / run_source(code)           run it, get its variables back (pseudocode
                                                 functions can be called from Python)

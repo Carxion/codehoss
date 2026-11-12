@@ -1,52 +1,52 @@
-"""AI gateway, settings API, and the dojo_ai learner library (no real model calls)."""
+"""AI gateway, settings API, and the hoss_ai learner library (no real model calls)."""
 
 import pytest
 from conftest import REPO
 from fastapi.testclient import TestClient
 
-from dojo import _dojo_ai as dojo_ai
-from dojo.ai import AIError, AISettings, Gateway, RateLimiter
-from dojo.api import create_app
-from dojo.registry import load_content
-from dojo.store import Store
+from hoss import _hoss_ai as hoss_ai
+from hoss.ai import AIError, AISettings, Gateway, RateLimiter
+from hoss.api import create_app
+from hoss.registry import load_content
+from hoss.store import Store
 
-# --- dojo_ai in practice mode (how exercises are graded) -----------------------------
+# --- hoss_ai in practice mode (how exercises are graded) -----------------------------
 
 
 @pytest.fixture(autouse=True)
 def practice_mode():
-    dojo_ai._transport = None
-    dojo_ai.fake()
+    hoss_ai._transport = None
+    hoss_ai.fake()
     yield
-    dojo_ai.fake()
+    hoss_ai.fake()
 
 
 def test_practice_reply_and_recorded_calls():
-    assert dojo_ai.chat("hello", system="be brief") == dojo_ai.PRACTICE_REPLY
-    assert dojo_ai.calls[0]["messages"] == [{"role": "user", "content": "hello"}]
-    assert dojo_ai.calls[0]["system"] == "be brief"
+    assert hoss_ai.chat("hello", system="be brief") == hoss_ai.PRACTICE_REPLY
+    assert hoss_ai.calls[0]["messages"] == [{"role": "user", "content": "hello"}]
+    assert hoss_ai.calls[0]["system"] == "be brief"
 
 
 def test_scripted_fake():
-    dojo_ai.fake(chat=lambda messages, **kw: f"echo: {messages[-1]['content']}")
-    assert dojo_ai.chat("ping") == "echo: ping"
+    hoss_ai.fake(chat=lambda messages, **kw: f"echo: {messages[-1]['content']}")
+    assert hoss_ai.chat("ping") == "echo: ping"
 
 
 def test_message_validation():
     with pytest.raises(ValueError, match="role"):
-        dojo_ai.chat([{"role": "system", "content": "x"}])
+        hoss_ai.chat([{"role": "system", "content": "x"}])
 
 
 def test_simple_embed_is_deterministic_and_meaningful():
-    cats, cats2, cars = dojo_ai.embed(["the cat sat", "a cat sat down", "engine oil change"])
-    assert cats == dojo_ai.simple_embed("the cat sat")
-    assert dojo_ai.cosine_similarity(cats, cats2) > dojo_ai.cosine_similarity(cats, cars)
+    cats, cats2, cars = hoss_ai.embed(["the cat sat", "a cat sat down", "engine oil change"])
+    assert cats == hoss_ai.simple_embed("the cat sat")
+    assert hoss_ai.cosine_similarity(cats, cats2) > hoss_ai.cosine_similarity(cats, cars)
 
 
 def test_transport_errors_become_ai_errors():
-    dojo_ai._transport = lambda kind, payload: {"ok": False, "error": "Ollama isn't running"}
-    with pytest.raises(dojo_ai.AIError, match="Ollama"):
-        dojo_ai.chat("hi")
+    hoss_ai._transport = lambda kind, payload: {"ok": False, "error": "Ollama isn't running"}
+    with pytest.raises(hoss_ai.AIError, match="Ollama"):
+        hoss_ai.chat("hi")
 
 
 # --- gateway -------------------------------------------------------------------------
@@ -83,7 +83,7 @@ def test_prompt_size_limit():
 def test_embed_falls_back_to_builtin_for_hosted():
     result = Gateway().embed(AISettings(provider="anthropic", api_key="k"), {"texts": ["a b"]})
     assert result["provider"] == "builtin"
-    assert result["vectors"][0] == dojo_ai.simple_embed("a b")
+    assert result["vectors"][0] == hoss_ai.simple_embed("a b")
 
 
 def test_rate_limiter():

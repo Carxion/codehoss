@@ -1,4 +1,4 @@
-from dojo_checks import k8s, k8s_list, kubectl
+from hoss_checks import k8s, k8s_list, kubectl
 
 
 def test_was_a_rollout_not_a_fresh_create():

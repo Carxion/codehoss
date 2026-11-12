@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import k8s, kubectl, wait_until
+from hoss_checks import k8s, kubectl, wait_until
 
 
 def test_two_endpoints():

@@ -62,7 +62,7 @@ Skills: {skills}.
 
 The code is in `{code_file}`{also}.
 Files it reads from `/data/...` came from CodeHoss's datasets; point those paths at
-your own copies to run it elsewhere. Code that uses `dojo_ai` ran on CodeHoss's model
+your own copies to run it elsewhere. Code that uses `hoss_ai` ran on CodeHoss's model
 picker; swap in a provider library such as `ollama` or `anthropic` to run it on its own.
 
 To put it on GitHub or GitLab:

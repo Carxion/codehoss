@@ -89,7 +89,7 @@ spec:
           image: {{ include "codehoss.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
-            - dojo
+            - hoss
             - build-images
             {{- range .Values.sandbox.buildModules }}
             - --module={{ . }}
@@ -110,21 +110,21 @@ spec:
           env:
             - name: DOCKER_HOST
               value: {{ $socket }}
-            - name: DOJO_SECRET_KEY
+            - name: HOSS_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "codehoss.secretName" . }}
                   key: secret-key
             {{- with .Values.authors }}
-            - name: DOJO_AUTHORS
+            - name: HOSS_AUTHORS
               value: {{ . | quote }}
             {{- end }}
             {{- with include "codehoss.ollamaUrl" . }}
-            - name: DOJO_OLLAMA_URL
+            - name: HOSS_OLLAMA_URL
               value: {{ . | quote }}
             {{- end }}
             {{- with .Values.sandbox.labRuntime }}
-            - name: DOJO_LAB_RUNTIME
+            - name: HOSS_LAB_RUNTIME
               value: {{ . | quote }}
             {{- end }}
           readinessProbe:

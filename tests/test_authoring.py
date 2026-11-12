@@ -6,12 +6,12 @@ import pytest
 from conftest import REPO
 from fastapi.testclient import TestClient
 
-from dojo import authoring
-from dojo.api import create_app
-from dojo.grader import LOCAL
-from dojo.registry import load_content
-from dojo.store import Store
-from dojo.validate import validate
+from hoss import authoring
+from hoss.api import create_app
+from hoss.grader import LOCAL
+from hoss.registry import load_content
+from hoss.store import Store
+from hoss.validate import validate
 
 LESSON = "python-basics/04-decisions/lesson.yaml"
 
@@ -75,7 +75,7 @@ def test_preview_points_at_the_broken_line(root):
     assert marker["line"] == quiz_line and "quizz" in marker["message"]
 
     broken = authoring.preview(root, LESSON, "title: [oops\n")["markers"]
-    assert broken[0]["line"] == 1 and "dojo-preview" not in broken[0]["message"]
+    assert broken[0]["line"] == 1 and "hoss-preview" not in broken[0]["message"]
 
     missing = authoring.preview(root, LESSON, text.replace("ref: ex01", "ref: ex09", 1))
     gone = next(m for m in missing["markers"] if "missing folder" in m["message"])

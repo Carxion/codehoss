@@ -59,7 +59,7 @@ def mapping_for(old_steps: list, new_steps: list) -> dict[int, int | None]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--since", default="HEAD", help="git ref with the old lessons")
-    parser.add_argument("--db", type=Path, default=ROOT / "var" / "dojo.db")
+    parser.add_argument("--db", type=Path, default=ROOT / "var" / "hoss.db")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 

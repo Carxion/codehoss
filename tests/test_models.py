@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from dojo.models import Lesson, Module
+from hoss.models import Lesson, Module
 
 
 def test_module_requires_slug_id():

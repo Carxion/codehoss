@@ -22,10 +22,10 @@ COPY src/ src/
 RUN uv sync --frozen --no-dev
 
 FROM python:3.12-slim
-# The Docker CLI (with buildx, for `dojo build-images`) from the official image.
+# The Docker CLI (with buildx, for `hoss build-images`) from the official image.
 COPY --from=docker:29-cli /usr/local/bin/docker /usr/local/bin/docker
 COPY --from=docker:29-cli /usr/local/libexec/docker/cli-plugins/docker-buildx /usr/local/libexec/docker/cli-plugins/docker-buildx
-RUN groupadd --gid 10001 dojo && useradd --uid 10001 --gid 10001 --create-home dojo
+RUN groupadd --gid 10001 hoss && useradd --uid 10001 --gid 10001 --create-home hoss
 WORKDIR /app
 COPY --from=app /app/.venv /app/.venv
 COPY --from=app /app/src /app/src
@@ -33,10 +33,10 @@ COPY --from=web /web/dist /app/web/dist
 # A pristine copy of the courses; the chart seeds the live content volume from it.
 COPY content/ /app/content/
 COPY content/ /app/content.dist/
-RUN mkdir -p /app/var && chown -R dojo:dojo /app/var /app/content
+RUN mkdir -p /app/var && chown -R hoss:hoss /app/var /app/content
 ENV PATH=/app/.venv/bin:$PATH PYTHONUNBUFFERED=1 \
-    DOJO_CONTENT=/app/content DOJO_DB=/app/var/dojo.db
-USER dojo
+    HOSS_CONTENT=/app/content HOSS_DB=/app/var/hoss.db
+USER hoss
 EXPOSE 8000
 HEALTHCHECK CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"
-CMD ["dojo", "serve", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["hoss", "serve", "--host", "0.0.0.0", "--port", "8000"]

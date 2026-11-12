@@ -1,6 +1,6 @@
 """Authoring: edit course content with live validation, preview and scaffolding.
 
-Used by the Studio page (authors only, see `is_author`) and `dojo new`. Everything
+Used by the Studio page (authors only, see `is_author`) and `hoss new`. Everything
 works on paths relative to the content folder, and only on text files authors write
 (YAML, Markdown, code, tests), never datasets or anything outside the folder.
 
@@ -23,10 +23,10 @@ from pathlib import Path, PurePosixPath
 
 import yaml
 
-from dojo.executors import Executor
-from dojo.models import TryItStep
-from dojo.registry import Content, LoadedLesson, LoadedModule, Problem, _load_module, load_content
-from dojo.validate import _check_execution, _check_exercise_refs
+from hoss.executors import Executor
+from hoss.models import TryItStep
+from hoss.registry import Content, LoadedLesson, LoadedModule, Problem, _load_module, load_content
+from hoss.validate import _check_execution, _check_exercise_refs
 
 TEXT_SUFFIXES = {".yaml", ".yml", ".md", ".py", ".pseudo", ".sh", ".txt", ".json", ".toml", ".cfg"}
 TEXT_NAMES = {"Dockerfile", ".dockerignore", ".gitignore", ".gitlab-ci.yml"}
@@ -39,8 +39,8 @@ class AuthoringError(ValueError):
 
 
 def is_author(username: str, authors: str | None = None) -> bool:
-    """Authors are listed in DOJO_AUTHORS (comma-separated usernames, or * for all)."""
-    names = {n.strip().lower() for n in (authors or os.environ.get("DOJO_AUTHORS", "")).split(",")}
+    """Authors are listed in HOSS_AUTHORS (comma-separated usernames, or * for all)."""
+    names = {n.strip().lower() for n in (authors or os.environ.get("HOSS_AUTHORS", "")).split(",")}
     return "*" in names or username.lower() in names
 
 
@@ -136,7 +136,7 @@ def overlay(root: Path, path: str, text: str) -> Iterator[tuple[Content, LoadedM
     source = root / module_id
     if not (source / "module.yaml").exists() and PurePosixPath(path).name != "module.yaml":
         raise AuthoringError(f"No module folder {module_id}/ (it needs a module.yaml).")
-    with tempfile.TemporaryDirectory(prefix="dojo-preview-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="hoss-preview-") as tmp:
         temp_root = Path(tmp)
         if source.is_dir():
             # Text files only: datasets and big files aren't needed to load or test.
@@ -163,7 +163,7 @@ def overlay(root: Path, path: str, text: str) -> Iterator[tuple[Content, LoadedM
 
 def preview(root: Path, path: str, text: str) -> dict:
     """What saving `text` to `path` would give: problems (with lines) and the lesson."""
-    from dojo.api import _public_step  # the exact JSON the lesson page renders
+    from hoss.api import _public_step  # the exact JSON the lesson page renders
 
     with overlay(root, path, text) as (temp, module):
         problems = list(temp.problems)
@@ -286,7 +286,7 @@ def new_module(root: Path, module_id: str, title: str, language: str = "python")
         "description: One or two sentences on what learners will be able to do.\n"
         "level: beginner\n"
         + (f"language: {language}\n" if language != "python" else "")
-        + "sandbox:\n  image: dojo-python\n"
+        + "sandbox:\n  image: hoss-python\n"
         "lessons:\n  - 01-first-lesson\n",
     )
     return [

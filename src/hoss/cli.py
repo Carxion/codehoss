@@ -1,4 +1,4 @@
-"""The `dojo` command-line interface.
+"""The `hoss` command-line interface.
 
 The terminal way to work through exercises (the browser IDE in M2 replaces it for
 learners), plus authoring and ops commands: validate, build-images, serve.
@@ -20,10 +20,10 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
-from dojo.grader import grade
-from dojo.lab import images_to_pull
-from dojo.registry import Content, LoadedExercise, load_content
-from dojo.sandbox import (
+from hoss.grader import grade
+from hoss.lab import images_to_pull
+from hoss.registry import Content, LoadedExercise, load_content
+from hoss.sandbox import (
     SandboxError,
     SessionManager,
     build_image,
@@ -31,7 +31,7 @@ from dojo.sandbox import (
     image_specs,
     lab_images,
 )
-from dojo.validate import validate as validate_content
+from hoss.validate import validate as validate_content
 
 app = typer.Typer(
     help="CodeHoss: learn Python, data science and AI by doing.",
@@ -47,10 +47,10 @@ WORKSPACE = Path("workspace")
 
 
 def _load() -> Content:
-    root = Path(os.environ.get("DOJO_CONTENT", "content")).resolve()
+    root = Path(os.environ.get("HOSS_CONTENT", "content")).resolve()
     if not root.is_dir():
         console.print(f"[red]Content folder not found:[/] {root}")
-        console.print("Run from the repo root, or set DOJO_CONTENT.")
+        console.print("Run from the repo root, or set HOSS_CONTENT.")
         raise typer.Exit(2)
     return load_content(root)
 
@@ -58,7 +58,7 @@ def _load() -> Content:
 def _find(content: Content, exercise_id: str) -> LoadedExercise:
     exercise = content.exercise(exercise_id)
     if exercise is None:
-        console.print(f"[red]No exercise with id[/] '{exercise_id}'. Try [bold]dojo list[/].")
+        console.print(f"[red]No exercise with id[/] '{exercise_id}'. Try [bold]hoss list[/].")
         raise typer.Exit(2)
     return exercise
 
@@ -134,7 +134,7 @@ def start(
         WORKSPACE.mkdir(exist_ok=True)
         target.write_text(exercise.starter_path.read_text(encoding="utf-8"), encoding="utf-8")
         console.print(f"Starter created: [bold]{target}[/]")
-    console.print(f"When you're ready: [bold]dojo check {exercise_id}[/]")
+    console.print(f"When you're ready: [bold]hoss check {exercise_id}[/]")
 
 
 @app.command()
@@ -150,7 +150,7 @@ def check(
     exercise = _find(content, exercise_id)
     path = file or WORKSPACE / f"{exercise_id}.py"
     if not path.exists():
-        console.print(f"[red]{path} not found.[/] Run [bold]dojo start {exercise_id}[/] first.")
+        console.print(f"[red]{path} not found.[/] Run [bold]hoss start {exercise_id}[/] first.")
         raise typer.Exit(2)
 
     code = path.read_text(encoding="utf-8")
@@ -187,7 +187,7 @@ def check(
         console.print(result.output.strip()[-1500:])
     console.print(f"\n[yellow]Hint:[/] {exercise.spec.hints[0]}")
     if len(exercise.spec.hints) > 1:
-        console.print(f"[dim]More help: dojo hint {exercise_id} 2[/]")
+        console.print(f"[dim]More help: hoss hint {exercise_id} 2[/]")
     raise typer.Exit(1)
 
 
@@ -199,7 +199,7 @@ def hint(exercise_id: str, level: int = 1) -> None:
     level = max(1, min(level, len(hints)))
     console.print(f"[yellow]Hint {level}/{len(hints)}:[/] {hints[level - 1]}")
     if level < len(hints):
-        console.print(f"[dim]More help: dojo hint {exercise_id} {level + 1}[/]")
+        console.print(f"[dim]More help: hoss hint {exercise_id} {level + 1}[/]")
 
 
 @app.command("build-images")
@@ -254,7 +254,7 @@ def serve(
     """Start the server: API under /api, the browser app (web/dist) at /."""
     import uvicorn
 
-    from dojo.api import create_app
+    from hoss.api import create_app
 
     static = Path("web/dist")
     if not static.is_dir():
@@ -275,7 +275,7 @@ def _created(files: list[str]) -> None:
     for path in files:
         console.print(f"  [green]+[/] content/{path}")
     console.print(
-        "Edit them in the Studio (dojo serve --author <you>) or any editor, then dojo validate."
+        "Edit them in the Studio (hoss serve --author <you>) or any editor, then hoss validate."
     )
 
 
@@ -286,7 +286,7 @@ def new_module(
     language: Annotated[str, typer.Option(help="python or pseudo")] = "python",
 ) -> None:
     """A module folder with module.yaml and a first lesson."""
-    from dojo import authoring
+    from hoss import authoring
 
     try:
         _created(authoring.new_module(_content_root(), module_id, title, language))
@@ -298,7 +298,7 @@ def new_module(
 @new_app.command("lesson")
 def new_lesson(module_id: str, slug: str, title: str) -> None:
     """A lesson folder, added to the module's lessons list."""
-    from dojo import authoring
+    from hoss import authoring
 
     try:
         _created(authoring.new_lesson(_content_root(), module_id, slug, title))
@@ -312,7 +312,7 @@ def new_exercise(
     lesson: Annotated[str, typer.Argument(help="module/lesson")], slug: str, title: str
 ) -> None:
     """An exercise (starter, solution, visible + hidden tests), added as a lesson step."""
-    from dojo import authoring
+    from hoss import authoring
 
     module_id, _, lesson_slug = lesson.partition("/")
     try:
@@ -323,4 +323,4 @@ def new_exercise(
 
 
 def _content_root() -> Path:
-    return Path(os.environ.get("DOJO_CONTENT", "content")).resolve()
+    return Path(os.environ.get("HOSS_CONTENT", "content")).resolve()

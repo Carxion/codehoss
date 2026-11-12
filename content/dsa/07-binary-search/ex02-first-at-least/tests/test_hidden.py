@@ -23,7 +23,7 @@ def test_edges():
 
 
 def test_fast():
-    from dojo_checks import assert_fast
+    from hoss_checks import assert_fast
     from main import first_at_least
 
     nums = [i // 3 for i in range(1_000_000)]

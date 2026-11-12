@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 SYSTEM = "You explain things to a 10-year-old in two short sentences."
 

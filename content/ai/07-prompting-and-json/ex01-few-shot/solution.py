@@ -1,5 +1,5 @@
 # %%
-import dojo_ai
+import hoss_ai
 
 INSTRUCTION = "Classify the sentiment as positive, negative or neutral."
 EXAMPLES = [("I love it!", "positive"), ("It broke after a day.", "negative")]
@@ -13,7 +13,7 @@ def few_shot_prompt(instruction, examples, text):
 
 
 def classify(text):
-    return dojo_ai.chat(few_shot_prompt(INSTRUCTION, EXAMPLES, text)).strip().lower()
+    return hoss_ai.chat(few_shot_prompt(INSTRUCTION, EXAMPLES, text)).strip().lower()
 
 
 # %%

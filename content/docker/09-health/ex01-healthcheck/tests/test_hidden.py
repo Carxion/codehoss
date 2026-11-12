@@ -1,4 +1,4 @@
-from dojo_checks import assert_image
+from hoss_checks import assert_image
 
 
 def test_interval_is_short():

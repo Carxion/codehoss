@@ -1,4 +1,4 @@
-from dojo_checks import inspect_container
+from hoss_checks import inspect_container
 
 
 def test_running_from_fixed_image():

@@ -1,4 +1,4 @@
-import dojo_ai
+import hoss_ai
 
 
 def test_two_examples():
@@ -11,9 +11,9 @@ def test_two_examples():
 def test_classify():
     from main import EXAMPLES, INSTRUCTION, classify, few_shot_prompt
 
-    dojo_ai.fake(chat=lambda messages, **kw: "  Neutral\n")
+    hoss_ai.fake(chat=lambda messages, **kw: "  Neutral\n")
 
     assert classify("The box was blue.") == "neutral"
-    assert dojo_ai.calls[-1]["messages"][-1]["content"] == few_shot_prompt(
+    assert hoss_ai.calls[-1]["messages"][-1]["content"] == few_shot_prompt(
         INSTRUCTION, EXAMPLES, "The box was blue."
     )

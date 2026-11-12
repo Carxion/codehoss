@@ -1,4 +1,4 @@
-"""AI gateway: every dojo_ai call from a notebook ends up here, on the server.
+"""AI gateway: every hoss_ai call from a notebook ends up here, on the server.
 
 Two backends, chosen per learner:
 
@@ -25,10 +25,10 @@ from dataclasses import dataclass
 
 import anthropic
 
-from dojo._dojo_ai import simple_embed
+from hoss._hoss_ai import simple_embed
 
-OLLAMA_URL = os.environ.get("DOJO_OLLAMA_URL", "http://localhost:11434")
-OLLAMA_EMBED_MODEL = os.environ.get("DOJO_OLLAMA_EMBED_MODEL", "nomic-embed-text")
+OLLAMA_URL = os.environ.get("HOSS_OLLAMA_URL", "http://localhost:11434")
+OLLAMA_EMBED_MODEL = os.environ.get("HOSS_OLLAMA_EMBED_MODEL", "nomic-embed-text")
 
 # Claude models offered to learners; the first is the default.
 ANTHROPIC_MODELS = ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
@@ -93,7 +93,7 @@ class Gateway:
         }
 
     def describe(self, settings: AISettings) -> dict:
-        """What will answer: shown in the UI and returned by dojo_ai.backend()."""
+        """What will answer: shown in the UI and returned by hoss_ai.backend()."""
         if settings.provider == "ollama":
             model = settings.model or (self.ollama_status()["models"] or [None])[0]
             return {"provider": "ollama", "model": model}

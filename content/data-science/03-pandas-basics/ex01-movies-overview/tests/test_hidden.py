@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_close
+from hoss_checks import assert_close
 
 DF = pd.read_csv("/data/movies.csv")
 

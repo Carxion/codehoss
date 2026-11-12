@@ -1,4 +1,4 @@
-from dojo_checks import sh
+from hoss_checks import sh
 
 
 def test_slim_image():

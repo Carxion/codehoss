@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from dojo_checks import first_axes
+from hoss_checks import first_axes
 
 
 def test_three_lines():

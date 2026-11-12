@@ -143,14 +143,14 @@ function ReviewLink({ route }: { route: Route }) {
   );
 }
 
-/** Always-visible indicator of which model answers dojo_ai calls; opens the picker. */
+/** Always-visible indicator of which model answers hoss_ai calls; opens the picker. */
 function AIChip() {
   const { status, label, openSettings } = useAI();
   return (
     <button
       className={`ai-chip ${status?.current ? "" : "unset"}`}
       onClick={openSettings}
-      title="Choose which AI model answers dojo_ai calls"
+      title="Choose which AI model answers hoss_ai calls"
     >
       🤖 {label}
     </button>

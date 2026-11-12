@@ -23,14 +23,14 @@ steps:
     md: Run the same prompt a few times. Do the answers change?
     code: |
       # %%
-      import dojo_ai
+      import hoss_ai
 
       for _ in range(3):
-          print(dojo_ai.chat("Name one unusual pet. Just the animal.", temperature=1.0))
+          print(hoss_ai.chat("Name one unusual pet. Just the animal.", temperature=1.0))
 
       # %%
       for _ in range(3):
-          print(dojo_ai.chat("Name one unusual pet. Just the animal.", temperature=0))
+          print(hoss_ai.chat("Name one unusual pet. Just the animal.", temperature=0))
   - type: try-it
     prompt: Make `words` the number of words in `text` (split on spaces), and `estimate` that number times 4/3, rounded up with `math.ceil`.
     starter: |

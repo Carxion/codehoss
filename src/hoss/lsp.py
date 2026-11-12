@@ -15,7 +15,7 @@ import threading
 import uuid
 from collections.abc import Callable
 
-from dojo.sandbox import LABEL, Limits, lockdown_flags
+from hoss.sandbox import LABEL, Limits, lockdown_flags
 
 # Node needs more headroom than learner scripts do; analysing big libraries (pandas)
 # needs more again, so a module's own memory setting raises this floor.
@@ -24,7 +24,7 @@ LSP_LIMITS = Limits(memory="512m", pids=64, workspace="16m")
 
 class LanguageServer:
     def __init__(self, image: str, on_message: Callable[[dict], None], memory: str | None = None):
-        self.name = f"dojo-lsp-{uuid.uuid4().hex[:12]}"
+        self.name = f"hoss-lsp-{uuid.uuid4().hex[:12]}"
         cmd = [
             "docker", "run", "--rm", "-i",
             "--name", self.name,

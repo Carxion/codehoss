@@ -16,9 +16,9 @@ from collections import Counter
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 
-from dojo.models import ExerciseStep, QuizStep, Step, TryItStep
-from dojo.registry import Content, LoadedLesson, prerequisite_depths
-from dojo.store import ReviewCard, StepProgress
+from hoss.models import ExerciseStep, QuizStep, Step, TryItStep
+from hoss.registry import Content, LoadedLesson, prerequisite_depths
+from hoss.store import ReviewCard, StepProgress
 
 DAY = 86_400.0
 FIRST_INTERVAL = {"quiz": 1.0, "try-it": 1.0, "exercise": 3.0}

@@ -1,4 +1,4 @@
-from dojo_checks import assert_image, docker, sh
+from hoss_checks import assert_image, docker, sh
 
 
 def test_final_image_runs():

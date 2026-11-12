@@ -1,7 +1,7 @@
 import random
 from pathlib import Path
 
-from dojo_checks import assert_fast
+from hoss_checks import assert_fast
 
 
 def no_builtin_sort():

@@ -13,16 +13,16 @@ steps:
     code: |
       print("Hello, world!")
   - type: try-it
-    prompt: Change the message so the program prints `Hello, Dojo!`
+    prompt: Change the message so the program prints `Hello, CodeHoss!`
     starter: |
       print("Hello, world!")
     solution: |
-      print("Hello, Dojo!")
+      print("Hello, CodeHoss!")
     check: |
-      assert _output.strip() == "Hello, Dojo!", "Print exactly: Hello, Dojo!"
+      assert _output.strip() == "Hello, CodeHoss!", "Print exactly: Hello, CodeHoss!"
     hints:
       - Only the text inside the quotes needs to change.
-      - 'print("Hello, Dojo!")'
+      - 'print("Hello, CodeHoss!")'
   - type: explain
     md: |
       Each `print()` shows its message on a **new line**. Lines that start with `#` are

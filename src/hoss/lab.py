@@ -5,7 +5,7 @@ A lab session is the usual locked-down session container plus a private Docker e
 reaches the engine as tcp://docker:2375; nothing else can. The engine needs
 --privileged, which is why it gets its own container, memory/pids limits and no
 network out, and is thrown away with the session. Hosts with the sysbox runtime can set
-DOJO_LAB_RUNTIME=sysbox-runc to run it unprivileged.
+HOSS_LAB_RUNTIME=sysbox-runc to run it unprivileged.
 
 Kubernetes labs add a single-node k3s cluster (reachable as https://k3s:6443, NodePorts as
 http://k3s:PORT) and a registry inside the engine at docker:5000, so learners build with
@@ -13,7 +13,7 @@ docker, push, and deploy. Nothing is pulled: k3s's system images and the module'
 images are copied into its image folder before it starts.
 
 Each lab exercise gets a folder in the session (/work/<name>) seeded from its files/;
-the browser edits those files and runs commands in a terminal (dojo._term), and checks
+the browser edits those files and runs commands in a terminal (hoss._term), and checks
 inspect real state: files, images, containers, cluster objects, HTTP responses.
 """
 
@@ -30,7 +30,7 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-from dojo.registry import LoadedExercise
+from hoss.registry import LoadedExercise
 
 DIND_IMAGE = "docker:29-dind"
 CLI_IMAGE = "docker:29-cli"
@@ -38,7 +38,7 @@ ENGINE_HOST = "tcp://docker:2375"
 ENGINE_MEMORY = "1g"
 ENGINE_START_TIMEOUT_S = 60
 K3S_IMAGE = "rancher/k3s:v1.37.1-k3s1"
-HELM_IMAGE = "alpine/helm:3.19.0"  # only its helm binary is used (copied into dojo-lab)
+HELM_IMAGE = "alpine/helm:3.19.0"  # only its helm binary is used (copied into hoss-lab)
 # What k3s v1.37.1 pulls at start with traefik, metrics-server and helm disabled, plus
 # the local-path provisioner's helper (it creates PersistentVolume folders) and our own
 # ingress controller.
@@ -176,7 +176,7 @@ def start_engine(
     finishes the job once it's running."""
     engine, network = engine_names(container)
     _docker("network", "create", "--internal", *labels, network)
-    runtime = os.environ.get("DOJO_LAB_RUNTIME")
+    runtime = os.environ.get("HOSS_LAB_RUNTIME")
     isolation = ["--runtime", runtime] if runtime else ["--privileged"]
     insecure = ["--insecure-registry", REGISTRY] if kind == "kubernetes" else []
     _docker(
@@ -217,7 +217,7 @@ def _create_cluster(
         for name, data in [
             ("var/lib/rancher/k3s/agent/images/lab.tar", saved.stdout),
             ("etc/rancher/k3s/registries.yaml", registries),
-            ("var/lib/rancher/k3s/server/manifests/dojo-ingress.yaml", INGRESS_MANIFEST.encode()),
+            ("var/lib/rancher/k3s/server/manifests/hoss-ingress.yaml", INGRESS_MANIFEST.encode()),
         ]:
             info = tarfile.TarInfo(name)
             info.size = len(data)
@@ -257,7 +257,7 @@ def wait_and_preload(container: str, images: list[str], kind: str = "docker") ->
     if kind == "kubernetes":
         _docker(
             "exec", engine, "docker", "run", "--detach", "--name", "registry",
-            "--label", "dojo.keep=1", "--restart", "always", "-p", "5000:5000", REGISTRY_IMAGE,
+            "--label", "hoss.keep=1", "--restart", "always", "-p", "5000:5000", REGISTRY_IMAGE,
         )  # fmt: skip
         _wait_for_cluster(container)
 
@@ -289,7 +289,7 @@ def stop_engine(container: str) -> None:
 
 RESET_SCRIPT = """
 for id in $(docker ps -aq); do
-  keep=$(docker inspect -f '{{index .Config.Labels "dojo.keep"}}' "$id")
+  keep=$(docker inspect -f '{{index .Config.Labels "hoss.keep"}}' "$id")
   [ "$keep" = 1 ] || docker rm -f "$id"
 done >/dev/null
 docker network prune -f >/dev/null

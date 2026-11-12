@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import assert_image, docker
+from hoss_checks import assert_image, docker
 
 
 def test_no_build_junk_in_image():

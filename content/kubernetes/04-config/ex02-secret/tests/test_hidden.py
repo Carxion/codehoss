@@ -1,6 +1,6 @@
 import base64
 
-from dojo_checks import k8s, kubectl
+from hoss_checks import k8s, kubectl
 
 
 def test_secret_value():

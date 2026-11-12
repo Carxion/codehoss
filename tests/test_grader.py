@@ -1,4 +1,4 @@
-from dojo.grader import run_snippet, run_tests
+from hoss.grader import run_snippet, run_tests
 
 TEST = """
 def test_greets(run_program):

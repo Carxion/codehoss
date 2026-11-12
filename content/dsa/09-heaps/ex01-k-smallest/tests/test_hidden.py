@@ -27,7 +27,7 @@ def test_edges():
 def test_big():
     import random
 
-    from dojo_checks import assert_fast
+    from hoss_checks import assert_fast
     from main import k_smallest
 
     nums = list(range(200_000))

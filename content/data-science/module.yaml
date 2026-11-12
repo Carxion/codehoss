@@ -6,7 +6,7 @@ description: >
 level: beginner-intermediate
 prerequisites: [python-basics]
 sandbox:
-  image: dojo-ds
+  image: hoss-ds
   packages: [ipython, numpy, pandas, matplotlib, seaborn, scipy, scikit-learn]
   memory: 1g
   data: datasets

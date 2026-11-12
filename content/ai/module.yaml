@@ -6,14 +6,14 @@ description: >
 level: beginner-intermediate
 prerequisites: [python-basics]
 sandbox:
-  image: dojo-ds
+  image: hoss-ds
   packages: [ipython, numpy, pandas, matplotlib, scikit-learn]
   memory: 1g
   data: datasets
   ai: true
 default_view: notebook
 library_explorer:
-  featured: [dojo_ai, numpy]
+  featured: [hoss_ai, numpy]
   modules: [sklearn.neural_network, sklearn.datasets, sklearn.model_selection, json, re]
 lessons:
   - 01-meet-the-model

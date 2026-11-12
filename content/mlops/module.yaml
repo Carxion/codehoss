@@ -6,7 +6,7 @@ level: intermediate
 prerequisites:
 - kubernetes
 sandbox:
-  image: dojo-lab
+  image: hoss-lab
   packages:
   - pyyaml
   memory: 512m

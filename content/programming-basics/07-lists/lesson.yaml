@@ -81,7 +81,7 @@ steps:
   check: 'assert globals().get("passed") == 3, f"passed is {globals().get(''passed'')}, but 72, 95 and
     58 passed"
 
-    from dojo_checks import uses_keyword
+    from hoss_checks import uses_keyword
 
     assert uses_keyword("FOR"), "Loop through the scores with FOR EACH"
 

@@ -13,7 +13,7 @@ export type CellOutput =
       line: number | null;
     };
 
-/** One dojo_ai call made by a cell: shown as a "via <model>" badge under it. */
+/** One hoss_ai call made by a cell: shown as a "via <model>" badge under it. */
 export interface AICall {
   kind: string;
   ok: boolean;

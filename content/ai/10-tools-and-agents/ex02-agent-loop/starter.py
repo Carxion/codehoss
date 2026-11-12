@@ -1,7 +1,7 @@
 # %%
 import json
 
-import dojo_ai
+import hoss_ai
 
 TOOLS = {
     "add": lambda a, b: a + b,

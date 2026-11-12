@@ -1,4 +1,4 @@
-from dojo_checks import lab_dir, sh
+from hoss_checks import lab_dir, sh
 
 
 def test_feature_pipeline_runs():

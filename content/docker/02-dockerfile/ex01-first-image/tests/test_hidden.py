@@ -1,4 +1,4 @@
-from dojo_checks import assert_image, docker, lab_file
+from hoss_checks import assert_image, docker, lab_file
 
 
 def test_uses_python_312():

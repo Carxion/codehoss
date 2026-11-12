@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from dojo_checks import assert_frame_matches, first_axes
+from hoss_checks import assert_frame_matches, first_axes
 
 
 def expected_weather():

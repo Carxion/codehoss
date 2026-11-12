@@ -1,7 +1,7 @@
 # %%
 from pathlib import Path
 
-import dojo_ai
+import hoss_ai
 
 SYSTEM = (
     "Answer using only the context. Mention the [source] you used. "
@@ -33,9 +33,9 @@ len(CHUNKS), CHUNKS[0]
 
 
 def retrieve(question, chunks, k=3):
-    query, *vectors = dojo_ai.embed([question] + [c["text"] for c in chunks])
+    query, *vectors = hoss_ai.embed([question] + [c["text"] for c in chunks])
     ranked = sorted(
-        zip(chunks, vectors), key=lambda pair: dojo_ai.cosine_similarity(query, pair[1]), reverse=True
+        zip(chunks, vectors), key=lambda pair: hoss_ai.cosine_similarity(query, pair[1]), reverse=True
     )
     return [chunk for chunk, _ in ranked[:k]]
 
@@ -47,7 +47,7 @@ def retrieve(question, chunks, k=3):
 def answer(question, chunks, k=3):
     top = retrieve(question, chunks, k)
     # TODO: context = each chunk as "[source] text", separated by blank lines
-    # TODO: reply = dojo_ai.chat(prompt, system=SYSTEM)
+    # TODO: reply = hoss_ai.chat(prompt, system=SYSTEM)
     return {"answer": "", "sources": []}  # TODO
 
 

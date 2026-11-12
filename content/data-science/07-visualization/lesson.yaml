@@ -44,7 +44,7 @@ steps:
       plt.bar(fruits, counts)
       plt.title("Fruit counts")
     check: |
-      from dojo_checks import first_axes
+      from hoss_checks import first_axes
       ax = first_axes()
       assert ax["bars"] == 3, f"Expected 3 bars, found {ax['bars']}"
       assert ax["title"], "Add a title with plt.title(...)"

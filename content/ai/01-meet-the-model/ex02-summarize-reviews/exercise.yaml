@@ -16,4 +16,4 @@ prompt: |
 hints:
   - 'Number the reviews: [f"{i}. {r}" for i, r in enumerate(reviews, start=1)]'
   - Join the lines with "\n" and put the instruction line first.
-  - One dojo_ai.chat(prompt) call, then return its result.
+  - One hoss_ai.chat(prompt) call, then return its result.

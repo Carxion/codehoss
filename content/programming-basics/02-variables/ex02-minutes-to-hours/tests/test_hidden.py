@@ -1,5 +1,5 @@
 import pytest
-from dojo_checks import run_pseudo
+from hoss_checks import run_pseudo
 
 
 @pytest.mark.parametrize(

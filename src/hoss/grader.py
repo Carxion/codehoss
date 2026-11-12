@@ -1,7 +1,7 @@
 """Runs learner code: free runs, exercise tests, and try-it checks.
 
 Every function takes an executor, so the same grading logic works locally
-(authoring, `dojo validate`) and inside a sandbox container (the API).
+(authoring, `hoss validate`) and inside a sandbox container (the API).
 """
 
 from __future__ import annotations
@@ -13,8 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from dojo.executors import ExecResult, Executor, LocalExecutor, OutputCallback, StdinFeed
-from dojo.registry import LoadedExercise
+from hoss.executors import ExecResult, Executor, LocalExecutor, OutputCallback, StdinFeed
+from hoss.registry import LoadedExercise
 
 PACKAGE_DIR = Path(__file__).parent
 # pytest itself takes a moment to start; don't count that against the learner.
@@ -28,10 +28,10 @@ LOCAL = LocalExecutor()
 # run_program fixture, try-it checks, interactive runs) works unchanged, and tests can
 # read the program's variables and call its functions.
 PSEUDO_MAIN = b"""import sys
-import dojo_pseudo
+import hoss_pseudo
 
-sys.excepthook = dojo_pseudo.excepthook
-globals().update(dojo_pseudo.run_file("main.pseudo"))
+sys.excepthook = hoss_pseudo.excepthook
+globals().update(hoss_pseudo.run_file("main.pseudo"))
 """
 
 
@@ -41,7 +41,7 @@ def program_files(code: str, language: str = "python") -> dict[str, bytes]:
         return {
             "main.py": PSEUDO_MAIN,
             "main.pseudo": code.encode("utf-8"),
-            "dojo_pseudo.py": (PACKAGE_DIR / "_dojo_pseudo.py").read_bytes(),
+            "hoss_pseudo.py": (PACKAGE_DIR / "_hoss_pseudo.py").read_bytes(),
         }
     return {"main.py": code.encode("utf-8")}
 
@@ -136,7 +136,7 @@ def run_tests(
         **program_files(code, language),
         "pytest.ini": b"[pytest]\n",
         "conftest.py": (PACKAGE_DIR / "_grader_conftest.py").read_bytes(),
-        "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
+        "hoss_checks.py": (PACKAGE_DIR / "_hoss_checks.py").read_bytes(),
         **{test_file.name: test_file.read_bytes() for test_file in test_files},
     }
     argv = [
@@ -167,7 +167,7 @@ def grade_lab(exercise: LoadedExercise, lab_dir: str, *, executor: Executor) -> 
     `lab_dir`, the lab's Docker engine). There is no code to upload, only tests."""
     files = {
         "pytest.ini": b"[pytest]\n",
-        "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
+        "hoss_checks.py": (PACKAGE_DIR / "_hoss_checks.py").read_bytes(),
         **{t.name: t.read_bytes() for t in (exercise.visible_tests, exercise.hidden_tests)},
     }
     argv = [
@@ -210,7 +210,7 @@ def run_snippet(
         **program_files(code, language),
         "check.py": check.encode("utf-8"),
         "_tryit_runner.py": (PACKAGE_DIR / "_tryit_runner.py").read_bytes(),
-        "dojo_checks.py": (PACKAGE_DIR / "_dojo_checks.py").read_bytes(),
+        "hoss_checks.py": (PACKAGE_DIR / "_hoss_checks.py").read_bytes(),
     }
     argv = [executor.python, "_tryit_runner.py", "main.py", "check.py"]
     result = executor.execute(files, argv, timeout=timeout)
@@ -223,14 +223,14 @@ def run_snippet(
 
 
 def trace_program(code: str, inputs: list[str], *, executor: Executor = LOCAL) -> dict:
-    """Step-by-step trace of a pseudocode program (see dojo._dojo_pseudo.trace_source)."""
+    """Step-by-step trace of a pseudocode program (see hoss._hoss_pseudo.trace_source)."""
     files = {
         "main.pseudo": code.encode("utf-8"),
-        "dojo_pseudo.py": (PACKAGE_DIR / "_dojo_pseudo.py").read_bytes(),
+        "hoss_pseudo.py": (PACKAGE_DIR / "_hoss_pseudo.py").read_bytes(),
     }
     result = executor.execute(
         files,
-        [executor.python, "dojo_pseudo.py", "--trace", "main.pseudo"],
+        [executor.python, "hoss_pseudo.py", "--trace", "main.pseudo"],
         timeout=TRACE_TIMEOUT_S,
         stdin="".join(f"{line}\n" for line in inputs),
     )

@@ -27,7 +27,7 @@ def test_shape_and_duplicates():
 def test_fast_with_50k():
     import random
 
-    from dojo_checks import assert_fast
+    from hoss_checks import assert_fast
     from main import BST
 
     values = list(range(50_000))

@@ -35,12 +35,12 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, ValidationError
 from starlette.concurrency import run_in_threadpool
 
-from dojo import authoring, grader, lab, skills, tutor
-from dojo.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
-from dojo.executors import StdinFeed
-from dojo.explain import explain_message, explain_traceback
-from dojo.lsp import LanguageServer
-from dojo.models import (
+from hoss import authoring, grader, lab, skills, tutor
+from hoss.ai import ANTHROPIC_MODELS, AIError, AISettings, Gateway
+from hoss.executors import StdinFeed
+from hoss.explain import explain_message, explain_traceback
+from hoss.lsp import LanguageServer
+from hoss.models import (
     LEVELS,
     ExampleStep,
     ExerciseStep,
@@ -50,15 +50,15 @@ from dojo.models import (
     Step,
     TryItStep,
 )
-from dojo.notebook import Kernel
-from dojo.portfolio import export_zip
-from dojo.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, load_content
-from dojo.sandbox import LIBRARY_DIR, SandboxError, Session, SessionManager
-from dojo.store import AuthError, Store, User
+from hoss.notebook import Kernel
+from hoss.portfolio import export_zip
+from hoss.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, load_content
+from hoss.sandbox import LIBRARY_DIR, SandboxError, Session, SessionManager
+from hoss.store import AuthError, Store, User
 
 MAX_CODE = 100_000
 REAP_INTERVAL_S = 30
-COOKIE = "dojo_token"
+COOKIE = "hoss_token"
 # Interactive runs wait for typing, so wall-clock time is generous; CPU time is what
 # stops runaway loops.
 INTERACTIVE_TIMEOUT_S = 300
@@ -161,11 +161,11 @@ def create_app(
     authors: str | None = None,
 ) -> FastAPI:
     """`authors`: usernames allowed in the Studio (comma-separated, * for all); defaults
-    to DOJO_AUTHORS. Nobody can author unless it's set."""
+    to HOSS_AUTHORS. Nobody can author unless it's set."""
     if content is None:
-        content = load_content(Path(os.environ.get("DOJO_CONTENT", "content")).resolve())
+        content = load_content(Path(os.environ.get("HOSS_CONTENT", "content")).resolve())
     sessions = manager or SessionManager(content)
-    db = store or Store(os.environ.get("DOJO_DB", "var/dojo.db"))
+    db = store or Store(os.environ.get("HOSS_DB", "var/hoss.db"))
     ai = gateway or Gateway()
 
     @contextlib.asynccontextmanager
@@ -199,7 +199,7 @@ def create_app(
             raise HTTPException(
                 status.HTTP_403_FORBIDDEN,
                 "The Studio is for authors. Ask whoever runs this CodeHoss to add you to "
-                "DOJO_AUTHORS.",
+                "HOSS_AUTHORS.",
             )
         return user
 
@@ -241,7 +241,7 @@ def create_app(
         return content.modules[session.module_id].spec.language
 
     def review_answer(user: User, module_id: str, ref: str, passed: bool) -> None:
-        """Schedule the step's review card after an answer (see dojo.skills)."""
+        """Schedule the step's review card after an answer (see hoss.skills)."""
         lesson = lesson_or_404(content.modules[module_id], ref.rpartition("/")[0])
         kind = skills.review_kind(lesson, lesson.spec.steps[int(ref.rpartition("/")[2])])
         if kind is None:
@@ -489,7 +489,7 @@ def create_app(
         path = LIBRARY_DIR / f"{module_id}.json"
         if not path.exists():
             raise HTTPException(
-                status.HTTP_404_NOT_FOUND, "library index not built; run `dojo build-images`"
+                status.HTTP_404_NOT_FOUND, "library index not built; run `hoss build-images`"
             )
         return Response(path.read_bytes(), media_type="application/json")
 
@@ -996,7 +996,7 @@ def create_app(
         """Notebook kernel. Started on the first execute; stopped when the socket closes.
 
         Client: {"type": "execute", "cell": <cell id>, "code": ...}, {"type": "interrupt"},
-        {"type": "restart"}. Server: kernel messages (see dojo._kernel), each tagged with
+        {"type": "restart"}. Server: kernel messages (see hoss._kernel), each tagged with
         "cell"; errors also carry "explanation" and "line". Plus {"type": "status", ...}
         and {"type": "dead", "reason": ...}.
         """

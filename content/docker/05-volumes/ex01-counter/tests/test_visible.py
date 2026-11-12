@@ -1,4 +1,4 @@
-from dojo_checks import docker, sh
+from hoss_checks import docker, sh
 
 
 def test_volume_has_three_visits():

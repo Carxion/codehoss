@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_close
+from hoss_checks import assert_close
 from sklearn.linear_model import LinearRegression
 
 HOUSES = pd.read_csv("/data/houses.csv")

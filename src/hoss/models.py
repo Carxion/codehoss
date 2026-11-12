@@ -29,16 +29,16 @@ class Sandbox(_Strict):
     memory: str = Field(default="256m", pattern=r"^\d+[mg]$")
     # Folder (relative to the module) mounted read-only at /data in every session.
     data: str | None = None
-    # The module calls AI models (dojo_ai); the UI shows the AI backend picker.
+    # The module calls AI models (hoss_ai); the UI shows the AI backend picker.
     ai: bool = False
-    # Lab modules get a private Docker engine beside the session (see dojo.lab), a
+    # Lab modules get a private Docker engine beside the session (see hoss.lab), a
     # terminal, and files that live in the session instead of a single main.py.
     lab: Literal["docker", "kubernetes"] | None = None
     # Images copied into the lab's engine at start (labs have no internet to pull).
     lab_images: list[str] = []
 
 
-# What learners write: Python, or Dojo pseudocode (dojo._dojo_pseudo, Programming Basics).
+# What learners write: Python, or Hoss pseudocode (hoss._hoss_pseudo, Programming Basics).
 LANGUAGES = Literal["python", "pseudo"]
 # Languages an example can be shown in (read-only unless it's the module's language).
 EXAMPLE_LANGUAGES = Literal["python", "pseudo", "javascript", "r", "cpp", "csharp"]

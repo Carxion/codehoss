@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import docker, inspect_container
+from hoss_checks import docker, inspect_container
 
 
 def test_backend_is_internal():

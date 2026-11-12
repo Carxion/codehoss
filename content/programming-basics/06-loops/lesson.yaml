@@ -50,7 +50,7 @@ steps:
   solution: "total = 0\nFOR i FROM 1 TO 100 DO\n    total = total + i\nEND FOR\n"
   check: 'assert globals().get("total") == 5050, f"total is {globals().get(''total'')}, should be 5050"
 
-    from dojo_checks import uses_keyword
+    from hoss_checks import uses_keyword
 
     assert uses_keyword("FOR"), "Use a FOR loop to add the numbers up"
 

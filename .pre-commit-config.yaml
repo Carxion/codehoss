@@ -8,9 +8,9 @@ repos:
   - repo: local
     hooks:
       # Structural checks only; the full run (executing solutions) happens in CI.
-      - id: dojo-validate
-        name: dojo validate (structure)
-        entry: uv run dojo validate --no-run
+      - id: hoss-validate
+        name: hoss validate (structure)
+        entry: uv run hoss validate --no-run
         language: system
         pass_filenames: false
         files: ^content/

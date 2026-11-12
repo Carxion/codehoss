@@ -179,7 +179,7 @@ steps:
           for col in range(1, 4):
               line += f"{row * col:4}"
           print(line)
-      for i, ch in enumerate("dojo", start=1):
+      for i, ch in enumerate("hoss", start=1):
           print(i, ch)
   - type: quiz
     question: 'How many times does `print` run in `for a in range(3):` with `for b in range(4): print(a, b)` inside it?'

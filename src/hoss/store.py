@@ -2,7 +2,7 @@
 
 Progress is keyed by (user, module, "<lesson-slug>/<step-index>"), so every kind of
 step (explain, try-it, exercise, quiz) is tracked the same way. Review cards (spaced
-repetition, see dojo.skills) use the same key; the activity log feeds streaks.
+repetition, see hoss.skills) use the same key; the activity log feeds streaks.
 """
 
 from __future__ import annotations
@@ -414,8 +414,8 @@ class Store:
 
 
 def _load_secret(db_path: Path) -> bytes:
-    """Key for encrypting API keys: DOJO_SECRET_KEY, else a key file next to the database."""
-    if env := os.environ.get("DOJO_SECRET_KEY"):
+    """Key for encrypting API keys: HOSS_SECRET_KEY, else a key file next to the database."""
+    if env := os.environ.get("HOSS_SECRET_KEY"):
         return env.encode("ascii")
     key_file = db_path.with_name("secret.key")
     if not key_file.exists():

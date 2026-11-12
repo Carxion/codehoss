@@ -1,4 +1,4 @@
-from dojo_checks import docker
+from hoss_checks import docker
 
 
 def test_pull_back_and_run():

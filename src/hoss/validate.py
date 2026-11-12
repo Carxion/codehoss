@@ -15,12 +15,12 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from importlib import metadata
 
-from dojo import lab
-from dojo.executors import DockerSession, Executor
-from dojo.grader import LOCAL, grade, grade_lab, run_snippet
-from dojo.models import ExerciseStep, TryItStep
-from dojo.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, Problem
-from dojo.tutor import LeakGuard, _norm
+from hoss import lab
+from hoss.executors import DockerSession, Executor
+from hoss.grader import LOCAL, grade, grade_lab, run_snippet
+from hoss.models import ExerciseStep, TryItStep
+from hoss.registry import Content, LoadedExercise, LoadedLesson, LoadedModule, Problem
+from hoss.tutor import LeakGuard, _norm
 
 # Sandboxes share one container per module, whose pids limit caps parallelism.
 SANDBOX_WORKERS = 4

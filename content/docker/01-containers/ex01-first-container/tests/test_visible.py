@@ -1,4 +1,4 @@
-from dojo_checks import docker, inspect_container
+from hoss_checks import docker, inspect_container
 
 
 def test_container_named_hello_exists():

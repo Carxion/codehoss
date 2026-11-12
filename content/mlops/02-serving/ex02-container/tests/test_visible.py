@@ -1,6 +1,6 @@
 import json
 
-from dojo_checks import http_get, inspect_container
+from hoss_checks import http_get, inspect_container
 
 
 def test_serves():

@@ -1,7 +1,7 @@
 import json
 import urllib.request
 
-from dojo_checks import ingress_get, k8s
+from hoss_checks import ingress_get, k8s
 
 
 def predict_through_ingress(values):

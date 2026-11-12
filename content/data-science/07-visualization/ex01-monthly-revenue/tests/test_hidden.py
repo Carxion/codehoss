@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_series_matches, first_axes
+from hoss_checks import assert_series_matches, first_axes
 
 SALES = pd.read_csv("/data/sales.csv")
 SALES["revenue"] = SALES["units"] * SALES["unit_price"]

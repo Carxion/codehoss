@@ -1,4 +1,4 @@
-from dojo_checks import inspect_container
+from hoss_checks import inspect_container
 
 
 def test_ticker_is_running():

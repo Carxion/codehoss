@@ -1,7 +1,7 @@
 # %%
 import re
 
-import dojo_ai
+import hoss_ai
 
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(\.[\w-]+)+")
 PHONE = re.compile(r"\+?\d[\d\s().-]{7,}\d")
@@ -19,7 +19,7 @@ REFUSAL = "Sorry, I can't help with that."
 def safe_chat(prompt):
     if any(phrase in prompt.lower() for phrase in BLOCKED):
         return REFUSAL
-    return dojo_ai.chat(redact(prompt))
+    return hoss_ai.chat(redact(prompt))
 
 
 # %%

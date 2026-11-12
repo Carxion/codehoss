@@ -14,7 +14,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from dojo.models import Exercise, Lesson, Module
+from hoss.models import Exercise, Lesson, Module
 
 
 @dataclass

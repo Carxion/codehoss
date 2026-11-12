@@ -1,11 +1,11 @@
 import pytest
 
-from dojo.store import AuthError, Store
+from hoss.store import AuthError, Store
 
 
 @pytest.fixture
 def store(tmp_path):
-    return Store(tmp_path / "dojo.db")
+    return Store(tmp_path / "hoss.db")
 
 
 def test_register_login_and_tokens(store):

@@ -1,5 +1,5 @@
 import pandas as pd
-from dojo_checks import assert_close
+from hoss_checks import assert_close
 
 H = pd.read_csv("/data/houses.csv")
 H["price_per_sqft"] = (H["price"] / H["size_sqft"]).round(2)

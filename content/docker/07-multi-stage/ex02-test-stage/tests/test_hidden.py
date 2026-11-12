@@ -2,7 +2,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from dojo_checks import docker, lab_dir, sh
+from hoss_checks import docker, lab_dir, sh
 
 
 def test_no_tests_in_final_image():

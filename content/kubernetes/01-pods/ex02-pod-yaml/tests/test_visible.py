@@ -1,4 +1,4 @@
-from dojo_checks import k8s, wait_until
+from hoss_checks import k8s, wait_until
 
 
 def test_web_is_running():

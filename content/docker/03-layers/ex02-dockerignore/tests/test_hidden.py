@@ -1,4 +1,4 @@
-from dojo_checks import docker, lab_file
+from hoss_checks import docker, lab_file
 
 
 def test_app_still_there():
