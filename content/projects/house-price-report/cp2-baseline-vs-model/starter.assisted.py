@@ -22,6 +22,7 @@ def explore(df):
 explore(houses)
 
 
+# %%
 def evaluate(df, features):
     """Split (0.2, random_state=42); {"baseline_mae": train-mean guess, "model_mae": LinearRegression}."""
     raise NotImplementedError

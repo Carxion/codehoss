@@ -32,6 +32,7 @@ CHUNKS = chunk_documents(load_documents("/data/handbook"))
 len(CHUNKS), CHUNKS[0]
 
 
+# %%
 def retrieve(question, chunks, k=3):
     """Top-k chunk dicts by cosine similarity, one embed call."""
     raise NotImplementedError

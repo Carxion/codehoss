@@ -74,7 +74,14 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex, review = f
       if (forLevel === "solo") return previousSubmission(s.index) ?? s.exercise.starters.solo ?? s.exercise.starter;
       return s.exercise.starters[forLevel] ?? s.exercise.starter;
     }
+    // A project's reading steps (e.g. "Capstone complete") show the project so far.
+    if (s.type === "explain" && lesson?.project) return previousSubmission(s.index);
     return defaultCode(s);
+  };
+  /** The starter of the checkpoint before step i, for a project step reached with an empty notebook. */
+  const previousStarter = (i: number): string | null => {
+    const before = lesson?.steps.slice(0, i).reverse().find((s) => s.type === "exercise");
+    return before ? startingCode(before) : null;
   };
   const step: Step | undefined = lesson?.steps[index];
   const progress = (i: number) => lesson?.progress[String(i)] ?? BLANK_PROGRESS;
@@ -122,9 +129,12 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex, review = f
       if (showingSolution) setShowingSolution(false);
       const fallback = startingCode(step);
       // In review the step starts fresh: last time's answer would give it away.
-      const code = (review ? null : loadDraft(draftKey(moduleId, lessonSlug, step))) ?? fallback;
+      const code = (review ? null : loadDraft(draftKey(moduleId, lessonSlug, step, !!lesson?.project))) ?? fallback;
       if (code !== null) ws.restore(code);
-      else if (!ws.getCode().trim()) ws.restore(notebook ? "" : PLAYGROUND);
+      else if (isBlank(ws.getCode())) {
+        const project = lesson.project ? previousStarter(index) : null;
+        ws.restore(project ?? (notebook ? "" : PLAYGROUND));
+      }
       ws.reset();
       ws.setFocusNames(focusNamesFor(step));
     }
@@ -137,9 +147,9 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex, review = f
   const onCodeChange = useCallback(
     (code: string) => {
       if (!step || showingSolution || review) return;
-      saveDraft(draftKey(moduleId, lessonSlug, step), code);
+      saveDraft(draftKey(moduleId, lessonSlug, step, !!lesson?.project), code);
     },
-    [step, showingSolution, moduleId, lessonSlug, review],
+    [step, showingSolution, moduleId, lessonSlug, review, lesson?.project],
   );
   const onReady = useCallback(() => setWorkspaceReady(true), []);
 
@@ -159,7 +169,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex, review = f
 
   function resetCode() {
     if (!step || !workspace.current) return;
-    clearDraft(draftKey(moduleId, lessonSlug, step));
+    clearDraft(draftKey(moduleId, lessonSlug, step, !!lesson?.project));
     workspace.current.restore(startingCode(step) ?? (notebook ? "" : PLAYGROUND));
   }
 
@@ -168,7 +178,7 @@ export default function LessonView({ moduleId, lessonSlug, stepIndex, review = f
     await api.setLevel(moduleId, lessonSlug, next);
     setLesson((l) => l && l.project && { ...l, project: { ...l.project, level: next } });
     // Swap in the new level's starter, but never over code the learner has written.
-    if (step && !showingSolution && workspace.current && loadDraft(draftKey(moduleId, lessonSlug, step)) === null) {
+    if (step && !showingSolution && workspace.current && loadDraft(draftKey(moduleId, lessonSlug, step, !!lesson?.project)) === null) {
       const code = startingCode(step, next);
       if (code !== null) workspace.current.restore(code);
     }
@@ -795,16 +805,23 @@ function focusNamesFor(step: Step): Set<string> {
   return names;
 }
 
-function draftKey(moduleId: string, lessonSlug: string, step: Step) {
-  return defaultCode(step) === null
+function draftKey(moduleId: string, lessonSlug: string, step: Step, project: boolean) {
+  // A project's reading steps keep their own copy of the project, not the shared playground.
+  return defaultCode(step) === null && !(project && step.type === "explain")
     ? `hoss:draft:${moduleId}/playground`
     : `hoss:draft:${moduleId}/${lessonSlug}/${step.index}`;
+}
+
+/** No code at all: empty, or only notebook cell markers. */
+function isBlank(code: string) {
+  return !code.replace(/^# %%.*$/gm, "").trim();
 }
 
 // Drafts are a per-browser convenience; storage can be unavailable (private mode etc.).
 function loadDraft(key: string): string | null {
   try {
-    return localStorage.getItem(key);
+    const code = localStorage.getItem(key);
+    return code === null || isBlank(code) ? null : code; // an empty draft is no draft
   } catch {
     return null;
   }

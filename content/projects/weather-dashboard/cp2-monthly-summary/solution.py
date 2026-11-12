@@ -15,6 +15,7 @@ weather = load_weather("/data/weather.csv")
 weather.head()
 
 
+# %%
 def monthly_summary(df):
     df = df.assign(month=df["date"].dt.month)
     summary = df.groupby(["city", "month"]).agg(

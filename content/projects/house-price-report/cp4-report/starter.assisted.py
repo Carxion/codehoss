@@ -22,6 +22,7 @@ def explore(df):
 explore(houses)
 
 
+# %%
 def evaluate(df, features):
     train, test = train_test_split(df, test_size=0.2, random_state=42)
     baseline = [train["price"].mean()] * len(test)
@@ -36,6 +37,7 @@ def evaluate(df, features):
 evaluate(houses, FEATURES)
 
 
+# %%
 def add_features(df):
     df = df.copy()
     df["is_new"] = (df["age_years"] < 10).astype(int)
@@ -49,6 +51,7 @@ ENGINEERED = FEATURES + ["is_new", "size_per_bedroom"]
 evaluate(houses, FEATURES), evaluate(add_features(houses), ENGINEERED)
 
 
+# %%
 def report(df):
     """Markdown report: heading + houses, typical price, driver, both errors, improvement %."""
     raise NotImplementedError

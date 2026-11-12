@@ -22,6 +22,7 @@ def explore(df):
 explore(houses)
 
 
+# %%
 def evaluate(df, features):
     train, test = train_test_split(df, test_size=0.2, random_state=42)
     baseline = [train["price"].mean()] * len(test)
@@ -36,6 +37,7 @@ def evaluate(df, features):
 evaluate(houses, FEATURES)
 
 
+# %%
 def add_features(df):
     """Copy of df plus is_new (age < 10 as 1/0) and size_per_bedroom."""
     raise NotImplementedError

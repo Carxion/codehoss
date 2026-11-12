@@ -18,6 +18,7 @@ X_train, X_test, y_train, y_test = split_digits()
 X_train.shape, X_test.shape
 
 
+# %%
 def baseline_accuracy(y_train, y_test):
     guess = np.bincount(y_train).argmax()
     return float((y_test == guess).mean())

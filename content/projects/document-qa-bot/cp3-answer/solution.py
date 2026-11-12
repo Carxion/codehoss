@@ -32,6 +32,7 @@ CHUNKS = chunk_documents(load_documents("/data/handbook"))
 len(CHUNKS), CHUNKS[0]
 
 
+# %%
 def retrieve(question, chunks, k=3):
     query, *vectors = hoss_ai.embed([question] + [c["text"] for c in chunks])
     ranked = sorted(
@@ -46,6 +47,7 @@ def retrieve(question, chunks, k=3):
 [c["source"] for c in retrieve("How long is the warranty on batteries?", CHUNKS)]
 
 
+# %%
 def answer(question, chunks, k=3):
     top = retrieve(question, chunks, k)
     context = "\n\n".join(f"[{c['source']}] {c['text']}" for c in top)

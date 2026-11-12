@@ -17,6 +17,7 @@ features = build_features(movies)
 features.head()
 
 
+# %%
 def similarity(features, a, b):
     x, y = features.loc[a].to_numpy(dtype=float), features.loc[b].to_numpy(dtype=float)
     # TODO: return the cosine similarity of x and y

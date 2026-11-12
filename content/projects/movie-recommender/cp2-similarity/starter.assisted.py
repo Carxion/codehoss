@@ -17,6 +17,7 @@ features = build_features(movies)
 features.head()
 
 
+# %%
 def similarity(features, a, b):
     """Cosine similarity of the rows for titles a and b."""
     raise NotImplementedError

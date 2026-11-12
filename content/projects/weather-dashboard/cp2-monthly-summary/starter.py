@@ -15,6 +15,7 @@ weather = load_weather("/data/weather.csv")
 weather.head()
 
 
+# %%
 def monthly_summary(df):
     df = df.assign(month=df["date"].dt.month)
     # TODO: group by city and month; average temp_mean_c and total precip_mm

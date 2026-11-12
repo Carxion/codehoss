@@ -18,6 +18,7 @@ X_train, X_test, y_train, y_test = split_digits()
 X_train.shape, X_test.shape
 
 
+# %%
 def baseline_accuracy(y_train, y_test):
     guess = 0  # TODO: the most common digit in y_train
     return 0.0  # TODO: share of y_test equal to guess

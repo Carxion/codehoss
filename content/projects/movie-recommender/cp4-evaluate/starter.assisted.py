@@ -17,6 +17,7 @@ features = build_features(movies)
 features.head()
 
 
+# %%
 def similarity(features, a, b):
     x, y = features.loc[a].to_numpy(dtype=float), features.loc[b].to_numpy(dtype=float)
     return float(np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y)))
@@ -27,6 +28,7 @@ first, second = features.index[:2]
 similarity(features, first, first), similarity(features, first, second)
 
 
+# %%
 def recommend(features, title, k=5):
     scores = [(similarity(features, title, other), other) for other in features.index if other != title]
     scores.sort(key=lambda pair: (-pair[0], pair[1]))
@@ -37,6 +39,7 @@ def recommend(features, title, k=5):
 recommend(features, features.index[0])
 
 
+# %%
 def genre_precision(movies, features, k=5):
     """Average share of same-genre recommendations across all movies (3 decimals)."""
     raise NotImplementedError

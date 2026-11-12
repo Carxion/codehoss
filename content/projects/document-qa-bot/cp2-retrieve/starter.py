@@ -32,6 +32,7 @@ CHUNKS = chunk_documents(load_documents("/data/handbook"))
 len(CHUNKS), CHUNKS[0]
 
 
+# %%
 def retrieve(question, chunks, k=3):
     query, *vectors = hoss_ai.embed([question] + [c["text"] for c in chunks])
     # TODO: rank the chunks by cosine similarity to query, best first; return the top k

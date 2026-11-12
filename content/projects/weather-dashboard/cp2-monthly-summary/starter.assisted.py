@@ -15,6 +15,7 @@ weather = load_weather("/data/weather.csv")
 weather.head()
 
 
+# %%
 def monthly_summary(df):
     """Columns city, month, avg_temp_c, total_precip_mm (1 decimal), sorted, index reset."""
     raise NotImplementedError
